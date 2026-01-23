@@ -1,0 +1,12 @@
+{
+  "extends": "@repo/typescript-config/react-library.json",
+  "include": ["src", "vite.config.ts", "tailwind.config.js", "postcss.config.js", ".eslintrc.js"],
+  "compilerOptions": {
+    "allowJs": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
