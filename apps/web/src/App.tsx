@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
+import LandingPage from './features/landing/pages/LandingPage';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import { RegisterPage } from './features/auth/pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { AdminDashboardPage } from './pages/AdminDashboardPage';
-import { AdminUserDetailPage } from './pages/AdminUserDetailPage';
+import { AdminDashboardPage } from './features/admin/pages/AdminDashboardPage';
+import { AdminUserDetailPage } from './features/admin/pages/AdminUserDetailPage';
 import { PortalLayout } from './components/layout/PortalLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { StoresPage } from './features/store/pages/StoresPage';
@@ -14,15 +14,15 @@ import { StaffDashboardPage } from './features/staff/pages/StaffDashboardPage';
 import { StaffProtectedRoute } from './features/staff/components/StaffProtectedRoute';
 import { StoreLayout } from './components/layout/StoreLayout';
 
-import { SettingsPage } from './pages/SettingsPage';
-import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './features/settings/pages/SettingsPage'; // Keeping Settings in pages for now or move to common/settings
+import { ProfilePage } from './features/users/pages/ProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
-import { StoreDashboard } from './pages/stores/StoreDashboard';
-import { StaffList } from './pages/staff/StaffList';
-import { ShopPage } from './pages/shops/ShopPage';
-import { CustomerPage } from './pages/customers/CustomerPage';
-import { ProductPage } from './pages/products/ProductPage';
-import { VehiclePage } from './pages/vehicles/VehiclePage';
+import { StoreDashboard } from './features/store/pages/StoreDashboard';
+import { ShopPage } from './features/shop/pages/ShopPage';
+import { CustomerPage } from './features/customer/pages/CustomerPage';
+import { VehiclePage } from './features/vehicle/pages/VehiclePage';
+import { InventoryPage } from './features/inventory/pages/InventoryPage';
+import { BrandPage } from './features/brand/pages/BrandPage';
 
 import { Toaster } from 'sonner';
 
@@ -44,8 +44,8 @@ function App() {
            <Route path="dashboard" element={<StoreDashboard />} />
            <Route path="shops" element={<ShopPage />} />
            <Route path="customers" element={<CustomerPage />} />
-           <Route path="products" element={<ProductPage />} />
            <Route path="vehicles" element={<VehiclePage />} />
+           <Route path="inventory" element={<InventoryPage />} />
            <Route path="staff" element={<StoreStaffPage />} />
            <Route path="settings" element={<div>Store Settings (Coming Soon)</div>} />
         </Route>
@@ -59,6 +59,7 @@ function App() {
         {/* Admin Routes with Layout */}
         <Route path="/admin" element={<AdminLayout><AdminDashboardPage /></AdminLayout>} />
         <Route path="/admin/users/:id" element={<AdminLayout><AdminUserDetailPage /></AdminLayout>} />
+        <Route path="/admin/brands" element={<AdminLayout><BrandPage /></AdminLayout>} />
         <Route path="/admin/profile" element={<AdminLayout><ProfilePage /></AdminLayout>} />
         <Route path="/admin/settings" element={<AdminLayout><SettingsPage /></AdminLayout>} />
 

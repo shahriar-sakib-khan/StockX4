@@ -54,3 +54,23 @@ export const useDeleteProduct = () => {
         }
     });
 };
+
+export const useUpdateProduct = () => {
+    const queryClient = useQueryClient();
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useMutation({
+        mutationFn: async ({ productId, data }: { productId: string; data: Partial<ProductInput> }) => {
+            return api.patch(`products/${productId}`, {
+                json: data,
+                headers: { 'x-store-id': storeId }
+            }).json();
+        },
+        onSuccess: () => {
+             queryClient.invalidateQueries({ queryKey: ['products', storeId] });
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Failed to update product');
+        }
+    });
+};

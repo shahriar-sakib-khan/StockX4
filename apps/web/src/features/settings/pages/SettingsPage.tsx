@@ -1,10 +1,10 @@
-import { useAuthStore } from '../features/auth/stores/auth.store';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { ConfirmDialog } from '../components/ui/ConfirmDialog';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 export const SettingsPage = () => {
   const { user } = useAuthStore();

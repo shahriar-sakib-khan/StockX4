@@ -1,13 +1,13 @@
-import { useAuthStore } from '../features/auth/stores/auth.store';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useUsers } from '../features/users/hooks/useUsers';
+import { useUsers } from '@/features/users/hooks/useUsers';
 import { Shield, User as UserIcon, Trash2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
-import { ConfirmDialog } from '../components/ui/ConfirmDialog';
-import { Button } from '../components/ui/button';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Button } from '@/components/ui/button';
 
 export const AdminDashboardPage = () => {
   const { user } = useAuthStore();

@@ -36,10 +36,16 @@ export class StaffController {
    static async list(req: Request, res: Response) {
     try {
         const { storeId } = req.params;
-        const userId = (req as any).user!.userId;
+        const user = (req as any).user;
+        const userId = user!.userId;
 
-        // Verify ownership
-        await StoreService.findOne(storeId, userId);
+        // Verify ownership OR Manager access
+        if (user.role === 'manager' && user.storeId === storeId) {
+            // Authorized by role
+        } else {
+             // Verify ownership
+             await StoreService.findOne(storeId, userId);
+        }
 
         const staff = await StaffService.findByStore(storeId);
         return res.status(200).json({ staff });

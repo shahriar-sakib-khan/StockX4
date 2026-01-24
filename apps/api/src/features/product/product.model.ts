@@ -15,6 +15,10 @@ const productSchema = new Schema<IProduct>(
     brand: { type: String },
     description: { type: String },
 
+    modelNumber: { type: String },
+    burnerCount: { type: String, enum: ['single', 'double'] },
+    size: { type: String, enum: ['22mm', '20mm'] },
+
     stock: { type: Number, default: 0, min: 0 },
     lowStockAlert: { type: Number, default: 5, min: 0 },
 

@@ -27,7 +27,7 @@ export class StoreService {
   static async findOne(storeId: string, ownerId: string) {
     const store = await StoreModel.findOne({ _id: storeId, ownerId });
     if (!store) {
-      throw new Error('StoreModel not found'); // Handled by controller or global error handler
+      throw new Error('Store not found'); // Handled by controller or global error handler
     }
     return store;
   }
@@ -39,7 +39,7 @@ export class StoreService {
       { new: true }
     );
     if (!store) {
-      throw new Error('StoreModel not found');
+      throw new Error('Store not found');
     }
     return store;
   }
@@ -47,7 +47,7 @@ export class StoreService {
   static async delete(storeId: string, ownerId: string) {
     const result = await StoreModel.deleteOne({ _id: storeId, ownerId });
     if (result.deletedCount === 0) {
-      throw new Error('StoreModel not found');
+      throw new Error('Store not found');
     }
     return true;
   }

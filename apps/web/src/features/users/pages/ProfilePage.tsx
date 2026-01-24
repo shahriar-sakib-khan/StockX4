@@ -1,7 +1,7 @@
 
-import { useAuthStore } from '../features/auth/stores/auth.store';
-import { useAuth } from '../features/auth/hooks/useAuth';
-import { Avatar } from '../components/ui/Avatar';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { Avatar } from '@/components/ui/Avatar';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';

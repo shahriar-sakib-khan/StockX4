@@ -77,7 +77,7 @@ describe('Staff Feature (Integration)', () => {
     });
 
     describe('POST /stores/:storeId/staff', () => {
-        it('should create staff in a store', async () => {
+        it('should create staff in a store with image', async () => {
             const res = await request(app)
                 .post(`/stores/${storeAId}/staff`)
                 .set('x-mock-user-id', OWNER_ID)
@@ -85,7 +85,8 @@ describe('Staff Feature (Integration)', () => {
                     name: 'Alice',
                     staffId: '001',
                     password: 'password123',
-                    role: 'manager'
+                    role: 'manager',
+                    image: 'https://cloudinary.com/fake-image.jpg'
                 });
 
             expect(res.status).toBe(201);
@@ -93,10 +94,25 @@ describe('Staff Feature (Integration)', () => {
                 name: 'Alice',
                 staffId: '001',
                 storeId: storeAId,
-                role: 'manager'
+                role: 'manager',
+                image: 'https://cloudinary.com/fake-image.jpg'
             });
             // Password should not be returned
             expect(res.body.staff.passwordHash).toBeUndefined();
+        });
+
+        it('should fail creation with invalid role', async () => {
+            const res = await request(app)
+                .post(`/stores/${storeAId}/staff`)
+                .set('x-mock-user-id', OWNER_ID)
+                .send({
+                    name: 'Bad Role',
+                    staffId: '003',
+                    password: 'password123',
+                    role: 'superadmin' // Invalid
+                });
+
+            expect(res.status).toBe(400);
         });
 
         it('should enforce scoped uniqueness (same ID allowed in different stores)', async () => {

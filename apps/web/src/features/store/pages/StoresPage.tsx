@@ -1,13 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PortalLayout } from '@/components/layout/PortalLayout';
 import { StoreList } from '../components/StoreList';
 import { CreateStoreModal } from '../components/CreateStoreModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { useStaffStore } from '@/features/staff/stores/staff.store';
+import { useNavigate } from 'react-router-dom';
 
 export const StoresPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { staff, isAuthenticated: isStaffAuth } = useStaffStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If logged in as Manager, redirect to their store immediately
+    // They shouldn't see the "My Stores" list which is for Owners
+    if (isStaffAuth && staff?.role === 'manager' && staff?.storeId) {
+        navigate(`/stores/${staff.storeId}`);
+    }
+  }, [isStaffAuth, staff, navigate]);
+
+  if (isStaffAuth && staff?.role === 'manager') return null; // Avoid flash
 
   return (
     <PortalLayout>

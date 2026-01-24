@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/stores/auth.store';
 import { useAuth } from '../../features/auth/hooks/useAuth';
-import { LayoutDashboard, Settings, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, Shield, Tags } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/button';
 
@@ -23,6 +23,7 @@ export const AdminLayout = ({ children }: LayoutProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Admin Dashboard', path: '/admin' },
+    { icon: Tags, label: 'Global Brands', path: '/admin/brands' },
   ];
 
   return (

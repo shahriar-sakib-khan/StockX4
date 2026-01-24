@@ -7,5 +7,5 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   noExternal: ['@repo/shared'], // Bundle shared package
-  onSuccess: 'node dist/index.js',
+
 });

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useUsers, User } from '../features/users/hooks/useUsers';
-import { Avatar } from '../components/ui/Avatar';
-import { Button } from '../components/ui/button';
+import { useUsers, User } from '@/features/users/hooks/useUsers';
+import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, Mail, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 

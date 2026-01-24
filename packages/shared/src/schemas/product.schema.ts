@@ -8,13 +8,19 @@ export const productSchema = z.object({
   brand: z.string().optional(),
   description: z.string().optional(),
 
+  // Specific Attributes
+  modelNumber: z.string().optional(),
+  burnerCount: z.enum(['single', 'double']).optional(), // For stoves
+  size: z.enum(['20mm', '22mm']).optional(), // For regulators
+
   // Inventory
   stock: z.number().int().min(0).default(0),
+  damaged: z.number().int().min(0).default(0),
   lowStockAlert: z.number().int().min(0).default(5),
 
   // Pricing
-  costPrice: z.number().min(0, "Cost price must be positive"), // Buying price (for profit calc)
-  sellingPrice: z.number().min(0, "Selling price must be positive"), // Retail price
+  costPrice: z.number().min(0, "Cost price must be positive").default(0), // Buying price (for profit calc)
+  sellingPrice: z.number().min(0, "Selling price must be positive").default(0), // Retail price
 });
 
 export type ProductInput = z.infer<typeof productSchema>;

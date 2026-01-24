@@ -1,11 +1,10 @@
 import { Schema, model, Document, Types } from 'mongoose';
+import { StaffRole, CreateStaffInput } from '@repo/shared';
+import { z } from 'zod';
 
-export interface IStaff extends Document {
+export interface IStaff extends Omit<CreateStaffInput, 'password'>, Document {
   storeId: Types.ObjectId;
-  name: string;
-  staffId: string;
   passwordHash: string;
-  role: 'manager' | 'cashier' | 'staff' | 'driver';
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -17,7 +16,8 @@ const staffSchema = new Schema<IStaff>(
     name: { type: String, required: true },
     staffId: { type: String, required: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ['manager', 'cashier', 'staff', 'driver'], default: 'staff' },
+    role: { type: String, enum: StaffRole.options, default: 'staff' },
+    image: { type: String },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

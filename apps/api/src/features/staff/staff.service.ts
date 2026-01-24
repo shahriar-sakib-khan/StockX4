@@ -18,6 +18,7 @@ export class StaffService {
       staffId: data.staffId,
       passwordHash,
       role: data.role,
+      image: data.image,
     });
 
     // Don't return passwordHash

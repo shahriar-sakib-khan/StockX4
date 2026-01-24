@@ -7,9 +7,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, className }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div
         ref={modalRef}
-        className="bg-white text-card-foreground border border-border rounded-xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+        className={`bg-white text-card-foreground border border-border rounded-xl w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200 ${className || 'max-w-md'}`}
         role="dialog"
         aria-modal="true"
       >

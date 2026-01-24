@@ -2,9 +2,10 @@ import { useCreateStaff } from '../hooks/useStaff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/Modal';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createStaffSchema, CreateStaffInput } from '@repo/shared';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 interface AddStaffModalProps {
   storeId: string;
@@ -13,7 +14,7 @@ interface AddStaffModalProps {
 
 export const AddStaffModal = ({ storeId, onClose }: AddStaffModalProps) => {
   const createStaff = useCreateStaff();
-  const { register, handleSubmit, formState: { errors } } = useForm<CreateStaffInput>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreateStaffInput>({
     resolver: zodResolver(createStaffSchema),
     defaultValues: {
         role: 'staff'
@@ -71,11 +72,25 @@ export const AddStaffModal = ({ storeId, onClose }: AddStaffModalProps) => {
               className="w-full bg-background border border-border rounded-md p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
                 <option value="staff">Staff</option>
-                <option value="cashier">Cashier</option>
                 <option value="manager">Manager</option>
-                <option value="driver">Driver</option>
             </select>
              {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Profile Image (Optional)</label>
+             <Controller
+                control={control}
+                name="image"
+                render={({ field }) => (
+                     <ImageUpload
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        disabled={createStaff.isPending}
+                    />
+                )}
+             />
+             {errors.image && <p className="text-destructive text-xs">{errors.image.message}</p>}
           </div>
 
           <Button

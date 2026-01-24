@@ -35,7 +35,13 @@ export const StaffLoginPage = () => {
       setAuth(res.staff, res.accessToken);
 
       toast.success(`Welcome, ${res.staff.name}!`);
-      navigate('/pos');
+
+      if (res.staff.role === 'manager') {
+        const storeId = typeof res.staff.storeId === 'object' ? res.staff.storeId._id : res.staff.storeId;
+        navigate(`/stores/${storeId}`);
+      } else {
+        navigate('/pos');
+      }
     } catch (error: any) {
       console.error('Login failed', error);
       const message = await error.response?.json().then((d: any) => d.error).catch(() => 'Invalid credentials');

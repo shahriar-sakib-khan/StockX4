@@ -3,11 +3,12 @@ import { useUpdateStaff } from '../hooks/useStaff';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/Modal';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { updateStaffSchema, UpdateStaffInput } from '@repo/shared';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 interface EditStaffModalProps {
   storeId: string;
@@ -17,12 +18,13 @@ interface EditStaffModalProps {
 
 export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps) => {
   const updateStaff = useUpdateStaff();
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateStaffInput>({
+  const { register, handleSubmit, formState: { errors }, reset, control } = useForm<UpdateStaffInput>({
     resolver: zodResolver(updateStaffSchema),
     defaultValues: {
         name: staff.name,
         role: staff.role,
         isActive: staff.isActive,
+        image: staff.image || '',
     }
   });
 
@@ -33,6 +35,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
         name: staff.name,
         role: staff.role,
         isActive: staff.isActive,
+        image: staff.image || '',
     });
   }, [staff, reset]);
 
@@ -72,11 +75,25 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
               className="w-full bg-background border border-border rounded-md p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
                 <option value="staff">Staff</option>
-                <option value="cashier">Cashier</option>
                 <option value="manager">Manager</option>
-                <option value="driver">Driver</option>
             </select>
              {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Profile Image (Optional)</label>
+             <Controller
+                control={control}
+                name="image"
+                render={({ field }) => (
+                    <ImageUpload
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        disabled={updateStaff.isPending}
+                    />
+                )}
+             />
+             {errors.image && <p className="text-destructive text-xs">{errors.image.message}</p>}
           </div>
 
           <div className="space-y-2 border-t border-border pt-4 mt-4">
