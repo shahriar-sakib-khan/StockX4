@@ -65,8 +65,6 @@ const InventoryRowComponent = ({ item, storeId, onBuy, onSell }: InventoryRowPro
                 <InventoryPriceCell price={prices.fullCylinder} />
                 <InventoryPriceCell price={prices.gasOnly} />
 
-                <InventoryCell></InventoryCell>
-
                 <InventoryCell>
                     <div className="flex items-center justify-end gap-2">
                         <Button
@@ -299,8 +297,7 @@ export const InventoryTable = ({ storeId, inventory, onAddToCart }: { storeId: s
                                 <InventoryHeadCell width="w-[8%]" align="center" className="text-destructive">Defected</InventoryHeadCell>
                                 <InventoryHeadCell width="w-[12%]" align="right">Full Price</InventoryHeadCell>
                                 <InventoryHeadCell width="w-[12%]" align="right">Refill Price</InventoryHeadCell>
-                                <InventoryHeadCell width="w-[15%]">Actions</InventoryHeadCell>
-                                <InventoryHeadCell width="w-[5%]"></InventoryHeadCell>
+                                <InventoryHeadCell width="w-[20%]" align="right">Actions</InventoryHeadCell>
                             </InventoryTableHeader>
                             <TableBody>
                                 {items.map((item: any) => (

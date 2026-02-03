@@ -6,6 +6,7 @@ import { InvoiceModal } from "@/features/cylinder/components/InvoiceModal";
 import { ShoppingCart } from "lucide-react";
 import { CylindersContent } from "@/features/cylinder/components/CylindersContent";
 import { ProductsContent } from "@/features/product/components/ProductsContent";
+import { AccessoriesContent } from "@/features/inventory/components/AccessoriesContent";
 import { CartSidebar } from "@/features/inventory/components/CartSidebar";
 
 export interface CartItem {
@@ -38,7 +39,7 @@ export const InventoryPage = () => {
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-    const handleAddToCart = (item: any, quantity: number, purchaseType: 'refill' | 'package', totalAmount: number, unitPrice: number) => {
+    const handleAddToCart = (item: any, quantity: number, purchaseType: 'refill' | 'package' | 'product', totalAmount: number, unitPrice: number) => {
         const newItem: CartItem = {
             id: Math.random().toString(36).substr(2, 9),
             item,
@@ -77,9 +78,9 @@ export const InventoryPage = () => {
             case 'cylinders':
                 return <CylindersContent storeId={effectiveStoreId!} onAddToCart={handleAddToCart} />;
             case 'stoves':
-                return <ProductsContent storeId={effectiveStoreId!} type="stove" title="Gas Stoves" onAddToCart={handleAddProductToCart} />;
+                return <AccessoriesContent storeId={effectiveStoreId!} type="stove" title="Gas Stoves" onAddToCart={handleAddToCart} />;
             case 'regulators':
-                return <ProductsContent storeId={effectiveStoreId!} type="regulator" title="Regulators" onAddToCart={handleAddProductToCart} />;
+                return <AccessoriesContent storeId={effectiveStoreId!} type="regulator" title="Regulators" onAddToCart={handleAddToCart} />;
             default:
                 return null;
         }

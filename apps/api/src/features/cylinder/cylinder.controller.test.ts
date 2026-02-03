@@ -62,8 +62,8 @@ describe('Cylinder Feature', () => {
                     color20mm: '#FF0000',
                     color22mm: '#00FF00',
                     variants: [
-                        { size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } },
-                        { size: '35kg', regulator: '22mm', price: { full: 2000, gas: 1500 } }
+                        { size: '12kg', regulator: '20mm' },
+                        { size: '35kg', regulator: '22mm' }
                     ]
                 });
 
@@ -77,7 +77,7 @@ describe('Cylinder Feature', () => {
                 name: 'Bashundhara',
                 color20mm: '#FF0000',
                 color22mm: '#00FF00',
-                variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+                variants: [{ size: '12kg', regulator: '20mm' }]
             });
 
             const res = await request(app)
@@ -87,7 +87,7 @@ describe('Cylinder Feature', () => {
                     name: 'Bashundhara',
                     color20mm: '#FF0000',
                     color22mm: '#00FF00',
-                    variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+                    variants: [{ size: '12kg', regulator: '20mm' }]
                 });
 
             expect(res.status).toBe(409);
@@ -103,8 +103,8 @@ describe('Cylinder Feature', () => {
                 color20mm: '#FF0000',
                 color22mm: '#00FF00',
                 variants: [
-                    { size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } },
-                    { size: '35kg', regulator: '22mm', price: { full: 2000, gas: 1500 } }
+                    { size: '12kg', regulator: '20mm' },
+                    { size: '35kg', regulator: '22mm' }
                 ]
             });
             globalBrandId = brand._id.toString();
@@ -144,7 +144,7 @@ describe('Cylinder Feature', () => {
                 name: 'Bashundhara',
                 color20mm: '#FF0000',
                 color22mm: '#00FF00',
-                variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+                variants: [{ size: '12kg', regulator: '20mm' }]
             });
             const items = await CylinderService.addBrandToStore(storeId, brand._id.toString());
             inventoryId = items[0]._id.toString();

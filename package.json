@@ -9,7 +9,10 @@
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "db:drop": "pnpm --filter api db:drop",
-    "seed:brands": "pnpm --filter api seed:brands"
+    "db:reset": "pnpm db:drop && pnpm seed:users && pnpm seed:brands && pnpm seed:store",
+    "seed:brands": "pnpm --filter api seed:brands",
+    "seed:store": "pnpm --filter api seed:store",
+    "seed:users": "pnpm --filter api seed:users"
   },
   "devDependencies": {
     "@types/node": "^20.11.16",

@@ -4,12 +4,14 @@ import { ShopInput, shopSchema } from '@repo/shared';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
 
-export const useShops = () => {
-    const { id: storeId } = useParams<{ id: string }>();
+export const useShops = (storeIdOverride?: string) => {
+    const { id } = useParams<{ id: string }>();
+    const storeId = storeIdOverride || id;
 
     return useQuery({
         queryKey: ['shops', storeId],
         queryFn: async () => {
+            if (!storeId) return [];
             const res = await api.get('shops', { headers: { 'x-store-id': storeId } }).json<{ shops: any[] }>();
             return res.shops;
         },

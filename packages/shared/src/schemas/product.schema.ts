@@ -7,15 +7,16 @@ export const productSchema = z.object({
   type: ProductType,
   brand: z.string().optional(),
   description: z.string().optional(),
+  image: z.string().optional(), // Cloudinary URL
 
   // Specific Attributes
   modelNumber: z.string().optional(),
-  burnerCount: z.enum(['single', 'double']).optional(), // For stoves
+  burnerCount: z.enum(['1', '2', '3', '4']).optional(), // For stoves
   size: z.enum(['20mm', '22mm']).optional(), // For regulators
 
   // Inventory
   stock: z.number().int().min(0).default(0),
-  damaged: z.number().int().min(0).default(0),
+  damagedStock: z.number().int().min(0).default(0),
   lowStockAlert: z.number().int().min(0).default(5),
 
   // Pricing

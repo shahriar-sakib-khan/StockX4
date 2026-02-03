@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams, Outlet } from 'react-router-
 import { useAuthStore } from '../../features/auth/stores/auth.store';
 import { useAuth } from '../../features/auth/hooks/useAuth';
 import { useStaffStore } from '../../features/staff/stores/staff.store';
-import { LayoutDashboard, Settings, LogOut, ArrowLeft, Package, Users, ShoppingCart, Store, Truck, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, ArrowLeft, Package, Users, ShoppingCart, Store, Truck, Menu, X, User, History } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/button';
 import { useStore } from '../../features/store/hooks/useStores';
@@ -70,10 +70,12 @@ export const StoreLayout = ({ children }: LayoutProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: `/stores/${id}/dashboard` },
+    { icon: ShoppingCart, label: 'POS', path: `/stores/${id}/pos` },
     { icon: Store, label: 'Shops (B2B)', path: `/stores/${id}/shops` },
     { icon: User, label: 'Customers (B2C)', path: `/stores/${id}/customers` },
     { icon: Package, label: 'Inventory', path: `/stores/${id}/inventory` },
     { icon: Truck, label: 'Vehicles', path: `/stores/${id}/vehicles` },
+    { icon: History, label: 'History', path: `/stores/${id}/history` },
     { icon: Users, label: 'Staff', path: `/stores/${id}/staff` },
   ];
 

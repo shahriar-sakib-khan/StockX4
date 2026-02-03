@@ -29,14 +29,18 @@ export const DefectModal = ({ isOpen, onClose, item, storeId }: DefectModalProps
             return;
         }
 
+        // Logic: Defected count is independent of Full/Empty counts but constrained by their sum.
+        // Mark: Increase defected count. Check newDefected <= (Full + Empty).
+        // Unmark: Decrease defected count. Check newDefected >= 0.
+
         if (action === 'mark') {
-            if (qty > totalStock) {
-                toast.error(`Not enough total stock (Current: ${totalStock})`);
+            if (currentDefected + qty > totalStock) {
+                toast.error(`Cannot mark more than total stock (Total: ${totalStock}, Current Defected: ${currentDefected})`);
                 return;
             }
         } else {
             if (qty > currentDefected) {
-                toast.error(`Not enough defected stock (Current: ${currentDefected})`);
+                toast.error(`Not enough defected stock to unmark (Current: ${currentDefected})`);
                 return;
             }
         }
@@ -46,25 +50,8 @@ export const DefectModal = ({ isOpen, onClose, item, storeId }: DefectModalProps
 
         if (action === 'mark') {
             newCounts.defected += qty;
-
-            // Smart Deduction: Deduct from Empty first, then Full
-            let remainingToDeduct = qty;
-
-            if (newCounts.empty >= remainingToDeduct) {
-                newCounts.empty -= remainingToDeduct;
-                remainingToDeduct = 0;
-            } else {
-                remainingToDeduct -= newCounts.empty;
-                newCounts.empty = 0;
-
-                // Deduct remainder from Full
-                newCounts.full -= remainingToDeduct;
-            }
-
         } else {
-            // Unmark: Move back to Empty (default safety)
             newCounts.defected -= qty;
-            newCounts.empty += qty;
         }
 
         try {
@@ -75,7 +62,7 @@ export const DefectModal = ({ isOpen, onClose, item, storeId }: DefectModalProps
                     counts: newCounts
                 }
             });
-            toast.success(action === 'mark' ? "Marked as defected" : "Unmarked (restored to empty)");
+            toast.success("Defect count updated successfully");
             onClose();
             setQuantity("1");
         } catch (error) {
@@ -142,7 +129,7 @@ export const DefectModal = ({ isOpen, onClose, item, storeId }: DefectModalProps
                                 <AlertTriangle className="w-5 h-5" /> Mark Defected
                             </span>
                             <span className="text-xs font-normal opacity-90">
-                                Deducts from Empty, then Full
+                                Updates Defected Count Only
                             </span>
                          </Button>
 
@@ -153,7 +140,7 @@ export const DefectModal = ({ isOpen, onClose, item, storeId }: DefectModalProps
                              disabled={update.isPending}
                         >
                             <span className="font-bold text-lg">Unmark / Restore</span>
-                            <span className="text-xs font-normal text-muted-foreground">Move back to Empty</span>
+                            <span className="text-xs font-normal text-muted-foreground">Decrease Defected Count</span>
                         </Button>
                     </div>
                 </div>

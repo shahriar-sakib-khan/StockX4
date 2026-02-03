@@ -9,7 +9,11 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest",
     "db:drop": "ts-node src/config/drop-db.ts",
-    "seed:brands": "npx tsx src/scripts/seed-brands.ts"
+    "seed:brands": "npx tsx src/scripts/seed-brands.ts",
+    "seed:store": "npx tsx src/scripts/seed-store.ts",
+    "seed:users": "npx tsx src/scripts/seed-users.ts",
+    "upload:accessories": "npx tsx src/scripts/upload-accessories.ts",
+    "db:reset": "pnpm db:drop && pnpm seed:brands && pnpm seed:users && pnpm seed:store"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",

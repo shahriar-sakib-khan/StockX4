@@ -1,18 +1,22 @@
 import { LandingHeader } from '../components/LandingHeader';
-import { LandingFeatures } from '../components/LandingFeatures';
-import { LandingPricing } from '../components/LandingPricing';
 import { LandingHero } from '../components/LandingHero';
-import { LandingStack } from '../components/LandingStack';
+import { LandingCoreFeatures } from '../components/LandingCoreFeatures';
+import { LandingMoreFeatures } from '../components/LandingMoreFeatures';
+import { LandingTestimonials } from '../components/LandingTestimonials';
+import { LandingPricing } from '../components/LandingPricing';
+import { LandingCTA } from '../components/LandingCTA';
 import { LandingFooter } from '../components/LandingFooter';
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-orange-500/30 overflow-x-hidden">
       <LandingHeader />
       <LandingHero />
-      <LandingStack />
-      <LandingFeatures />
+      <LandingCoreFeatures />
+      <LandingMoreFeatures />
+      <LandingTestimonials />
       <LandingPricing />
+      <LandingCTA />
       <LandingFooter />
     </div>
   );

@@ -211,5 +211,23 @@ describe('Staff Feature (Integration)', () => {
 
              expect(res.status).toBe(401);
         });
+        it('should return populated storeId object on login', async () => {
+             // Create Staff
+             await request(app).post(`/stores/${storeAId}/staff`).set('x-mock-user-id', OWNER_ID)
+             .send({ name: 'Charlie', staffId: '003', password: 'password123' });
+
+             // Login
+             const res = await request(app).post('/staff/login').send({
+                 storeId: storeAId,
+                 staffId: '003',
+                 password: 'password123'
+             });
+
+             expect(res.status).toBe(200);
+             // CRITICAL: This confirms why the frontend broke. It returns an object, not a string.
+             expect(typeof res.body.staff.storeId).toBe('object');
+             expect(res.body.staff.storeId).toHaveProperty('name', 'Store A');
+             expect(res.body.staff.storeId._id).toBe(storeAId);
+        });
     });
 });

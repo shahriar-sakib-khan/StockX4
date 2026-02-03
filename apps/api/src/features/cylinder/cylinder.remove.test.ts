@@ -30,7 +30,7 @@ describe('Cylinder Removal Feature', () => {
         storeId = store._id.toString();
         token = createToken({ userId, role: user.role });
 
-        const b1 = await GlobalBrand.create({ name: 'B1', color20mm: '#fff', color22mm: '#000', variants: [{size:'12kg',regulator:'20mm',price:{full:1,gas:1}}] });
+        const b1 = await GlobalBrand.create({ name: 'B1', color20mm: '#fff', color22mm: '#000', variants: [{size:'12kg',regulator:'20mm'}] });
         brandId1 = b1._id.toString();
 
         // Add Inventory

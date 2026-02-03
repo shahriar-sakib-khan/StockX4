@@ -4,8 +4,9 @@ import { ProductInput } from '@repo/shared';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
 
-export const useProducts = () => {
-    const { id: storeId } = useParams<{ id: string }>();
+export const useProducts = (overrideStoreId?: string) => {
+    const { id: paramStoreId } = useParams<{ id: string }>();
+    const storeId = overrideStoreId || paramStoreId;
 
     return useQuery({
         queryKey: ['products', storeId],

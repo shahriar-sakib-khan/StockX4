@@ -1,5 +1,5 @@
 import { api } from '@/lib/api';
-import { GlobalBrandInput, SubscribeBrandInput, UpdateInventoryInput } from '@repo/shared';
+import { SubscribeBrandInput, UpdateInventoryInput } from '@repo/shared';
 
 export const cylinderApi = {
 

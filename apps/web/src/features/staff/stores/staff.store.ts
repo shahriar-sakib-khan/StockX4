@@ -13,6 +13,7 @@ interface StaffAuthState {
   token: string | null;
   isAuthenticated: boolean;
   setAuth: (staff: StaffUser, token: string) => void;
+  setToken: (token: string) => void;
   clearAuth: () => void;
 }
 
@@ -23,6 +24,7 @@ export const useStaffStore = create<StaffAuthState>()(
       token: null,
       isAuthenticated: false,
       setAuth: (staff, token) => set({ staff, token, isAuthenticated: true }),
+      setToken: (token) => set({ token, isAuthenticated: true }),
       clearAuth: () => set({ staff: null, token: null, isAuthenticated: false }),
     }),
     {

@@ -14,12 +14,14 @@ const productSchema = new Schema<IProduct>(
     type: { type: String, enum: ["stove", "regulator", "pipe", "accessory", "other"], required: true },
     brand: { type: String },
     description: { type: String },
+    image: { type: String },
 
     modelNumber: { type: String },
-    burnerCount: { type: String, enum: ['single', 'double'] },
+    burnerCount: { type: String, enum: ['1', '2', '3', '4'] },
     size: { type: String, enum: ['22mm', '20mm'] },
 
     stock: { type: Number, default: 0, min: 0 },
+    damagedStock: { type: Number, default: 0, min: 0 },
     lowStockAlert: { type: Number, default: 5, min: 0 },
 
     costPrice: { type: Number, required: true, min: 0 },

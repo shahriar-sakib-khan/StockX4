@@ -5,6 +5,7 @@ export interface ICustomer extends CustomerInput, Document {
   storeId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  totalDue: number;
 }
 
 const customerSchema = new Schema<ICustomer>(
@@ -13,6 +14,7 @@ const customerSchema = new Schema<ICustomer>(
     name: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String },
+    totalDue: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

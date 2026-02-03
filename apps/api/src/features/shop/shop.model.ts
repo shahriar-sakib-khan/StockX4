@@ -5,6 +5,7 @@ export interface IShop extends ShopInput, Document {
   storeId: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
+  totalDue: number;
 }
 
 const shopSchema = new Schema<IShop>(
@@ -15,6 +16,7 @@ const shopSchema = new Schema<IShop>(
     phone: { type: String, required: true },
     address: { type: String, required: true },
     district: { type: String },
+    totalDue: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

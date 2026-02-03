@@ -53,7 +53,7 @@ describe('Cylinder Batch Feature', () => {
             name: 'Brand 1',
             color20mm: '#FF0000',
             color22mm: '#00FF00',
-            variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+            variants: [{ size: '12kg', regulator: '20mm' }]
         });
         brandId1 = b1._id.toString();
 
@@ -61,7 +61,7 @@ describe('Cylinder Batch Feature', () => {
             name: 'Brand 2',
             color20mm: '#0000FF',
             color22mm: '#FFFF00',
-            variants: [{ size: '35kg', regulator: '22mm', price: { full: 2000, gas: 1500 } }]
+            variants: [{ size: '35kg', regulator: '22mm' }]
         });
         brandId2 = b2._id.toString();
     });

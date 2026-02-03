@@ -1,8 +1,9 @@
 import { LucideIcon } from "lucide-react";
+import React from "react";
 
 interface StatsCardProps {
     title: string;
-    value: number;
+    value: string | number | React.ReactNode;
     subTitle: string;
     icon: LucideIcon;
     color?: 'primary' | 'blue' | 'orange' | 'red';

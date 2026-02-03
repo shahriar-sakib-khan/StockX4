@@ -32,7 +32,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
             // @ts-ignore
             type: fixedType || 'accessory',
             modelNumber: '',
-            burnerCount: 'single',
+            burnerCount: '1',
             size: '22mm',
             stock: 0,
             costPrice: undefined, // undefined to show empty placeholder
@@ -107,8 +107,10 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                             {...form.register('burnerCount')}
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
-                            <option value="single">Single Burner</option>
-                            <option value="double">Double Burner</option>
+                            <option value="1">1 Burner</option>
+                            <option value="2">2 Burners</option>
+                            <option value="3">3 Burners</option>
+                            <option value="4">4 Burners</option>
                         </select>
                      </div>
                 </div>

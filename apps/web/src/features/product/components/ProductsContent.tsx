@@ -48,7 +48,7 @@ export const ProductsContent = ({ storeId, type, title, onAddToCart }: { storeId
         if(search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.brand?.toLowerCase().includes(search.toLowerCase())) return false;
 
         if (showDamaged) {
-            return (p.damaged || 0) > 0;
+            return (p.damagedStock || 0) > 0;
         }
 
         if(type === 'regulator' && regulatorFilter && p.size !== regulatorFilter) return false;
@@ -73,7 +73,7 @@ export const ProductsContent = ({ storeId, type, title, onAddToCart }: { storeId
         }).reduce((sum: number, p: any) => sum + (p.stock || 0), 0) || 0,
         damaged: products?.reduce((sum: number, p: any) => {
              if (p.type !== type) return sum;
-             return sum + (p.damaged || 0);
+             return sum + (p.damagedStock || 0);
         }, 0) || 0
     };
 
@@ -193,15 +193,15 @@ export const ProductsContent = ({ storeId, type, title, onAddToCart }: { storeId
                     onClose={() => setDefectModalOpen(false)}
                     title="Manage Damaged Products"
                     currentStock={selectedDefectProduct.stock}
-                    currentDamaged={selectedDefectProduct.damaged}
+                    currentDamaged={selectedDefectProduct.damagedStock}
                     itemName={selectedDefectProduct.name}
                     isPending={updateProduct.isPending}
                     onUpdate={async (action, qty) => {
                         const newStock = action === 'mark' ? selectedDefectProduct.stock - qty : selectedDefectProduct.stock + qty;
-                        const newDamaged = action === 'mark' ? selectedDefectProduct.damaged + qty : selectedDefectProduct.damaged - qty;
+                        const newDamaged = action === 'mark' ? selectedDefectProduct.damagedStock + qty : selectedDefectProduct.damagedStock - qty;
                         await updateProduct.mutateAsync({
                              productId: selectedDefectProduct._id,
-                             data: { stock: newStock, damaged: newDamaged }
+                             data: { stock: newStock, damagedStock: newDamaged }
                         });
                         toast.success(action === 'mark' ? 'Marked as damaged' : 'Restored to stock');
                     }}

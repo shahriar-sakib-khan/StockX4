@@ -23,22 +23,27 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
         return acc;
     }, []);
 
-    const stats = {
-        full: inventory.reduce((sum: number, item: any) => sum + (item.counts?.full || 0), 0),
-        empty: inventory.reduce((sum: number, item: any) => sum + (item.counts?.empty || 0), 0),
-        defect: inventory.reduce((sum: number, item: any) => sum + (item.counts?.defected || 0), 0),
-    };
-
-    const filteredInventory = inventory.filter((item: any) => {
+    // Base Filter (Variants & Search)
+    const baseInventory = inventory.filter((item: any) => {
         if (search && !item.brandName.toLowerCase().includes(search.toLowerCase())) return false;
         if (regulator && item.variant.regulator !== regulator) return false;
         if (sizeFilter && item.variant.size !== sizeFilter) return false;
+        return true;
+    });
 
+    // Stats based on Base Filter
+    const stats = {
+        full: baseInventory.reduce((sum: number, item: any) => sum + (item.counts?.full || 0), 0),
+        empty: baseInventory.reduce((sum: number, item: any) => sum + (item.counts?.empty || 0), 0),
+        defect: baseInventory.reduce((sum: number, item: any) => sum + (item.counts?.defected || 0), 0),
+    };
+
+    // Final Filter (Status) - used for Table
+    const filteredInventory = baseInventory.filter((item: any) => {
         if (statusFilter === 'full' && (item.counts?.full || 0) === 0) return false;
         if (statusFilter === 'refill' && (item.counts?.empty || 0) === 0) return false;
         if (statusFilter === 'empty' && (item.counts?.empty || 0) === 0) return false;
         if (statusFilter === 'defected' && (item.counts?.defected || 0) === 0) return false;
-
         return true;
     });
 

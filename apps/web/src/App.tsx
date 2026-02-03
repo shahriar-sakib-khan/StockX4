@@ -13,6 +13,7 @@ import { StaffLoginPage } from './features/staff/pages/StaffLoginPage';
 import { StaffDashboardPage } from './features/staff/pages/StaffDashboardPage';
 import { StaffProtectedRoute } from './features/staff/components/StaffProtectedRoute';
 import { StoreLayout } from './components/layout/StoreLayout';
+import { CheckoutPage } from './features/transaction/pages/CheckoutPage';
 
 import { SettingsPage } from './features/settings/pages/SettingsPage'; // Keeping Settings in pages for now or move to common/settings
 import { ProfilePage } from './features/users/pages/ProfilePage';
@@ -26,9 +27,12 @@ import { BrandPage } from './features/brand/pages/BrandPage';
 
 import { Toaster } from 'sonner';
 
+import { POSRouteManager } from './features/transaction/components/POSRouteManager';
+
 function App() {
   return (
     <BrowserRouter>
+      <POSRouteManager />
       <Toaster position="top-right" richColors closeButton />
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -37,6 +41,18 @@ function App() {
 
         <Route path="/dashboard" element={<Navigate to="/stores" replace />} />
         <Route path="/stores" element={<StoresPage />} />
+
+        {/* POS Route (Standalone, handling both Staff and Owner via URL or State) */}
+        <Route path="/stores/:id/pos" element={
+            <StaffProtectedRoute>
+                <StaffDashboardPage />
+            </StaffProtectedRoute>
+        } />
+        <Route path="/stores/:id/pos/checkout" element={
+            <StaffProtectedRoute>
+                <CheckoutPage />
+            </StaffProtectedRoute>
+        } />
 
         {/* Store Context (Nested Layout) */}
         <Route path="/stores/:id" element={<StoreLayout />}>
@@ -47,12 +63,18 @@ function App() {
            <Route path="vehicles" element={<VehiclePage />} />
            <Route path="inventory" element={<InventoryPage />} />
            <Route path="staff" element={<StoreStaffPage />} />
+           <Route path="history" element={<HistoryPage />} />
            <Route path="settings" element={<div>Store Settings (Coming Soon)</div>} />
         </Route>
         <Route path="/staff/login" element={<StaffLoginPage />} />
         <Route path="/pos" element={
           <StaffProtectedRoute>
             <StaffDashboardPage />
+          </StaffProtectedRoute>
+        } />
+        <Route path="/pos/checkout" element={
+          <StaffProtectedRoute>
+            <CheckoutPage />
           </StaffProtectedRoute>
         } />
 

@@ -1,4 +1,6 @@
 import ky from 'ky';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
+import { useStaffStore } from '@/features/staff/stores/staff.store';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -31,16 +33,49 @@ export const api = ky.create({
       },
     ],
     afterResponse: [
-      (_request, _options, response) => {
+      async (request, options, response) => {
         if (response.status === 401) {
-          // Check which context we are in to know which login to redirect to?
-          // For now, default to main login.
-          // Optional: Clear storage to prevent loops if app tries to auto-refresh
-          localStorage.removeItem('auth-storage');
-          localStorage.removeItem('staff-auth-storage');
+          // Prevent infinite loop: Don't refresh if the failed request was already a refresh attempt
+          if (request.url.includes('auth/refresh')) {
+             useAuthStore.getState().clearAuth();
+             useStaffStore.getState().clearAuth();
+             if (window.location.pathname !== '/login' && window.location.pathname !== '/staff/login') {
+                 window.location.href = '/login';
+             }
+             return; // Stop here
+          }
 
-          if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-             window.location.href = '/login';
+          try {
+            // Attempt Silent Refresh
+            // We use a separate ky call to avoid hooks loops, and MUST include credentials for the cookie.
+            const refreshData = await ky.post(`${API_URL}/auth/refresh`, {
+                credentials: 'include',
+                retry: 0
+            }).json<{ accessToken: string }>();
+
+            const newToken = refreshData.accessToken;
+            if (!newToken) throw new Error('No token returned');
+
+            // Update Stores (Try both, or check context)
+            const { token: ownerToken } = useAuthStore.getState();
+            if (ownerToken) useAuthStore.getState().setToken(newToken);
+
+            const { token: staffToken } = useStaffStore.getState();
+            if (staffToken) useStaffStore.getState().setToken(newToken);
+
+            // Retry Original Request with new token
+            request.headers.set('Authorization', `Bearer ${newToken}`);
+            return ky(request);
+
+          } catch (error) {
+             // Refresh failed or Network error -> Logout
+             useAuthStore.getState().clearAuth();
+             useStaffStore.getState().clearAuth();
+
+             // Redirect based on current path?
+             if (window.location.pathname !== '/login' && window.location.pathname !== '/staff/login') {
+                window.location.href = '/login';
+             }
           }
         }
       }

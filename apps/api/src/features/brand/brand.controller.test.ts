@@ -42,8 +42,8 @@ describe('Brand Feature', () => {
                     color20mm: '#FF0000',
                     color22mm: '#0000FF',
                     variants: [
-                        { size: '12kg', regulator: '20mm', price: { full: 1500, gas: 1200 } },
-                        { size: '35kg', regulator: '22mm', price: { full: 3500, gas: 3000 } }
+                        { size: '12kg', regulator: '20mm' },
+                        { size: '35kg', regulator: '22mm' }
                     ]
                 });
 
@@ -59,7 +59,7 @@ describe('Brand Feature', () => {
                 name: 'Bashundhara',
                 color20mm: '#FF0000',
                 color22mm: '#0000FF',
-                variants: [{ size: '12kg', regulator: '20mm', price: { full: 1500, gas: 1200 } }]
+                variants: [{ size: '12kg', regulator: '20mm' }]
             });
 
             const res = await request(app)
@@ -77,7 +77,7 @@ describe('Brand Feature', () => {
                 name: 'Old Name',
                 color20mm: '#000000',
                 color22mm: '#FFFFFF',
-                variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+                variants: [{ size: '12kg', regulator: '20mm' }]
             });
 
             const res = await request(app)
@@ -102,7 +102,7 @@ describe('Brand Feature', () => {
                 name: 'To Delete',
                 color20mm: '#000000',
                 color22mm: '#FFFFFF',
-                variants: [{ size: '12kg', regulator: '20mm', price: { full: 1000, gas: 800 } }]
+                variants: [{ size: '12kg', regulator: '20mm' }]
             });
 
             const res = await request(app)

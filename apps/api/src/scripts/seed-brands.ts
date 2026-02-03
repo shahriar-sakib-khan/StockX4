@@ -12,33 +12,57 @@ const createPlaceholder = (width: number, height: number, color: string, text: s
     return `https://placehold.co/${width}x${height}/${cleanColor}/FFFFFF?text=${encodeURIComponent(text)}`;
 };
 
+// Cloudinary Brand Assets (Auto-generated from migration)
+const BRAND_ASSETS: Record<string, string> = {
+  "Aygaz LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557198/stockx/brands/aygaz/aygaz-22-12.png",
+  "Bashundhara LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557199/stockx/brands/bashundhara/bashundhara-22-12.png",
+  "Beximco LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557200/stockx/brands/beximco/beximco-22-12.png",
+  "Bin Habeeb LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557202/stockx/brands/bin_habeeb/binhabib-22-12.png",
+  "BM Energy": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557203/stockx/brands/bm_energy/bm-22-12.png",
+  "Delta LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557204/stockx/brands/delta/delta-22-12.png",
+  "Euro Gas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557205/stockx/brands/euro/euro-22-12.png",
+  "Fresh LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557206/stockx/brands/fresh/fresh-22-12.png",
+  "G-Gas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557207/stockx/brands/g_gas/ggas-22-12.png",
+  "Index LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557208/stockx/brands/index/index-22-12.png",
+  "Jamuna LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557209/stockx/brands/jamuna/jamuna-22-12.png",
+  "JMI LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557211/stockx/brands/jmi/jmi-22-12.png",
+  "Laugfs Gas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557212/stockx/brands/laugfs/laugfs-22-12.png",
+  "Navana LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557213/stockx/brands/navana/navana-22-12.png",
+  "Omera LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557215/stockx/brands/omera/omera-22-12.png",
+  "Orion Gas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557216/stockx/brands/orion/orion-22-12.png",
+  "Petromax LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557218/stockx/brands/petromax/petromax-22-12.png",
+  "Promita LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557219/stockx/brands/promita/promita-22-12.png",
+  "Sena LPG": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557220/stockx/brands/sena/shena-22-12.png",
+  "TotalGas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557222/stockx/brands/total/total-22-12.png",
+  "Unigas": "https://res.cloudinary.com/dgmcwmwof/image/upload/v1770557223/stockx/brands/unigas/unigas-22-12.png"
+};
+
 const brands = [
     {
         name: 'Bashundhara LPG',
-        // color: Red
         logo: createPlaceholder(200, 100, '#FF0000', 'Bashundhara'),
         color20mm: '#FF0000',
         color22mm: '#8B0000',
         variants: [
-            { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#FF0000', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#8B0000', '12kg 22mm') },
-            { size: '35kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 400, '#FF0000', '35kg 20mm') },
-            { size: '35kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 400, '#8B0000', '35kg 22mm') },
-            { size: '45kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 450, '#FF0000', '45kg 20mm') },
-            { size: '45kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 450, '#8B0000', '45kg 22mm') },
+            { size: '12kg', regulator: '20mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
+             // Add larger sizes using same image for now
+            { size: '35kg', regulator: '20mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
+            { size: '35kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
+            { size: '45kg', regulator: '20mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
+            { size: '45kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Bashundhara LPG'] },
         ]
     },
     {
         name: 'Omera LPG',
-        // color: Yellow/Orange
         logo: createPlaceholder(200, 100, '#FFD700', 'Omera'),
         color20mm: '#FFD700',
         color22mm: '#FFA500',
         variants: [
-            { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#FFD700', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#FFA500', '12kg 22mm') },
-            { size: '35kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 400, '#FFD700', '35kg 20mm') },
-            { size: '35kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 400, '#FFA500', '35kg 22mm') },
+            { size: '12kg', regulator: '20mm', cylinderImage: BRAND_ASSETS['Omera LPG'] },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Omera LPG'] },
+            { size: '35kg', regulator: '20mm', cylinderImage: BRAND_ASSETS['Omera LPG'] },
+            { size: '35kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Omera LPG'] },
         ]
     },
     {
@@ -48,7 +72,7 @@ const brands = [
         color22mm: '#B8860B',
         variants: [
             { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#DAA520', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#B8860B', '12kg 22mm') },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Jamuna LPG'] },
         ]
     },
     {
@@ -58,7 +82,7 @@ const brands = [
         color22mm: '#006400',
         variants: [
             { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#008000', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#006400', '12kg 22mm') },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Beximco LPG'] },
         ]
     },
     {
@@ -68,7 +92,7 @@ const brands = [
         color22mm: '#CD5C5C',
         variants: [
             { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#FF4500', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#CD5C5C', '12kg 22mm') },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['TotalGas'] },
         ]
     },
     {
@@ -78,7 +102,7 @@ const brands = [
         color22mm: '#696969',
         variants: [
             { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#808080', '12kg 20mm') },
-            { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#696969', '12kg 22mm') },
+            { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['G-Gas'] },
         ]
     },
     {
@@ -88,7 +112,7 @@ const brands = [
         color22mm: '#00008B',
         variants: [
              { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#0000FF', '12kg 20mm') },
-             { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#00008B', '12kg 22mm') },
+             { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Petromax LPG'] },
         ]
     },
     {
@@ -98,7 +122,7 @@ const brands = [
         color22mm: '#A0522D',
         variants: [
              { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#8B4513', '12kg 20mm') },
-             { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#A0522D', '12kg 22mm') },
+             { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['BM Energy'] },
         ]
     },
     {
@@ -108,7 +132,7 @@ const brands = [
         color22mm: '#C71585',
         variants: [
              { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#FF69B4', '12kg 20mm') },
-             { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#C71585', '12kg 22mm') },
+             { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Navana LPG'] },
         ]
     },
     {
@@ -118,8 +142,122 @@ const brands = [
         color22mm: '#4B0082',
         variants: [
              { size: '12kg', regulator: '20mm', cylinderImage: createPlaceholder(150, 300, '#800080', '12kg 20mm') },
-             { size: '12kg', regulator: '22mm', cylinderImage: createPlaceholder(150, 300, '#4B0082', '12kg 22mm') },
+             { size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['JMI LPG'] },
         ]
+    },
+    // Add missing brands dynamically loop or explicit
+    {
+        name: 'Aygaz LPG',
+        logo: createPlaceholder(200, 100, '#00BFFF', 'Aygaz'),
+        color20mm: '#00BFFF',
+        color22mm: '#1E90FF',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Aygaz LPG'] }]
+    },
+    {
+        name: 'Bin Habeeb LPG',
+        logo: createPlaceholder(200, 100, '#2E8B57', 'Bin Habeeb'),
+        color20mm: '#2E8B57',
+        color22mm: '#006400',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Bin Habeeb LPG'] }]
+    },
+    {
+        name: 'Delta LPG',
+        logo: createPlaceholder(200, 100, '#DC143C', 'Delta'),
+        color20mm: '#DC143C',
+        color22mm: '#8B0000',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Delta LPG'] }]
+    },
+    {
+        name: 'Euro Gas',
+        logo: createPlaceholder(200, 100, '#FF8C00', 'Euro'),
+        color20mm: '#FF8C00',
+        color22mm: '#FF4500',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Euro Gas'] }]
+    },
+    {
+        name: 'Fresh LPG',
+        logo: createPlaceholder(200, 100, '#32CD32', 'Fresh'),
+        color20mm: '#32CD32',
+        color22mm: '#228B22',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Fresh LPG'] }]
+    },
+    {
+        name: 'Index LPG',
+        logo: createPlaceholder(200, 100, '#4682B4', 'Index'),
+        color20mm: '#4682B4',
+        color22mm: '#4169E1',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Index LPG'] }]
+    },
+    {
+        name: 'Laugfs Gas',
+        logo: createPlaceholder(200, 100, '#FFFF00', 'Laugfs'),
+        color20mm: '#FFFF00',
+        color22mm: '#DAA520',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Laugfs Gas'] }]
+    },
+    {
+        name: 'Orion Gas',
+        logo: createPlaceholder(200, 100, '#9932CC', 'Orion'),
+        color20mm: '#9932CC',
+        color22mm: '#8B008B',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Orion Gas'] }]
+    },
+    {
+        name: 'Promita LPG',
+        logo: createPlaceholder(200, 100, '#FF1493', 'Promita'),
+        color20mm: '#FF1493',
+        color22mm: '#C71585',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Promita LPG'] }]
+    },
+    {
+        name: 'Sena LPG',
+        logo: createPlaceholder(200, 100, '#228B22', 'Sena'),
+        color20mm: '#228B22',
+        color22mm: '#006400',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Sena LPG'] }]
+    },
+    {
+        name: 'Unigas',
+        logo: createPlaceholder(200, 100, '#FF6347', 'Unigas'),
+        color20mm: '#FF6347',
+        color22mm: '#FF4500',
+        variants: [{ size: '12kg', regulator: '22mm', cylinderImage: BRAND_ASSETS['Unigas'] }]
+    },
+    // Accessory Brands
+    {
+        name: 'RFL',
+        logo: 'https://res.cloudinary.com/dgmcwmwof/image/upload/v1770668020/stockx/stoves/stove-1.png',
+        color20mm: '#000000',
+        color22mm: '#000000',
+        variants: []
+    },
+    {
+        name: 'Miyako',
+        logo: 'https://res.cloudinary.com/dgmcwmwof/image/upload/v1770668025/stockx/stoves/stove-3.png',
+        color20mm: '#000000',
+        color22mm: '#000000',
+        variants: []
+    },
+    {
+        name: 'Walton',
+        logo: 'https://res.cloudinary.com/dgmcwmwof/image/upload/v1770668027/stockx/stoves/stove-4.png',
+        color20mm: '#000000',
+        color22mm: '#000000',
+        variants: []
+    },
+    {
+        name: 'Generic',
+        logo: 'https://res.cloudinary.com/dgmcwmwof/image/upload/v1770668031/stockx/regulators/regulator-20.png',
+        color20mm: '#333333',
+        color22mm: '#333333',
+        variants: []
+    },
+    {
+        name: 'Premium',
+        logo: 'https://res.cloudinary.com/dgmcwmwof/image/upload/v1770668033/stockx/regulators/regulator-22.png',
+        color20mm: '#333333',
+        color22mm: '#333333',
+        variants: []
     }
 ];
 

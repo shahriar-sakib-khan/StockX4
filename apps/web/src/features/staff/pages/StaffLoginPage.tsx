@@ -32,13 +32,21 @@ export const StaffLoginPage = () => {
     setIsLoading(true);
     try {
       const res = await staffApi.login(data);
-      setAuth(res.staff, res.accessToken);
+      const normalizedStoreId = typeof res.staff.storeId === 'object'
+        ? (res.staff.storeId as any)._id
+        : res.staff.storeId;
+
+      const authorizedStaff = {
+          ...res.staff,
+          storeId: normalizedStoreId
+      };
+
+      setAuth(authorizedStaff, res.accessToken);
 
       toast.success(`Welcome, ${res.staff.name}!`);
 
       if (res.staff.role === 'manager') {
-        const storeId = typeof res.staff.storeId === 'object' ? res.staff.storeId._id : res.staff.storeId;
-        navigate(`/stores/${storeId}`);
+        navigate(`/stores/${normalizedStoreId}`);
       } else {
         navigate('/pos');
       }

@@ -10,3 +10,4 @@ export * from "./schemas/product.schema";
 export * from "./schemas/vehicle.schema";
 export * from "./schemas/cylinder.schema";
 export * from "./schemas/brand.schema";
+export * from "./schemas/transaction.schema";

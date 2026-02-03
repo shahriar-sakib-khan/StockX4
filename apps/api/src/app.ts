@@ -39,6 +39,8 @@ app.use('/brands', BrandRoutes);
 app.use('/stores', StoreRoutes); // Stores + Nested Staff Management
 app.use('/staff', StaffPublicRoutes); // Staff Public (Login)
 app.use('/upload', UploadRoutes);
+import transactionRoutes from './features/transaction/transaction.routes';
+app.use('/transactions', transactionRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello from API" });

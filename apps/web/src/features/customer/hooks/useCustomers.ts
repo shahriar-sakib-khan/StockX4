@@ -4,12 +4,14 @@ import { CustomerInput } from '@repo/shared';
 import { toast } from 'sonner';
 import { useParams } from 'react-router-dom';
 
-export const useCustomers = () => {
-    const { id: storeId } = useParams<{ id: string }>();
+export const useCustomers = (storeIdOverride?: string) => {
+    const { id } = useParams<{ id: string }>();
+    const storeId = storeIdOverride || id;
 
     return useQuery({
         queryKey: ['customers', storeId],
         queryFn: async () => {
+             if (!storeId) return [];
             const res = await api.get('customers', { headers: { 'x-store-id': storeId } }).json<{ customers: any[] }>();
             return res.customers;
         },
