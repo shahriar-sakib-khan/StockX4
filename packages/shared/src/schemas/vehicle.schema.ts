@@ -5,6 +5,7 @@ export const vehicleSchema = z.object({
   vehicleModel: z.string().optional(),    // E.g., "Tata Ace"
   driverName: z.string().optional(), // Simple string for now
   driverPhone: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 export type VehicleInput = z.infer<typeof vehicleSchema>;

@@ -34,12 +34,13 @@ export class AuthController {
 
       res.status(200).json({ accessToken, user });
     } catch (error: any) {
+      console.error('[LOGIN ERROR]', error); // Debug log
       if (error instanceof z.ZodError) {
         res.status(400).json({ error: error.errors });
       } else if (error.message === 'Invalid credentials') {
         res.status(401).json({ error: error.message });
       } else {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
       }
     }
   }

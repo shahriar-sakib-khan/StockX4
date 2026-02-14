@@ -2,18 +2,9 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { transactionApi } from '../features/transaction/api/transaction.api';
-import { format } from 'date-fns';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
+import { format, subDays, startOfMonth, startOfYear, endOfDay, startOfDay, addDays, isSameDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -21,190 +12,197 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Search, Filter } from 'lucide-react';
-import { Receipt } from '@/features/transaction/components/Receipt';
-import { useStore } from '@/features/store/hooks/useStores';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, PieChart, BookOpen } from 'lucide-react';
+import { DiaryView } from '@/features/transaction/components/DiaryView';
+import { StatsView } from '@/features/transaction/components/StatsView';
 
 export const HistoryPage = () => {
-  const { id: storeId } = useParams<{ id: string }>();
-  const { data: storeData } = useStore(storeId || '');
+    const { id: storeId } = useParams<{ id: string }>();
+    const [viewMode, setViewMode] = useState<'daily' | 'stats'>('daily');
 
-  // Filter States
-  const [search, setSearch] = useState('');
-  const [date, setDate] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [page, setPage] = useState(1);
+    // Daily View State
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Selected Transaction for Modal
-  const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+    // Stats View State
+    const [statsRange, setStatsRange] = useState('week'); // week, month, year, custom
+    const [customRange, setCustomRange] = useState({
+        start: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
+        end: format(new Date(), 'yyyy-MM-dd')
+    });
 
-  // Fetch History
-  const { data, isLoading } = useQuery({
-    queryKey: ['history', storeId, search, date, sortBy, sortOrder, page],
-    queryFn: () => transactionApi.getHistory(storeId!, {
-      search,
-      startDate: date, // Simple date filter (starts from this date)
-      sortBy,
-      sortOrder,
-      page,
-      limit: 20
-    }),
-    enabled: !!storeId,
-  });
+    // --- Daily Data Fetching ---
+    // We want the Full Day for the selected date.
+    // The backend filters by startDate <= createdAt <= endDate
+    // So we pass Start of Day and End of Day.
+    const dailyQuery = useQuery({
+        queryKey: ['history', storeId, 'daily', format(selectedDate, 'yyyy-MM-dd')],
+        queryFn: () => transactionApi.getHistory(storeId!, {
+            startDate: startOfDay(selectedDate).toISOString(),
+            endDate: endOfDay(selectedDate).toISOString(),
+            limit: 1000 // Get all transactions for the day
+        }),
+        enabled: !!storeId && viewMode === 'daily',
+    });
 
-  const transactions = data?.data || [];
-  const meta = data?.meta;
+    const dailyTransactions = dailyQuery.data?.data || [];
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-2xl font-bold">Transaction History</h1>
+    // --- Stats Data Fetching ---
+    // Compute range based on statsRange
+    const getStatsFilters = () => {
+        const today = new Date();
+        let start = new Date();
+        let end = new Date();
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 w-[200px]"
-            />
-          </div>
+        switch (statsRange) {
+            case 'week':
+                start = subDays(today, 7);
+                break;
+            case 'month':
+                start = startOfMonth(today);
+                break;
+            case 'year':
+                start = startOfYear(today);
+                break;
+            case 'custom':
+                start = new Date(customRange.start);
+                end = new Date(customRange.end);
+                break;
+        }
 
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-[150px]"
-          />
+        // Ensure we cover the full end day
+        end = endOfDay(end);
+        start = startOfDay(start);
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Sort By" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="createdAt">Date</SelectItem>
-              <SelectItem value="finalAmount">Amount</SelectItem>
-            </SelectContent>
-          </Select>
+        return {
+            startDate: start.toISOString(),
+            endDate: end.toISOString()
+        };
+    };
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            title="Toggle Sort Order"
-          >
-            <Filter className={`h-4 w-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Invoice #</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Paid</TableHead>
-              <TableHead className="text-right">Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
-                </TableCell>
-              </TableRow>
-            ) : transactions.length === 0 ? (
-              <TableRow>
-                 <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                    No transactions found.
-                 </TableCell>
-              </TableRow>
-            ) : (
-              transactions.map((tx: any) => (
-                <TableRow
-                    key={tx._id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => setSelectedTransaction(tx)}
-                >
-                  <TableCell>{format(new Date(tx.createdAt), 'dd MMM yyyy, HH:mm')}</TableCell>
-                  <TableCell className="font-mono text-xs">{tx._id.slice(-6).toUpperCase()}</TableCell>
-                  <TableCell>{tx.customerId?.name || 'Walk-in Customer'}</TableCell>
-                  <TableCell className="capitalize">{tx.items.some((i:any) => i.saleType === 'REFILL') ? 'Refill' : 'Sale'}</TableCell>
-                  <TableCell className="text-right font-bold">{tx.finalAmount}</TableCell>
-                  <TableCell className="text-right">{tx.paidAmount}</TableCell>
-                  <TableCell className="text-right">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        tx.dueAmount > 0 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                    }`}>
-                        {tx.dueAmount > 0 ? 'Due' : 'Paid'}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      {meta && (
-          <div className="flex justify-end gap-2 items-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                  Previous
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                  Page {meta.page} of {meta.totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => p + 1)}
-                disabled={page >= meta.totalPages}
-              >
-                  Next
-              </Button>
-          </div>
-      )}
-
-      {/* Invoice Modal */}
-      <Modal
-        isOpen={!!selectedTransaction}
-        onClose={() => setSelectedTransaction(null)}
-        title="Invoice Details"
-        className="max-w-2xl"
-      >
-            {selectedTransaction && (
-                <div className="flex justify-center p-4 bg-muted/20 rounded max-h-[60vh] overflow-y-auto">
-                    <Receipt
-                        transaction={selectedTransaction}
-                        storeName={storeData?.store?.name || 'Store'}
-                    />
+    return (
+        <div className="space-y-6 h-full flex flex-col">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg shadow-sm border">
+                <div>
+                    <h1 className="text-2xl font-black bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                        {viewMode === 'daily' ? 'Daily Diary' : 'Financial Overview'}
+                    </h1>
+                    <p className="text-muted-foreground text-sm font-medium">
+                        {viewMode === 'daily'
+                            ? format(selectedDate, 'EEEE, dd MMMM yyyy')
+                            : 'Aggregated analytics and reports'
+                        }
+                    </p>
                 </div>
-            )}
 
-            <div className="flex justify-end gap-2 mt-4">
-                <Button variant="outline" onClick={() => window.print()}>
-                    Print Receipt
-                </Button>
-                <Button onClick={() => setSelectedTransaction(null)}>
-                    Close
-                </Button>
+                <div className="flex items-center gap-2">
+                     <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)} className="w-[200px]">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="daily">
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                Diary
+                            </TabsTrigger>
+                            <TabsTrigger value="stats">
+                                <PieChart className="w-4 h-4 mr-2" />
+                                Stats
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                </div>
             </div>
-      </Modal>
-    </div>
-  );
+
+            {/* Controls Bar */}
+            <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-md border">
+                {viewMode === 'daily' ? (
+                     <div className="flex items-center gap-2 w-full justify-center md:justify-start">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setSelectedDate(prev => subDays(prev, 1))}
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <div className="relative">
+                            <CalendarIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                                type="date"
+                                value={format(selectedDate, 'yyyy-MM-dd')}
+                                onChange={(e) => {
+                                    if(e.target.value) setSelectedDate(new Date(e.target.value));
+                                }}
+                                className="pl-8 w-[160px] font-bold text-center"
+                            />
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setSelectedDate(prev => addDays(prev, 1))}
+                            disabled={isSameDay(selectedDate, new Date())} // Optional: disable future? No, maybe they want to see future entries if any
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedDate(new Date())}
+                            className="ml-2 text-xs font-bold uppercase tracking-wider text-muted-foreground"
+                        >
+                            Today
+                        </Button>
+                     </div>
+                ) : (
+                    <div className="flex flex-wrap items-center gap-2 w-full">
+                        <Select value={statsRange} onValueChange={setStatsRange}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Select Range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="week">Last 7 Days</SelectItem>
+                                <SelectItem value="month">This Month</SelectItem>
+                                <SelectItem value="year">This Year</SelectItem>
+                                <SelectItem value="custom">Custom Range</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {statsRange === 'custom' && (
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    type="date"
+                                    value={customRange.start}
+                                    onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
+                                    className="w-[140px]"
+                                />
+                                <span className="text-muted-foreground">-</span>
+                                <Input
+                                    type="date"
+                                    value={customRange.end}
+                                    onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
+                                    className="w-[140px]"
+                                />
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 min-h-0">
+                {viewMode === 'daily' ? (
+                    <DiaryView
+                        transactions={dailyTransactions}
+                        date={selectedDate}
+                        isLoading={dailyQuery.isLoading}
+                    />
+                ) : (
+                    <div className="h-full overflow-y-auto">
+                        <StatsView
+                            storeId={storeId!}
+                            filters={getStatsFilters()}
+                        />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };
+

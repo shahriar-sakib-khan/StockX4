@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { InvoiceModal } from "@/features/cylinder/components/InvoiceModal";
 import { ShoppingCart } from "lucide-react";
 import { CylindersContent } from "@/features/cylinder/components/CylindersContent";
+import { StovesContent } from "@/features/cylinder/components/StovesContent";
+import { RegulatorsContent } from "@/features/cylinder/components/RegulatorsContent";
 import { ProductsContent } from "@/features/product/components/ProductsContent";
 import { AccessoriesContent } from "@/features/inventory/components/AccessoriesContent";
 import { CartSidebar } from "@/features/inventory/components/CartSidebar";
@@ -16,6 +18,7 @@ export interface CartItem {
     purchaseType: 'refill' | 'package' | 'product'; // added product
     totalAmount: number;
     unitPrice: number;
+    sellingPrice?: number;
 }
 
 
@@ -39,14 +42,15 @@ export const InventoryPage = () => {
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-    const handleAddToCart = (item: any, quantity: number, purchaseType: 'refill' | 'package' | 'product', totalAmount: number, unitPrice: number) => {
+    const handleAddToCart = (item: any, quantity: number, purchaseType: 'refill' | 'package' | 'product', totalAmount: number, unitPrice: number, sellingPrice?: number) => {
         const newItem: CartItem = {
             id: Math.random().toString(36).substr(2, 9),
             item,
             quantity,
             purchaseType,
             totalAmount,
-            unitPrice
+            unitPrice,
+            sellingPrice
         };
         setCartItems([...cartItems, newItem]);
     };
@@ -60,6 +64,7 @@ export const InventoryPage = () => {
              purchaseType: 'product',
              totalAmount,
              unitPrice
+             // products might not have 'sellingPrice' change in this flow, or reuse logic
         };
         setCartItems([...cartItems, newItem]);
     }
@@ -78,9 +83,9 @@ export const InventoryPage = () => {
             case 'cylinders':
                 return <CylindersContent storeId={effectiveStoreId!} onAddToCart={handleAddToCart} />;
             case 'stoves':
-                return <AccessoriesContent storeId={effectiveStoreId!} type="stove" title="Gas Stoves" onAddToCart={handleAddToCart} />;
+                return <StovesContent storeId={effectiveStoreId!} onAddToCart={handleAddToCart} />;
             case 'regulators':
-                return <AccessoriesContent storeId={effectiveStoreId!} type="regulator" title="Regulators" onAddToCart={handleAddToCart} />;
+                return <RegulatorsContent storeId={effectiveStoreId!} onAddToCart={handleAddToCart} />;
             default:
                 return null;
         }

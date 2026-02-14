@@ -8,9 +8,10 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  align?: 'center' | 'top';
 }
 
-export const Modal = ({ isOpen, onClose, title, children, className }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, className, align = 'center' }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className={`fixed inset-0 z-[9999] flex justify-center p-4 bg-black/50 backdrop-blur-sm ${align === 'top' ? 'items-start pt-20' : 'items-center'}`}>
       <div
         ref={modalRef}
         className={`bg-white text-card-foreground border border-border rounded-xl w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200 ${className || 'max-w-md'}`}

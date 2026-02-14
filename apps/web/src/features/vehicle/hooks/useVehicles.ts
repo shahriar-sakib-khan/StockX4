@@ -54,3 +54,39 @@ export const useDeleteVehicle = () => {
         }
     });
 };
+
+export const useVehicle = (vehicleId: string) => {
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useQuery({
+        queryKey: ['vehicle', vehicleId],
+        queryFn: async () => {
+            if (!vehicleId) return null;
+            const res = await api.get(`vehicles/${vehicleId}`, { headers: { 'x-store-id': storeId } }).json<{ vehicle: any }>();
+            return res.vehicle;
+        },
+        enabled: !!vehicleId && !!storeId,
+    });
+};
+
+export const useUpdateVehicle = () => {
+    const queryClient = useQueryClient();
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: VehicleInput }) => {
+            return api.patch(`vehicles/${id}`, {
+                json: data,
+                headers: { 'x-store-id': storeId }
+            }).json();
+        },
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['vehicles', storeId] });
+            queryClient.invalidateQueries({ queryKey: ['vehicle', variables.id] });
+            toast.success('Vehicle updated successfully');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Failed to update vehicle');
+        }
+    });
+};

@@ -19,23 +19,28 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
   const { saleItems, returnItems, customer } = usePosStore();
   const { staff } = useStaffStore();
 
+  // Resolve storeId (Prop for Owner, Staff Store for Staff)
+  const effectiveStoreId = storeId || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
+
   // Filter Sale Items into Sections
-  const refillItems = saleItems.filter(i => i.saleType === 'REFILL');
-  const packagedItems = saleItems.filter(i => i.saleType === 'PACKAGED');
-   const stoveItems = saleItems.filter(i => i.category === 'stove');
-   const regulatorItems = saleItems.filter(i => i.category === 'regulator');
+  // Safety check for hydrated state
+  const safeSaleItems = Array.isArray(saleItems) ? saleItems : [];
+  const safeReturnItems = Array.isArray(returnItems) ? returnItems : [];
+
+  const refillItems = safeSaleItems.filter(i => i.saleType === 'REFILL');
+  const packagedItems = safeSaleItems.filter(i => i.saleType === 'PACKAGED');
+   const stoveItems = safeSaleItems.filter(i => i.category === 'stove');
+   const regulatorItems = safeSaleItems.filter(i => i.category === 'regulator');
 
   return (
     <div className="flex flex-col h-full gap-2 p-2 relative">
 
-      {/* 1. Header Bar */}
       {/* 1. Header Bar */}
       <POSHeader storeId={storeId} userName={userName} userRole={userRole} onLogout={onLogout} />
 
       {/* 2. Main Cart Grid (Left: Selling [65%], Right: Returned [35%]) */}
       <div className="flex gap-2 h-[35vh] shrink-0 min-h-[300px]">
           {/* LEFT: Selling Window (4 Split Sections) */}
-          {/* LEFT: Selling Window (Split: Cylinders Stack | Accessories Columns) */}
           <div className="flex-[3] border-2 border-slate-300 rounded-xl p-1 flex gap-1 bg-white/50 overflow-hidden">
                {/* Cylinders Group (Refill | Packaged) */}
                <div className="flex-[3] flex gap-1 min-w-0">
@@ -61,7 +66,7 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
           {/* RIGHT: Returned Window */}
           <div className="flex-1 border-2 border-slate-300 rounded-xl p-2 bg-white/50 flex flex-col">
               <div className="h-full">
-                  <POSReturnSection items={returnItems} title="Returned Cylinders" emptyMsg="No returned cylinders" />
+                  <POSReturnSection items={safeReturnItems} title="Returned Cylinders" emptyMsg="No returned cylinders" />
               </div>
           </div>
       </div>
@@ -76,18 +81,19 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
 
       {/* Blocking Modal */}
       <Modal
-        isOpen={!customer && !!staff?.storeId}
+        isOpen={!customer && !!effectiveStoreId}
         onClose={() => {}}
         title="Start Transaction"
         className="max-w-md"
+        align="top"
       >
         <div className="space-y-4">
             <p className="text-muted-foreground text-sm">
                 Please select a Customer or Shop to begin the transaction.
             </p>
-            {(storeId || staff?.storeId) && (
+            {effectiveStoreId && (
                 <div className="relative z-50">
-                     <CustomerSelect storeId={storeId || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id)} />
+                     <CustomerSelect storeId={effectiveStoreId} />
                 </div>
             )}
         </div>

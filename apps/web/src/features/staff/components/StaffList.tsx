@@ -1,18 +1,26 @@
 import { useStaffList, useDeleteStaff } from '../hooks/useStaff';
+import { PaySalaryModal } from './PaySalaryModal';
+import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { Button } from '@/components/ui/button';
-import { Plus, User, BadgeCheck, Pencil, Trash2, MoreHorizontal } from 'lucide-react';
+import { Plus, User, BadgeCheck, Pencil, Trash2, Banknote } from 'lucide-react';
 import { useState } from 'react';
 import { AddStaffModal } from './AddStaffModal';
 import { EditStaffModal } from './EditStaffModal';
+import { StaffDetailsModal } from './StaffDetailsModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
 
 export const StaffList = ({ storeId }: { storeId: string }) => {
+  const { user } = useAuthStore();
+  const isOwner = !!user; // Only owners have the user object in auth store
+
   const { data, isLoading, error } = useStaffList(storeId);
   const deleteStaff = useDeleteStaff();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<any>(null);
   const [deletingStaff, setDeletingStaff] = useState<any>(null);
+  const [payingStaff, setPayingStaff] = useState<any>(null);
+  const [selectedStaffDetails, setSelectedStaffDetails] = useState<any>(null);
 
   if (isLoading) return <div className="text-muted-foreground">Loading staff...</div>;
   if (error) return <div className="text-destructive">Failed to load staff</div>;
@@ -56,66 +64,122 @@ export const StaffList = ({ storeId }: { storeId: string }) => {
             </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {staff.map((member: any) => (
-                <div key={member._id} className="group relative bg-card border border-border rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:border-primary/20">
-                    <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-blue-600 hover:bg-blue-50"
-                            onClick={() => setEditingStaff(member)}
-                        >
-                            <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => setDeletingStaff(member)}
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
-                    </div>
-
-                    <div className="flex flex-col items-center text-center">
-                        <div className="relative mb-4">
-                            {member.image ? (
-                                <img
-                                    src={member.image}
-                                    alt={member.name}
-                                    className="h-20 w-20 rounded-full object-cover border-4 border-background shadow-md group-hover:scale-105 transition-transform duration-300"
-                                />
-                            ) : (
-                                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border-4 border-background shadow-md flex items-center justify-center text-primary text-2xl font-bold group-hover:scale-105 transition-transform duration-300">
+                <div
+                    key={member._id}
+                    onClick={() => setSelectedStaffDetails(member)}
+                    className="group relative overflow-hidden bg-white border border-slate-200 rounded-xl hover:shadow-lg transition-all duration-300 hover:border-primary/50 cursor-pointer"
+                >
+                    {/* Header Image / Pattern */}
+                    <div className="relative h-32 w-full overflow-hidden bg-slate-100">
+                        {member.image ? (
+                            <img
+                                src={member.image}
+                                alt={member.name}
+                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-slate-50 relative overflow-hidden">
+                                <User className="h-16 w-16 text-slate-200 absolute -bottom-4 -right-4 rotate-12" />
+                                <div className="z-10 h-12 w-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-bold text-lg border-2 border-white shadow-sm">
                                     {member.name.substring(0, 2).toUpperCase()}
                                 </div>
-                            )}
-                            <div className={`absolute bottom-1 right-1 h-5 w-5 rounded-full border-4 border-card ${member.isActive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                            </div>
+                        )}
+                        {/* Gradient Removed */}
+
+                        {/* Overlay Info */}
+                        <div className="absolute bottom-3 left-4 right-4 text-slate-900">
+                            <h4 className="font-black text-3xl leading-none tracking-tight truncate">{member.name}</h4>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border border-slate-200 backdrop-blur-sm ${
+                                    member.role === 'manager'
+                                        ? 'bg-purple-100 text-purple-700'
+                                        : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                    {member.role === 'manager' && <BadgeCheck className="w-3 h-3 mr-1" />}
+                                    {member.role}
+                                </span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded border border-slate-200 backdrop-blur-sm ${
+                                    member.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                }`}>
+                                    {member.isActive ? 'Active' : 'Banned'}
+                                </span>
+                            </div>
                         </div>
 
-                        <h4 className="font-bold text-lg text-foreground mb-1">{member.name}</h4>
-                        <span className="text-sm font-mono text-muted-foreground bg-muted/50 px-2 py-1 rounded-md mb-3">
-                            {member.staffId}
-                        </span>
+                        {/* Top Actions */}
+                        <div className="absolute top-2 right-2 flex gap-1 z-10 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                            <Button
+                                variant="secondary"
+                                size="icon"
+                                className="h-7 w-7 bg-white/90 hover:bg-white shadow-sm rounded-full"
+                                onClick={() => setEditingStaff(member)}
+                            >
+                                <Pencil className="w-3.5 h-3.5 text-slate-700" />
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                size="icon"
+                                className="h-7 w-7 shadow-sm rounded-full"
+                                onClick={() => setDeletingStaff(member)}
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                        </div>
+                    </div>
 
-                        <div className="flex items-center gap-2 mb-4">
-                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                                member.role === 'manager'
-                                    ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800'
-                                    : 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800'
-                            }`}>
-                                {member.role === 'manager' && <BadgeCheck className="w-3 h-3 mr-1" />}
-                                {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
-                            </span>
+                    {/* Content */}
+                    <div className="p-4 space-y-4">
+                        {member.phone && (
+                            <div className="flex items-center text-sm text-slate-600 mb-2">
+                                <span className="mr-2">📞</span>
+                                {member.phone}
+                            </div>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="font-mono bg-slate-100 px-2 py-1 rounded">ID: {member.staffId}</span>
+                            <span className="text-xs">Joined {new Date(member.createdAt).toLocaleDateString()}</span>
                         </div>
 
-                        <div className="w-full pt-4 border-t border-border flex justify-between items-center text-sm text-muted-foreground">
-                            <span>Status</span>
-                            <span className={member.isActive ? "text-green-600 font-medium" : "text-gray-500"}>
-                                {member.isActive ? "Active" : "banned"}
-                            </span>
-                        </div>
+                        {(isOwner || member.role === 'manager') && (
+                            <div className="pt-3 border-t border-dashed border-slate-200">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Monthly Salary</span>
+                                    <span className="font-bold text-lg text-slate-800">৳{member.salary || 0}</span>
+                                </div>
+                                <div className="flex justify-between items-center mb-4 relative group/due">
+                                     <div className="flex flex-col">
+                                         <span className={`text-xs font-bold uppercase tracking-wider ${(member.salaryDue || 0) < 0 ? 'text-green-600' : (member.salaryDue || 0) > 0 ? 'text-red-500' : 'text-slate-500'}`}>
+                                            {(member.salaryDue || 0) < 0 ? 'Overpaid Salary' : 'Due Salary'}
+                                         </span>
+                                         <span className="text-[10px] text-muted-foreground font-medium">
+                                            {(() => {
+                                                const now = new Date();
+                                                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                                                const daysLeft = Math.ceil((nextMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                                                return `Due in ${daysLeft} days`;
+                                            })()}
+                                         </span>
+                                     </div>
+                                     <span className={`font-extrabold text-2xl ${(member.salaryDue || 0) < 0 ? 'text-green-600' : (member.salaryDue || 0) > 0 ? 'text-red-600' : 'text-slate-400'}`}>
+                                        ৳{Math.abs(member.salaryDue || 0)}
+                                     </span>
+                                </div>
+
+                                <Button
+                                    className="w-full h-9 bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPayingStaff(member);
+                                    }}
+                                >
+                                    <Banknote className="w-4 h-4 mr-2" />
+                                    Pay Salary
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}
@@ -130,6 +194,22 @@ export const StaffList = ({ storeId }: { storeId: string }) => {
             staff={editingStaff}
             onClose={() => setEditingStaff(null)}
         />
+      )}
+
+      {payingStaff && (
+        <PaySalaryModal
+            storeId={storeId}
+            staff={payingStaff}
+            onClose={() => setPayingStaff(null)}
+        />
+      )}
+
+      {selectedStaffDetails && (
+          <StaffDetailsModal
+            storeId={storeId}
+            staff={selectedStaffDetails}
+            onClose={() => setSelectedStaffDetails(null)}
+          />
       )}
 
       <ConfirmDialog

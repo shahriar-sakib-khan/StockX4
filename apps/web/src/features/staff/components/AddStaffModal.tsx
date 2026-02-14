@@ -56,6 +56,15 @@ export const AddStaffModal = ({ storeId, onClose }: AddStaffModalProps) => {
           </div>
 
           <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Phone Number</label>
+             <Input
+               {...register('phone')}
+               placeholder="e.g. 01700000000"
+             />
+             {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
+          </div>
+
+          <div className="space-y-2">
              <label className="text-sm font-medium text-foreground">Password</label>
              <Input
                {...register('password')}
@@ -75,6 +84,18 @@ export const AddStaffModal = ({ storeId, onClose }: AddStaffModalProps) => {
                 <option value="manager">Manager</option>
             </select>
              {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+             {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Monthly Salary</label>
+             <Input
+               {...register('salary')}
+               type="number"
+               placeholder="0.00"
+               min="0"
+             />
+             {errors.salary && <p className="text-destructive text-xs">{errors.salary.message}</p>}
           </div>
 
           <div className="space-y-2">

@@ -52,7 +52,33 @@ export class StaffService {
   }
 
   static async findByStore(storeId: string) {
+    await this.processMonthlySalaries(storeId);
     return StaffModel.find({ storeId }).select('-passwordHash');
+  }
+
+  static async processMonthlySalaries(storeId: string) {
+      // Find all active staff in this store
+      const staffMembers = await StaffModel.find({ storeId, isActive: true });
+      const now = new Date();
+
+      for (const staff of staffMembers) {
+          if (!staff.salary || staff.salary <= 0) continue;
+
+          const lastProcessed = staff.lastSalaryProcessed || staff.createdAt;
+
+          // Calculate months difference
+          // This logic ensures we only add if a NEW month has started since last processed
+          const monthsDiff = (now.getFullYear() - lastProcessed.getFullYear()) * 12 + (now.getMonth() - lastProcessed.getMonth());
+
+          if (monthsDiff > 0) {
+              const amountToAdd = staff.salary * monthsDiff;
+
+              // Update staff
+              staff.salaryDue = (staff.salaryDue || 0) + amountToAdd;
+              staff.lastSalaryProcessed = now; // Set to now to mark as processed for this month(s)
+              await staff.save();
+          }
+      }
   }
 
   static async login(data: StaffLoginInput) {

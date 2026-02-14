@@ -39,7 +39,7 @@ export const ProductTable = ({ products, type, onBuy, onDelete, onManageDefect }
                                 </InventoryBadge>
                             )}
                              {p.type === 'regulator' && (
-                                <InventoryBadge variant={p.size === '22mm' ? 'blue' : 'orange'}>
+                                <InventoryBadge variant={p.size === '22mm' ? 'orange' : 'yellow'}>
                                     {p.size || 'N/A'}
                                 </InventoryBadge>
                             )}

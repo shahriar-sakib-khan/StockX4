@@ -6,6 +6,7 @@ export const shopSchema = z.object({
   phone: z.string().min(11, "Invalid phone number"), // E.g., 017...
   address: z.string().min(1, "Address is required"),
   district: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 export type ShopInput = z.infer<typeof shopSchema>;

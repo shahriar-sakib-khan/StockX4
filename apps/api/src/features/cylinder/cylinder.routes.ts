@@ -7,10 +7,10 @@ const router: Router = Router();
 router.use(authenticate);
 
 // Store Inventory Routes
-router.post('/inventory/batch', CylinderController.addBatchBrandsToStore);
-router.delete('/inventory/brands/:brandId', CylinderController.removeBrandFromStore);
-router.post('/inventory', CylinderController.addBrandToStore);
+// Store Inventory Routes
+// Store Inventory Routes
 router.get('/inventory', CylinderController.getInventory);
+router.post('/inventory/upsert', CylinderController.upsertInventory);
 router.patch('/inventory/:id', CylinderController.updateInventory);
 
 export { router as CylinderRoutes };

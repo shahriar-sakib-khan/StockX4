@@ -11,6 +11,8 @@ export const updateInventorySchema = z.object({
   prices: z.object({
     fullCylinder: z.number().min(0).optional(),
     gasOnly: z.number().min(0).optional(),
+    buyingPriceFull: z.number().min(0).optional(),
+    buyingPriceGas: z.number().min(0).optional(),
   }).optional(),
 });
 

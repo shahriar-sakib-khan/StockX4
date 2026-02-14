@@ -1,5 +1,4 @@
-import { CreateBrandModal } from "@/features/brand/components/CreateBrandModal";
-import { BrandList } from "@/features/brand/components/BrandList";
+import { GlobalBrandList } from "@/features/brand/components/GlobalBrandList";
 
 export const BrandPage = () => {
     return (
@@ -7,12 +6,11 @@ export const BrandPage = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight">Global Brands</h2>
-                    <p className="text-muted-foreground">Manage the catalog of gas brands available to stores.</p>
+                    <p className="text-muted-foreground">Manage the master catalog of gas brands available to all stores.</p>
                 </div>
-                <CreateBrandModal />
             </div>
 
-            <BrandList />
+            <GlobalBrandList />
         </div>
     );
 };

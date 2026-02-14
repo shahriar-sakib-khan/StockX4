@@ -36,6 +36,8 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
         role: staff.role,
         isActive: staff.isActive,
         image: staff.image || '',
+        salary: staff.salary || 0,
+        phone: staff.phone || '',
     });
   }, [staff, reset]);
 
@@ -69,6 +71,15 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
           </div>
 
           <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Phone Number</label>
+             <Input
+               {...register('phone')}
+               placeholder="e.g. 01700000000"
+             />
+             {errors.phone && <p className="text-destructive text-xs">{errors.phone.message}</p>}
+          </div>
+
+          <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Role</label>
             <select
               {...register('role')}
@@ -78,6 +89,24 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                 <option value="manager">Manager</option>
             </select>
              {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+             {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Monthly Salary</label>
+             <Input
+               {...register('salary')}
+               type="number"
+               placeholder="0.00"
+               min="0"
+               // Only allow editing if user is NOT a staff member (i.e., is an Owner/User)
+               // Determine this by checking if useStaffStore().staff is null?
+               // Better: pass `isOwner` prop or check auth store.
+               // For now, let's assume if they can see this modal, they might be owner.
+               // Strict requirement: "only owners can edit".
+               // I'll add the check in the component logic.
+             />
+             {errors.salary && <p className="text-destructive text-xs">{errors.salary.message}</p>}
           </div>
 
           <div className="space-y-2">

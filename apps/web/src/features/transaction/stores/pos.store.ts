@@ -15,6 +15,8 @@ export interface PosItem {
   description?: string;
   image?: string;
   color?: string;
+  size?: string;
+  regulator?: string;
 }
 
 interface PosState {
@@ -112,7 +114,9 @@ export const usePosStore = create<PosState>()(
                      subtotal: quantity * price,
                      description: desc,
                      image: product.variant?.cylinderImage || product.image,
-                     color: product.variant?.cylinderColor || product.color
+                     color: product.variant?.cylinderColor || product.color,
+                     size: product.variant?.size,
+                     regulator: product.variant?.regulator
                  });
              }
              return updated;
@@ -153,7 +157,9 @@ export const usePosStore = create<PosState>()(
                         subtotal: 0,
                         description: 'Empty Return',
                         image: product.variant?.cylinderImage || product.image,
-                        color: product.variant?.cylinderColor || product.color
+                        color: product.variant?.cylinderColor || product.color,
+                        size: product.variant?.size,
+                        regulator: product.variant?.regulator
                     });
                 }
             } else if (mode === 'EMPTY') {
@@ -172,7 +178,9 @@ export const usePosStore = create<PosState>()(
                         subtotal: 0,
                         description: 'Empty Return',
                         image: product.variant?.cylinderImage || product.image,
-                        color: product.variant?.cylinderColor || product.color
+                        color: product.variant?.cylinderColor || product.color,
+                        size: product.variant?.size,
+                        regulator: product.variant?.regulator
                     });
                 }
             }

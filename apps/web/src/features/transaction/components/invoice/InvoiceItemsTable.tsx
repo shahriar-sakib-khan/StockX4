@@ -6,10 +6,12 @@ export interface InvoiceItem {
     quantity: number;
     unitPrice: number;
     subtotal: number;
-    saleType?: 'REFILL' | 'PACKAGED' | 'RETURN' | 'ACCESSORY';
+    saleType?: 'REFILL' | 'PACKAGED' | 'RETURN' | 'ACCESSORY' | 'EXPENSE';
     category?: string;
     type?: string;
     isReturn?: boolean;
+    size?: string;
+    regulator?: string;
 }
 
 interface InvoiceItemsTableProps {
@@ -26,21 +28,36 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false }: InvoiceIt
             <div>
                 <h3 className={`font-bold underline mb-2 ${isReturnSection ? 'text-gray-600' : ''}`}>{title}</h3>
                 <div className="space-y-2">
-                     <div className="flex justify-between text-sm text-muted-foreground border-b pb-1">
-                        <span className="flex-1">Item</span>
-                        <span className="w-8 text-center">Qty</span>
-                        {!isReturnSection && <span className="w-12 text-right">Price</span>}
-                        {!isReturnSection && <span className="w-12 text-right">Total</span>}
-                    </div>
                     {sectionItems.map((item, idx) => (
-                        <div key={item.productId || idx} className={`flex justify-between py-1 border-b border-dotted last:border-0 ${isReturnSection ? 'text-gray-600' : ''}`}>
-                            <div className="flex-1 pr-2 font-semibold">
-                                {item.name}
-                                {isReturnSection && ' (Return)'}
+                        <div key={item.productId || idx} className={`flex items-center py-2 border-b border-dotted last:border-0 ${isReturnSection ? 'text-gray-600' : ''}`}>
+                            {/* Item Name */}
+                            <div className="flex-[2] pr-2">
+                                <div className="flex items-baseline gap-2 flex-wrap">
+                                    <span className="text-xl font-bold leading-none">{item.name}</span>
+                                    {isReturnSection && <span className="text-sm italic text-muted-foreground">(Return)</span>}
+                                </div>
+                                {/* Description fallback if size/regulator empty, or extra info */}
+                                {item.description && !item.size && !item.regulator && <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>}
                             </div>
-                            <div className="w-8 text-center">{item.quantity}</div>
-                            {!isReturnSection && <div className="w-12 text-right">{item.unitPrice}</div>}
-                            {!isReturnSection && <div className="w-12 text-right font-bold">{item.subtotal}</div>}
+
+                            {/* Size */}
+                            <div className="w-20 text-center text-sm font-medium">
+                                {item.size || '-'}
+                            </div>
+
+                             {/* Regulator */}
+                             <div className="w-24 text-center text-sm font-medium">
+                                {item.regulator || '-'}
+                            </div>
+
+                            {/* Qty */}
+                            <div className="w-16 text-center text-xl font-medium">{item.quantity}</div>
+
+                            {/* Price */}
+                            <div className="w-20 text-right text-lg">{!isReturnSection && item.unitPrice}</div>
+
+                            {/* Total */}
+                            <div className="w-20 text-right font-bold text-lg">{!isReturnSection && item.subtotal}</div>
                         </div>
                     ))}
                 </div>
@@ -53,19 +70,33 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false }: InvoiceIt
     const packagedItems = items.filter(i => i.saleType === 'PACKAGED');
     // Returns logic: either use explicit saleType 'RETURN' or infer from price/return flag
     const returnItems = items.filter(i => i.saleType === 'RETURN' || i.isReturn || (i.unitPrice === 0 && (i.type === 'CYLINDER' || i.category === 'cylinder')));
+    const expenseItems = items.filter(i => i.saleType === 'EXPENSE');
+
     // Accessories: everything else
     const accessoryItems = items.filter(i =>
         i.saleType !== 'REFILL' &&
         i.saleType !== 'PACKAGED' &&
+        i.saleType !== 'EXPENSE' &&
         !returnItems.includes(i) // Ensure returns aren't double counted
     );
 
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
+            {/* Global Header */}
+            <div className="flex items-center text-sm font-semibold text-muted-foreground border-b-2 border-dashed pb-2">
+                <span className="flex-[2]">Item</span>
+                <span className="w-20 text-center">Size</span>
+                 <span className="w-24 text-center">Regulator</span>
+                <span className="w-16 text-center">Qty</span>
+                <span className="w-20 text-right">Price</span>
+                <span className="w-20 text-right">Total</span>
+            </div>
+
             {renderSection('Refill Cylinders', refillItems)}
             {renderSection('Empty Returns', returnItems, true)}
             {renderSection('Packaged Cylinders', packagedItems)}
+            {renderSection('Expenses & Services', expenseItems)}
             {renderSection('Products / Accessories', accessoryItems)}
         </div>
     );

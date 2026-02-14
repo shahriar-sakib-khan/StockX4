@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Loader2, Box, Search, Flame, Settings, Plus } from "lucide-react";
 import { useProducts } from "@/features/product/hooks/useProducts";
+import { useStoreBrands } from "@/features/brand/hooks/useBrands";
 import { Input } from "@/components/ui/input";
-import { AccessoryTable } from "./AccessoryTable";
+import { AccessoryCard } from "./AccessoryCard";
 import { StatsCard } from "@/components/common/StatsCard";
 import { Button } from "@/components/ui/button";
 
@@ -29,10 +30,22 @@ export const AccessoriesContent = ({ storeId, type, title, onAddToCart }: Access
          toast.success("Added to cart");
     };
 
+    const { data: storeBrandsData } = useStoreBrands(storeId);
+
     // Filter by Type (Stove/Regulator)
     const categoryItems = (products || []).filter((item: any) => item.type === type);
 
+    // Get Active Brand Names
+    const activeBrandNames = new Set(
+        (storeBrandsData?.brands || [])
+            .filter((b: any) => b.isActive !== false)
+            .map((b: any) => b.name)
+    );
+
     const filteredItems = categoryItems.filter((item: any) => {
+        // Filter by Active Brand
+        if (item.brand && !activeBrandNames.has(item.brand)) return false;
+
         if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false;
 
         if (type === 'stove' && variantFilter) {
@@ -169,12 +182,17 @@ export const AccessoriesContent = ({ storeId, type, title, onAddToCart }: Access
                                          <h3 className="text-xl font-bold uppercase tracking-wider text-foreground">{burnerCount} Burner{burnerCount !== '1' && 's'}</h3>
                                      </div>
                                 </div>
-                                <AccessoryTable
-                                    items={burnerItems}
-                                    type={type}
-                                    storeId={storeId}
-                                    onSell={handleSell}
-                                />
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    {burnerItems.map((item: any) => (
+                                        <AccessoryCard
+                                            key={item._id}
+                                            item={item}
+                                            storeId={storeId}
+                                            onSell={handleSell}
+                                        />
+                                    ))}
+                                </div>
                              </div>
                          );
                      })}
@@ -198,12 +216,17 @@ export const AccessoriesContent = ({ storeId, type, title, onAddToCart }: Access
                                          <h3 className="text-xl font-bold uppercase tracking-wider text-foreground">{size}</h3>
                                      </div>
                                 </div>
-                                <AccessoryTable
-                                    items={regulatorItems}
-                                    type={type}
-                                    storeId={storeId}
-                                    onSell={handleSell}
-                                />
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    {regulatorItems.map((item: any) => (
+                                        <AccessoryCard
+                                            key={item._id}
+                                            item={item}
+                                            storeId={storeId}
+                                            onSell={handleSell}
+                                        />
+                                    ))}
+                                </div>
                              </div>
                          );
                      })}

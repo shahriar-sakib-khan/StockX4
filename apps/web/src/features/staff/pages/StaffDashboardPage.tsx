@@ -1,4 +1,5 @@
 import { POSAccessories } from '@/features/transaction/components/POSAccessories';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { usePosStore } from '@/features/transaction/stores/pos.store';
 import { useStaffStore } from '../stores/staff.store';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
@@ -38,11 +39,13 @@ export const StaffDashboardPage = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-hidden p-2 sm:p-4">
-         <POSLayout storeId={storeId} userName={userName} userRole={userRole} onLogout={handleLogout}>
-            {activeCategory === 'cylinder' && <POSCylinders storeId={storeId} />}
-            {activeCategory === 'stove' && <POSAccessories storeId={storeId} category="stove" />}
-            {activeCategory === 'regulator' && <POSAccessories storeId={storeId} category="regulator" />}
-         </POSLayout>
+        <ErrorBoundary>
+             <POSLayout storeId={storeId} userName={userName} userRole={userRole} onLogout={handleLogout}>
+                {activeCategory === 'cylinder' && <POSCylinders storeId={storeId} />}
+                {activeCategory === 'stove' && <POSAccessories storeId={storeId} category="stove" />}
+                {activeCategory === 'regulator' && <POSAccessories storeId={storeId} category="regulator" />}
+             </POSLayout>
+        </ErrorBoundary>
       </main>
     </div>
   );

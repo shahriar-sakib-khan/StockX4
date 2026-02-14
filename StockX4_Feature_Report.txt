@@ -1,0 +1,205 @@
+STOCKX4 APPLICATION - DETAILED FEATURE REPORT
+=================================================
+
+1. SYSTEM OVERVIEW
+------------------
+StockX4 is a multi-tenant web application designed for comprehensive inventory and sales management of gas cylinders, stoves, and regulators. It allows users (Store Owners) to create and manage multiple stores under a single account, with dedicated portals for staff members to conduct Point of Sale (POS) operations.
+
+2. USER ROLES & AUTHENTICATION
+------------------------------
+The system supports two distinct user types with separate login flows.
+
+   2.1. Store Owner / Manager (Admin)
+   ---------------------------------
+   - **Registration**:
+     - Fields: Name (min 2 chars), Email (valid format), Password (min 6 chars).
+   - **Login**:
+     - Actions: Enter Email & Password.
+     - Redirection: Goes to Store Selection / Creation page.
+   - **Capabilities**: Full access to all stores, settings, staff management, and financial analytics.
+
+   2.2. Store Staff
+   ----------------
+   - **Login Portal**: Dedicated route (`/staff/login`).
+   - **Credentials**:
+     - Store ID: Unique identifier for the store (provided by manager).
+     - Staff ID / Email: Unique ID relative to the store (e.g., '001') or email.
+     - Password: Set by the store owner.
+   - **Capabilities**: Restricted access. Primarily focused on POS and Checkout.
+   - **Session**: Persisted using a specific Staff Store scope.
+
+3. CORE ENTITIES & DATA MODELS
+------------------------------
+
+   3.1. Store
+   ----------
+   A container for all business data.
+   - **Fields**: Name, Owner ID, Slug (URL friendly ID), Settings (Currency, Timezone).
+   - **Creation Flow**: User logs in -> Clicks "Create Store" -> Enters Name & Location.
+
+   3.2. Inventory (Products)
+   -------------------------
+   The inventory is segmented into three specific categories with distinct tracking logic.
+
+      A. Cylinders (Gas)
+      ------------------
+      - **Matrix Tracking**: Inventory is not tracked by individual serial numbers but by counts within a matrix of attributes.
+      - **Attributes**:
+         - Brand: (e.g., Bashundhara, Omera) - Linked to Global Brands.
+         - Size: (e.g., 12kg, 35kg).
+         - Stock Types:
+            - Full: Ready to sell.
+            - Empty: Received from customers.
+            - Defected: Damaged units.
+      - **Sales Logic**:
+         - **Packaged**: Sells Cylinder + Gas. Decreases 'Full', Increases 'Cash/Due'.
+         - **Refill**: Customer swaps Empty for Full. Decreases 'Full', Increases 'Empty', Increases 'Cash/Due'.
+
+      B. Stoves
+      ---------
+      - **Attributes**: Brand, Model Name, Burner Count (1, 2, 3, or 4 burners), Image, Price.
+      - **Tracking**: Total Stock Count, Defected Count.
+
+      C. Regulators
+      -----------
+      - **Attributes**: Brand, Type/Size (e.g., 20mm, 22mm), Image, Price.
+      - **Tracking**: Total Stock Count, Defected Count.
+
+   3.3. Customers & Partners
+   -------------------------
+   Entities involved in transactions.
+
+      A. Retail Customers (B2C)
+      -------------------------
+      - **Fields**: Name (Required), Phone (Required, min 11 digits), Address (Optional), Image (Optional).
+      - **Financials**: Tracks 'Total Due' (Credit).
+
+      B. Shops (B2B)
+      --------------
+      - **Fields**: Name (Required), Owner Name (Optional), Phone (Required, min 11 digits), Address (Required), District (Optional).
+      - **Financials**: Tracks 'Total Due' (Credit). Distinct from retail customers for reporting.
+
+      C. Vehicles (Logistics)
+      -----------------------
+      - **Fields**: License Plate (Required), Vehicle Model, Driver Name, Driver Phone.
+      - **Expense Tracking**: Vehicles are treated as entities that incur expenses.
+         - **Fuel**: Track fuel costs.
+         - **Repair**: Track repair costs with descriptions.
+
+   3.4. Staff Members
+   ------------------
+   - **Fields**: Name, Staff ID, Password (Hashed), Mobile Number, Role (Manager vs Staff), Salary (Monthly amount), Salary Due (Unpaid salary), Active Status.
+   - **Management**: Owners can add, edit, or deactivate staff accounts.
+
+4. PAGE DESTINATION & UI DETAILS
+--------------------------------
+A detailed breakdown of every accessible page in the application.
+
+   4.1. Landing Page (`/`)
+   -----------------------
+   - **Section**: Public.
+   - **Content**: Hero banner, Feature highlights, Testimonials, Pricing plans, Call to Action (CTA).
+   - **Actions**: Login / Register buttons.
+
+   4.2. Auth Pages
+   ---------------
+   - **Login (`/login`)**: Email/Password form. Link to Register.
+   - **Register (`/register`)**: Name, Email, Password form. Link to Login.
+   - **Staff Login (`/staff/login`)**:
+     - Fields: Store ID, Staff ID, Password.
+     - Actions: Login (Redirects to Staff POS).
+
+   4.3. Store Dashboard (`/stores/:id/dashboard`)
+   ---------------------------------------------
+   The command center for a selected store.
+   - **Widgets**:
+     - **Stats Cards**: Total Sales, Expenses, Net Profit, Total Due (Receivable).
+     - **Cash Box**: Shows current cash-in-hand.
+     - **Sales vs Expense Chart**: Visual graph of financial performance.
+     - **Inventory Snapshot**: Quick summary of stock alerts.
+   - **Sidebar Navigation**: Dashboard, POS, Inventory, Shops, Customers, Vehicles, Staff, History, Settings.
+
+   4.4. Inventory Page (`/stores/:id/inventory`)
+   --------------------------------------------
+   - **Tabs**: Cylinders, Stoves, Regulators.
+   - **Views**:
+     - **Card View**: Displays items as cards with images, stock counts (Full/Empty/Defected), and Prices.
+   - **Sidebar (Owner POS)**: A collapsible sidebar that acts as a quick-sale cart or stock adjustment tool (uses `InvoiceModal`).
+   - **Actions**: Add new Stock, Edit Prices, Adjust Counts.
+
+   4.5. POS Page (`/pos` or `/stores/:id/pos`)
+   -------------------------------------------
+   Dedicated interface for high-speed transactions.
+   - **Layout**: 3-Section Vertical Split.
+     1. **Top (The "Window")**:
+        - Displays selected items grouped by type: Packaged, Refill, Stoves, Regulators.
+        - Shows quantities and subtotals.
+     2. **Middle (Controls)**:
+        - **Search**: Find products by name.
+        - **Filters**: Buttons for Size (12kg, 35kg), Regulator Size, Burner Count.
+     3. **Bottom (Catalog)**:
+        - Scrollable grid of product cards.
+        - Clicking a card adds it to the Window.
+   - **Modes**:
+     - **Refill Mode**: Auto-adds an "Empty Return" item when a Cylinder is selected.
+     - **Packaged Mode**: Adds only the full cylinder cost.
+
+   4.6. Checkout Page (`/pos/checkout`)
+   ------------------------------------
+   - **Bill Review**: Table listing all items in the cart.
+   - **Customer Selection**:
+     - Dropdown/Search to select User, Shop, or Vehicle.
+     - "Add New" button to create customer on-the-fly.
+   - **Payment**:
+     - **Net Total**: Editable field (allows discount).
+     - **Paid Amount**: Input field.
+     - **Due/Change**: Auto-calculated.
+   - **Confirm**: Saves transaction and redirects to Success/Receipt view.
+
+   4.7. Shop Management (`/stores/:id/shops`)
+   -----------------------------------------
+   - **List View**: Grid of Shop Cards with Image, Name, District, and Total Due.
+   - **Actions**:
+     - **Add Shop**: Modal form (Name, Phone, Address, District).
+     - **Edit/Delete**: available on each card.
+   - **Details**: Clicking a card opens a modal with full history/details.
+
+   4.8. Customer Management (`/stores/:id/customers`)
+   -------------------------------------------------
+   - **List View**: Grid of Customer Cards.
+   - **Actions**: Add Customer, Edit, Delete.
+   - **Metrics**: Highlights 'Total Due' on the card face.
+
+   4.9. Vehicle Management (`/stores/:id/vehicles`)
+   -----------------------------------------------
+   - **List View**: Grid of Vehicle Cards (License Plate, Model, Driver Info).
+   - **Quick Actions (On Card)**:
+     - **Fuel**: Opens `AddVehicleExpenseModal` pre-selected to Fuel.
+     - **Repair**: Opens `AddVehicleExpenseModal` pre-selected to Repair.
+   - **Actions**: Add Vehicle, Edit, Delete.
+
+   4.10. History Page (`/stores/:id/history`)
+   -----------------------------------------
+   - **View 1: Daily Diary**:
+     - **Date Picker**: Select any specific date.
+     - **List**: Shows every transaction (Sale, Expense, Return) for that day vertically.
+   - **View 2: Stats**:
+     - **Filters**: Last 7 Days, This Month, This Year, Custom Range.
+     - **Analytics**: Comprehensive financial breakdown for the selected period.
+
+   4.11. Staff Management (`/stores/:id/staff`)
+   -------------------------------------------
+   - **List**: Shows all staff members with their active status and roles.
+   - **Actions**: Create Staff (generates Staff ID), Reset Password, Deactivate.
+   - **Payroll**: (Future scope implied by 'Salary' field).
+
+   4.12. Settings Page (`/stores/:id/settings`)
+   -------------------------------------------
+   - **General**: Store Name, Currency, Timezone.
+   - **Danger Zone**: Delete Store.
+
+5. FEATURE MODULES (Technical)
+------------------------------
+   - **Validation**: Strict input validation using Zod schemas for all forms.
+   - **State Management**: POS cart state persists via LocalStorage (Zustand).
+   - **UI/UX**: Responsive design with Tailwind CSS. Semantic colors (Green=Good, Red=Bad/Expense).

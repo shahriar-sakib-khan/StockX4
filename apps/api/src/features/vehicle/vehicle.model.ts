@@ -3,6 +3,7 @@ import { VehicleInput } from '@repo/shared';
 
 export interface IVehicle extends VehicleInput, Document {
   storeId: mongoose.Types.ObjectId;
+  imageUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,6 +15,7 @@ const vehicleSchema = new Schema<IVehicle>(
     vehicleModel: { type: String },
     driverName: { type: String },
     driverPhone: { type: String },
+    imageUrl: { type: String },
   },
   { timestamps: true }
 );

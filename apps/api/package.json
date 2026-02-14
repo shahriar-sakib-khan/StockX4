@@ -10,10 +10,14 @@
     "test": "vitest",
     "db:drop": "ts-node src/config/drop-db.ts",
     "seed:brands": "npx tsx src/scripts/seed-brands.ts",
-    "seed:store": "npx tsx src/scripts/seed-store.ts",
     "seed:users": "npx tsx src/scripts/seed-users.ts",
-    "upload:accessories": "npx tsx src/scripts/upload-accessories.ts",
-    "db:reset": "pnpm db:drop && pnpm seed:brands && pnpm seed:users && pnpm seed:store"
+    "seed:stores": "npx tsx src/scripts/seed-stores.ts",
+    "seed:customers": "npx tsx src/scripts/seed-customers.ts",
+    "seed:shops": "npx tsx src/scripts/seed-shops.ts",
+    "seed:inventory:cylinders": "npx tsx src/scripts/seed-inventory-cylinders.ts",
+    "seed:inventory:stoves": "npx tsx src/scripts/seed-inventory-stoves.ts",
+    "seed:inventory:regulators": "npx tsx src/scripts/seed-inventory-regulators.ts",
+    "db:reset": "pnpm db:drop && pnpm seed:brands && pnpm seed:users && pnpm seed:stores && pnpm seed:customers && pnpm seed:shops && pnpm seed:inventory:cylinders && pnpm seed:inventory:stoves && pnpm seed:inventory:regulators"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",

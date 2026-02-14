@@ -55,8 +55,14 @@ export const InvoiceModal = ({ isOpen, onClose, cartItems, onClearCart, storeId 
                     const newPrices = {
                         ...currentPrices,
                         ...(cartItem.purchaseType === 'refill'
-                            ? { gasOnly: cartItem.unitPrice }
-                            : { fullCylinder: cartItem.unitPrice }
+                            ? {
+                                buyingPriceGas: cartItem.unitPrice,
+                                ...(cartItem.sellingPrice ? { gasOnly: cartItem.sellingPrice } : {})
+                              }
+                            : {
+                                buyingPriceFull: cartItem.unitPrice,
+                                ...(cartItem.sellingPrice ? { fullCylinder: cartItem.sellingPrice } : {})
+                              }
                         )
                     };
 

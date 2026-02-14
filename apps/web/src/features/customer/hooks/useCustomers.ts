@@ -40,6 +40,42 @@ export const useCreateCustomer = () => {
     });
 };
 
+export const useCustomer = (customerId: string) => {
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useQuery({
+        queryKey: ['customer', customerId],
+        queryFn: async () => {
+            if (!customerId) return null;
+            const res = await api.get(`customers/${customerId}`, { headers: { 'x-store-id': storeId } }).json<{ customer: any }>();
+            return res.customer;
+        },
+        enabled: !!customerId && !!storeId,
+    });
+};
+
+export const useUpdateCustomer = () => {
+    const queryClient = useQueryClient();
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: CustomerInput }) => {
+            return api.patch(`customers/${id}`, {
+                json: data,
+                headers: { 'x-store-id': storeId }
+            }).json();
+        },
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['customers', storeId] });
+            queryClient.invalidateQueries({ queryKey: ['customer', variables.id] });
+            toast.success('Customer updated successfully');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Failed to update customer');
+        }
+    });
+};
+
 export const useDeleteCustomer = () => {
     const queryClient = useQueryClient();
     const { id: storeId } = useParams<{ id: string }>();

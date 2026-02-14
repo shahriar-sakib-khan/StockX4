@@ -3,6 +3,7 @@ import { usePosStore } from '../stores/pos.store';
 import { useStaffStore } from '@/features/staff/stores/staff.store';
 import { transactionApi } from '../api/transaction.api';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useStore } from '@/features/store/hooks/useStores';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -37,6 +38,12 @@ export const CheckoutPage = () => {
     const { id } = useParams<{ id: string }>(); // Store ID from URL (Owner mode)
     // Use passed storeId or fallback to staff's storeId (safely handled)
     const storeId = id || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
+    const { data: storeData } = useStore(storeId || '');
+
+    // Fetch store details to ensure we have the correct name
+    // const { data: storeData } = useStore(storeId || ''); // Already declared above
+
+    // Actually, I can use the existing hook. Let me check imports.
 
     const handleBackToPos = () => {
         if (id) {
@@ -58,14 +65,22 @@ export const CheckoutPage = () => {
                     type: i.type,
                     quantity: i.quantity,
                     unitPrice: i.unitPrice,
-                    variant: i.description
+                    variant: i.description,
+                    name: i.name,
+                    size: i.size,
+                    regulator: i.regulator,
+                    description: i.description
                 })),
                 ...returnItems.map(i => ({
                     productId: i.productId,
                     type: i.type,
                     quantity: i.quantity,
                     unitPrice: i.unitPrice,
-                    variant: i.description
+                    variant: i.description,
+                    name: i.name,
+                    size: i.size,
+                    regulator: i.regulator,
+                    description: i.description
                 }))
             ];
 
@@ -136,7 +151,7 @@ export const CheckoutPage = () => {
                         <CardContent>
                              <div className="font-mono text-sm space-y-4">
                                 <InvoiceHeader
-                                    storeName={typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store'}
+                                    storeName={storeData?.store?.name || (typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store')}
                                     showPreviewLabel
                                 />
 
@@ -147,28 +162,35 @@ export const CheckoutPage = () => {
                                 />
 
                                 <InvoiceItemsTable
-                                    items={[
-                                        ...saleItems.map(item => ({
-                                            productId: item.productId,
-                                            name: item.name,
-                                            description: item.description,
-                                            quantity: item.quantity,
-                                            unitPrice: item.unitPrice,
-                                            subtotal: item.subtotal,
-                                            saleType: item.saleType,
-                                            category: item.category,
-                                            type: item.type
-                                        })),
-                                        ...returnItems.map(item => ({
-                                            productId: item.productId,
-                                            name: item.name,
-                                            quantity: item.quantity,
-                                            unitPrice: item.unitPrice,
-                                            subtotal: item.subtotal,
-                                            saleType: 'RETURN' as const,
-                                            isReturn: true
-                                        }))
-                                    ]}
+                                        items={[
+                                            ...saleItems.map(item => ({
+                                                productId: item.productId,
+                                                name: item.name,
+                                                description: item.description,
+                                                quantity: item.quantity,
+                                                unitPrice: item.unitPrice,
+                                                subtotal: item.subtotal,
+                                                saleType: item.saleType,
+                                                category: item.category,
+                                                type: item.type,
+                                                size: item.size,
+                                                regulator: item.regulator
+                                            })),
+                                            ...returnItems.map(item => ({
+                                                productId: item.productId,
+                                                name: item.name,
+                                                description: item.description,
+                                                quantity: item.quantity,
+                                                unitPrice: item.unitPrice,
+                                                subtotal: item.subtotal,
+                                                saleType: 'RETURN' as const,
+                                                isReturn: true,
+                                                category: item.category,
+                                                type: item.type,
+                                                size: item.size,
+                                                regulator: item.regulator
+                                            }))
+                                        ]}
                                 />
 
                                 {/* Editable Totals Section (Replaces InvoiceTotals for Checkout) */}
@@ -218,8 +240,13 @@ export const CheckoutPage = () => {
 
                                     {/* Actions */}
                                     <div className="pt-6">
-                                        <Button onClick={handleConfirm} disabled={isProcessing} className="w-full">
-                                            {isProcessing ? 'Processing...' : 'Confirm Sale'}
+                                        <Button
+                                            onClick={handleConfirm}
+                                            disabled={isProcessing || !customer}
+                                            className="w-full"
+                                            title={!customer ? "Please select a customer first" : ""}
+                                        >
+                                            {isProcessing ? 'Processing...' : (!customer ? 'Select Customer First' : 'Confirm Sale')}
                                         </Button>
                                     </div>
                                 </div>

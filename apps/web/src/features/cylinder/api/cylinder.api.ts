@@ -36,5 +36,12 @@ export const cylinderApi = {
              headers: { 'x-store-id': storeId },
              json: data
         }).json<{ inventory: any }>();
+    },
+
+    upsertInventory: async (storeId: string, data: any) => {
+        return api.post('cylinders/inventory/upsert', {
+            headers: { 'x-store-id': storeId },
+            json: data
+        }).json<{ inventory: any }>();
     }
 };

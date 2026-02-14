@@ -46,7 +46,7 @@ const AccessoryRow = ({ item, storeId, type, onSell }: { item: any, storeId: str
                             <InventoryBadge variant="default" className="w-fit mb-1">{item.burnerCount} Burner{item.burnerCount !== '1' && 's'}</InventoryBadge>
                          </div>
                     ) : (
-                        <InventoryBadge variant={item.size === '22mm' ? 'orange' : 'blue'}>
+                        <InventoryBadge variant={item.size === '22mm' ? 'orange' : 'yellow'}>
                             {item.size}
                         </InventoryBadge>
                     )}

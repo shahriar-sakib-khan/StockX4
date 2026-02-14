@@ -1,30 +1,115 @@
-import { useState } from "react";
-import { Loader2, Package, RefreshCw, Box, AlertTriangle, Search, Filter } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Loader2, Package, RefreshCw, Box, AlertTriangle, Search, Filter, Plus } from "lucide-react";
 import { useInventory } from "@/features/cylinder/hooks/useCylinders";
+import { useStoreBrands } from "@/features/brand/hooks/useBrands";
 import { InventoryTable } from "@/features/cylinder/components/InventoryTable";
-import { AddBrandModal } from "@/features/cylinder/components/AddBrandModal";
+import { CreateBrandModal } from "@/features/brand/components/CreateBrandModal";
 import { Input } from "@/components/ui/input";
 import { CylinderSizeOptions } from "@repo/shared";
+import { Button } from "@/components/ui/button";
 
 export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, onAddToCart: any }) => {
-    const { data, isLoading } = useInventory(storeId);
+    const { data: inventoryData, isLoading: isInventoryLoading } = useInventory(storeId);
+    const { data: brandsData, isLoading: isBrandsLoading } = useStoreBrands(storeId);
 
     // Filters
     const [search, setSearch] = useState("");
-    const [regulator, setRegulator] = useState<string | null>(null);
+    const [regulator, setRegulator] = useState<string | null>("22mm");
     const [sizeFilter, setSizeFilter] = useState<string | null>("12kg");
     const [statusFilter, setStatusFilter] = useState<'refill' | 'empty' | 'full' | 'defected' | null>(null);
+    const [isManageOpen, setManageOpen] = useState(false);
 
-    const inventory = data?.inventory || [];
+    const inventory = inventoryData?.inventory || [];
+    const brands = (brandsData?.brands || []).filter((b: any) => b.isActive !== false && (b.type === 'cylinder' || !b.type));
 
-    const brands = inventory.reduce((acc: string[], item: any) => {
-        const id = item.brandId?._id || item.brandId;
-        if (id && !acc.includes(id)) acc.push(id);
-        return acc;
-    }, []);
+    // Local Image Mapping
+    const getLocalCylinderImage = (brandName: string) => {
+        const map: Record<string, string> = {
+            "Aygaz LPG": "aygaz",
+            "Bashundhara LPG": "bashundhara",
+            "Beximco LPG": "beximco",
+            "Bin Habeeb LPG": "binhabib",
+            "BM Energy": "bm",
+            "Delta LPG": "delta",
+            "Euro Gas": "euro",
+            "Fresh LPG": "fresh",
+            "G-Gas": "ggas",
+            "Index LPG": "index",
+            "Jamuna LPG": "jamuna",
+            "JMI LPG": "jmi",
+            "Laugfs Gas": "laugfs",
+            "Navana LPG": "navana",
+            "Omera LPG": "omera",
+            "Orion Gas": "orion",
+            "Petromax LPG": "petromax",
+            "Promita LPG": "promita",
+            "Sena LPG": "shena",
+            "TotalGas": "total",
+            "Unigas": "unigas"
+        };
+
+        const key = Object.keys(map).find(k => brandName.includes(k) || k.includes(brandName));
+        const slug = key ? map[key] : brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        return `/cylinder/22-12/${slug}-22-12.png`;
+    };
+
+    // Combine Brands with Inventory (Matrix View Logic)
+    // Generate a flat list of all available slots (Brand x Variant)
+    // Combine Brands with Inventory (Matrix View Logic)
+    // Generate a flat list of all available slots (Brand x Variant)
+    const combinedInventory = useMemo(() => {
+        return brands.flatMap((brand: any) => {
+            const localImage = getLocalCylinderImage(brand.name);
+
+            const variantsToCheck = [
+                { size: '12kg', regulator: '22mm', cylinderImage: localImage },
+                { size: '12kg', regulator: '20mm', cylinderImage: localImage },
+                { size: '35kg', regulator: '22mm', cylinderImage: localImage },
+                { size: '45kg', regulator: '22mm', cylinderImage: localImage },
+            ];
+
+            return variantsToCheck.map(variant => {
+                // Find existing inventory record
+                const existing = inventory.find((i: any) =>
+                    i.brandId?._id === brand._id &&
+                    i.variant?.size === variant.size &&
+                    i.variant?.regulator === variant.regulator
+                );
+
+                if (existing) {
+                    return {
+                        ...existing,
+                        brandName: existing.brandId?.name || brand.name,
+                        variant: {
+                            ...existing.variant,
+                            cylinderImage: localImage
+                        }
+                    };
+                }
+
+                // Create Virtual Item
+                return {
+                    _id: `virtual-${brand._id}-${variant.size}-${variant.regulator}`,
+                    brandId: brand,
+                    brandName: brand.name,
+                    variant: {
+                        size: variant.size,
+                        regulator: variant.regulator,
+                        cylinderImage: variant.cylinderImage
+                    },
+                    counts: { full: 0, empty: 0, defected: 0 },
+                    prices: { buyingFull: 0, sellingFull: 0, buyingGas: 0, sellingGas: 0 },
+                    isVirtual: true // Flag to indicate it's not in DB yet
+                };
+            });
+        });
+    }, [brands, inventory]);
+
+    const displayInventory = combinedInventory;
 
     // Base Filter (Variants & Search)
-    const baseInventory = inventory.filter((item: any) => {
+    const baseInventory = displayInventory.filter((item: any) => {
         if (search && !item.brandName.toLowerCase().includes(search.toLowerCase())) return false;
         if (regulator && item.variant.regulator !== regulator) return false;
         if (sizeFilter && item.variant.size !== sizeFilter) return false;
@@ -47,7 +132,12 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
         return true;
     });
 
-    if (isLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin" /></div>;
+    // Validations: If we have brands but no inventory, we might want to hint that they need to add stock.
+    // But BuyStockModal handles "Add Stock" for existing brands even if no inventory record exists?
+    // BuyStockModal currently accepts an `item`. If no item, we can't open it easily.
+    // We'll address "Virtual Items" (missing stock) later. For now, at least let them manage brands.
+
+    if (isInventoryLoading || isBrandsLoading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin" /></div>;
 
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
@@ -126,14 +216,22 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             All
                         </button>
                         <button
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${regulator === '22mm' ? 'bg-orange-500 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-orange-50'}`}
                             onClick={() => setRegulator('22mm')}
+                            className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${
+                                regulator === '22mm'
+                                    ? 'bg-orange-500 text-white border-orange-600 shadow-sm'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'
+                            }`}
                         >
                             22mm
                         </button>
                         <button
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${regulator === '20mm' ? 'bg-blue-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-blue-50'}`}
                             onClick={() => setRegulator('20mm')}
+                            className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${
+                                regulator === '20mm'
+                                    ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-sm'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-yellow-50 hover:text-yellow-600 hover:border-yellow-200'
+                            }`}
                         >
                             20mm
                         </button>
@@ -162,7 +260,11 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <AddBrandModal storeId={storeId!} existingBrandIds={brands} />
+                    {/* Replaced AddBrandModal with new Managing Modal Button */}
+                    <Button onClick={() => setManageOpen(true)}>
+                         <Plus className="w-4 h-4 mr-2" /> Manage Brands
+                    </Button>
+                    <CreateBrandModal open={isManageOpen} onClose={() => setManageOpen(false)} storeId={storeId} />
                 </div>
             </div>
 

@@ -56,3 +56,41 @@ export const useDeleteShop = () => {
         }
     });
 };
+
+
+export const useShop = (shopId: string) => {
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useQuery({
+        queryKey: ['shop', shopId],
+        queryFn: async () => {
+            const res = await api.get(`shops/${shopId}`, {
+                headers: { 'x-store-id': storeId }
+            }).json<{ shop: any }>();
+            return res.shop;
+        },
+        enabled: !!shopId && !!storeId,
+    });
+};
+
+export const useUpdateShop = () => {
+    const queryClient = useQueryClient();
+    const { id: storeId } = useParams<{ id: string }>();
+
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: ShopInput }) => {
+            return api.patch(`shops/${id}`, {
+                json: data,
+                headers: { 'x-store-id': storeId }
+            }).json();
+        },
+        onSuccess: (_, { id }) => {
+            queryClient.invalidateQueries({ queryKey: ['shops', storeId] });
+            queryClient.invalidateQueries({ queryKey: ['shop', id] });
+            toast.success('Shop updated successfully');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Failed to update shop');
+        }
+    });
+};

@@ -8,6 +8,9 @@ export const createStaffSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   role: StaffRole.default("staff"),
   image: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  salary: z.coerce.number().min(0, "Salary must be positive").default(0),
+  salaryDue: z.coerce.number().default(0),
+  phone: z.string().min(11, "Phone number must be at least 11 digits").optional(),
 });
 
 export const updateStaffSchema = z.object({
@@ -16,6 +19,9 @@ export const updateStaffSchema = z.object({
   isActive: z.boolean().optional(),
   password: z.string().min(6, "Password must be at least 6 characters").optional(),
   image: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  salary: z.coerce.number().min(0, "Salary must be positive").optional(),
+  salaryDue: z.coerce.number().optional(),
+  phone: z.string().min(11, "Phone number must be at least 11 digits").optional(),
 });
 
 export const staffLoginSchema = z.object({

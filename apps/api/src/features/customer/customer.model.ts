@@ -14,6 +14,7 @@ const customerSchema = new Schema<ICustomer>(
     name: { type: String, required: true },
     phone: { type: String, required: true },
     address: { type: String },
+    imageUrl: { type: String },
     totalDue: { type: Number, default: 0 },
   },
   { timestamps: true }

@@ -70,8 +70,8 @@ export const POSControls = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Types</SelectItem>
-                                <SelectItem value="20mm">20mm</SelectItem>
-                                <SelectItem value="22mm">22mm</SelectItem>
+                                <SelectItem value="22mm" className="text-orange-600 font-bold">22mm</SelectItem>
+                                <SelectItem value="20mm" className="text-yellow-600 font-bold">20mm</SelectItem>
                             </SelectContent>
                         </Select>
                    </>
@@ -101,8 +101,8 @@ export const POSControls = () => {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="20mm">20mm</SelectItem>
-                            <SelectItem value="22mm">22mm</SelectItem>
+                            <SelectItem value="22mm" className="text-orange-600 font-bold">22mm</SelectItem>
+                            <SelectItem value="20mm" className="text-yellow-600 font-bold">20mm</SelectItem>
                         </SelectContent>
                    </Select>
                )}

@@ -5,7 +5,9 @@ import { CustomerService } from '../customer/customer.service';
 import { StoreInventory } from '../cylinder/cylinder.model';
 import { CustomerModel } from '../customer/customer.model';
 import { ShopModel } from '../shop/shop.model';
+import { StaffModel } from '../staff/staff.model';
 import mongoose from 'mongoose';
+
 
 export class TransactionService {
   static async create(
@@ -19,7 +21,7 @@ export class TransactionService {
     try {
       // 1. Calculate Total & Prepare Items
       let totalAmount = 0;
-      const itemsWithSubtotal: ITransactionItem[] = data.items.map((item) => {
+      const itemsWithSubtotal: (ITransactionItem & { subtotal: number })[] = data.items.map((item) => {
         const subtotal = item.quantity * item.unitPrice;
         totalAmount += subtotal;
         return {
@@ -29,6 +31,10 @@ export class TransactionService {
           unitPrice: item.unitPrice,
           subtotal,
           variant: item.variant,
+          name: item.name || 'Unknown Item',
+          size: item.size,
+          regulator: item.regulator,
+          description: item.description,
         };
       });
 
@@ -55,7 +61,56 @@ export class TransactionService {
       await transaction.save({ session });
 
       // 3. Update Customer/Shop Due Balance
-      if (dueAmount > 0 && data.customerId && data.customerType) {
+      if (data.type === 'DUE_PAYMENT') {
+          // DUE_PAYMENT means user is PAYING OFF debt.
+          // paidAmount decreases totalDue.
+          const payment = data.paidAmount;
+          if (payment > 0 && data.customerId && data.customerType) {
+              if (data.customerType === 'Customer') {
+                  await CustomerModel.findByIdAndUpdate(
+                      data.customerId,
+                      { $inc: { totalDue: -payment } }
+                  ).session(session);
+              } else if (data.customerType === 'Shop') {
+                   await ShopModel.findByIdAndUpdate(
+                      data.customerId,
+                      { $inc: { totalDue: -payment } }
+                  ).session(session);
+              }
+          }
+      } else if (data.type === 'EXPENSE' && itemsWithSubtotal.length > 0) {
+          // Salary Payment Logic
+          for (const item of itemsWithSubtotal) {
+             if (item.name && item.name.toLowerCase().includes('salary') && item.productId) {
+                 await StaffModel.findByIdAndUpdate(item.productId, {
+                     $inc: { salaryDue: -(item.subtotal || 0) }
+                 }, { session });
+             }
+          }
+      }
+
+      if (data.type !== 'DUE_PAYMENT' && dueAmount > 0 && data.customerId && data.customerType) {
+          // DUE_PAYMENT means user is PAYING OFF debt.
+          // paidAmount decreases totalDue.
+          const payment = data.paidAmount;
+          if (payment > 0 && data.customerId && data.customerType) {
+              if (data.customerType === 'Customer') {
+                  await CustomerModel.findByIdAndUpdate(
+                      data.customerId,
+                      { $inc: { totalDue: -payment } }
+                  ).session(session);
+              } else if (data.customerType === 'Shop') {
+                   await ShopModel.findByIdAndUpdate(
+                      data.customerId,
+                      { $inc: { totalDue: -payment } }
+                  ).session(session);
+              }
+          }
+      }
+
+      // Normal Transaction with Due (moved outside else-if chain to allow Expense + Due mixed if ever needed, but mainly to fit structure)
+      if (data.type !== 'DUE_PAYMENT' && dueAmount > 0 && data.customerId && data.customerType) {
+          // Normal Transaction with Due
           if (data.customerType === 'Customer') {
               await CustomerModel.findByIdAndUpdate(
                   data.customerId,
@@ -70,33 +125,35 @@ export class TransactionService {
       }
 
       // 4. Update Inventory (Atomic Logic)
-      for (const item of itemsWithSubtotal) {
-        if (item.type === 'CYLINDER') {
-             // For now, simple logic based on Transaction Type.
-             // In future, if Mixed Cart is sent, we need 'direction' per item.
-            if (data.type === 'SALE') {
-                // Selling: Decrease Full, Increase Empty?
-                // Usually "Exchange" = Decrease Full, Increase Empty.
-                // "New Sale" = Decrease Full.
-                // "Refill" = Decrease Full, Increase Empty (Customer gives empty).
+      if (data.type !== 'DUE_PAYMENT') { // Skip inventory for due payments
+          for (const item of itemsWithSubtotal) {
+            if (item.type === 'CYLINDER') {
+                 // For now, simple logic based on Transaction Type.
+                 // In future, if Mixed Cart is sent, we need 'direction' per item.
+                if (data.type === 'SALE') {
+                    // Selling: Decrease Full, Increase Empty?
+                    // Usually "Exchange" = Decrease Full, Increase Empty.
+                    // "New Sale" = Decrease Full.
+                    // "Refill" = Decrease Full, Increase Empty (Customer gives empty).
 
-                // Let's assume standard "Refill/Exchange" behavior for SALE for now,
-                // or just simple decrement if it's just a sale.
-                // The logical flow determines this.
-                // As per user wireframe, "Selling" probably means stock out.
+                    // Let's assume standard "Refill/Exchange" behavior for SALE for now,
+                    // or just simple decrement if it's just a sale.
+                    // The logical flow determines this.
+                    // As per user wireframe, "Selling" probably means stock out.
 
-                await StoreInventory.updateOne(
-                    { _id: item.productId, storeId } as any,
-                    { $inc: { 'counts.full': -item.quantity } }
-                ).session(session);
-            } else if (data.type === 'RETURN') {
-                // Incoming Empty
-                await StoreInventory.updateOne(
-                    { _id: item.productId, storeId } as any,
-                    { $inc: { 'counts.empty': item.quantity } }
-                ).session(session);
+                    await StoreInventory.updateOne(
+                        { _id: item.productId, storeId } as any,
+                        { $inc: { 'counts.full': -item.quantity } }
+                    ).session(session);
+                } else if (data.type === 'RETURN') {
+                    // Incoming Empty
+                    await StoreInventory.updateOne(
+                        { _id: item.productId, storeId } as any,
+                        { $inc: { 'counts.empty': item.quantity } }
+                    ).session(session);
+                }
             }
-        }
+          }
       }
 
       await session.commitTransaction();
@@ -112,6 +169,10 @@ export class TransactionService {
 
   static async getHistory(storeId: string, filters: any = {}) {
       const query: any = { storeId };
+
+      if (filters.customerId) {
+          query.customerId = filters.customerId;
+      }
 
       if (filters.search) {
           // Note: This requires populating customer/shop first or aggregate.
@@ -138,6 +199,16 @@ export class TransactionService {
       }
       if (filters.maxAmount) {
           query.finalAmount = { ...query.finalAmount, $lte: Number(filters.maxAmount) };
+      }
+
+      if (filters.type) {
+          query.type = filters.type;
+      }
+      if (filters.customerType) {
+          query.customerType = filters.customerType;
+      }
+      if (filters.paymentMethod) {
+          query.paymentMethod = filters.paymentMethod;
       }
 
       const page = Number(filters.page) || 1;
@@ -169,6 +240,60 @@ export class TransactionService {
               limit,
               totalPages: Math.ceil(total / limit)
           }
+      };
+  }
+
+  static async getSummary(storeId: string, filters: any = {}) {
+      const matchStage: any = { storeId: new mongoose.Types.ObjectId(storeId) };
+
+      if (filters.startDate || filters.endDate) {
+          matchStage.createdAt = {};
+          if (filters.startDate) matchStage.createdAt.$gte = new Date(filters.startDate);
+          if (filters.endDate) matchStage.createdAt.$lte = new Date(filters.endDate);
+      }
+
+      if (filters.type) matchStage.type = filters.type;
+
+      const summary = await Transaction.aggregate([
+          { $match: matchStage },
+          {
+              $group: {
+                  _id: null,
+                  totalSales: {
+                      $sum: {
+                          $cond: [{ $eq: ["$type", "SALE"] }, "$finalAmount", 0]
+                      }
+                  },
+                  totalExpenses: {
+                      $sum: {
+                          $cond: [{ $eq: ["$type", "EXPENSE"] }, "$finalAmount", 0]
+                      }
+                  },
+                  totalDueCollected: {
+                      $sum: {
+                          $cond: [{ $eq: ["$type", "DUE_PAYMENT"] }, "$paidAmount", 0]
+                      }
+                  },
+                  totalDuePending: {
+                       $sum: "$dueAmount"
+                  },
+                  totalReturns: {
+                      $sum: {
+                          $cond: [{ $eq: ["$type", "RETURN"] }, "$finalAmount", 0]
+                      }
+                  },
+                  count: { $sum: 1 }
+              }
+          }
+      ]);
+
+      return summary[0] || {
+          totalSales: 0,
+          totalExpenses: 0,
+          totalDueCollected: 0,
+          totalDuePending: 0,
+          totalReturns: 0,
+          count: 0
       };
   }
 }

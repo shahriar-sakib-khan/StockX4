@@ -117,8 +117,8 @@ export const AddProductModal = ({ isOpen, onClose, type, storeId }: AddProductMo
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="22mm">22mm</SelectItem>
-                                <SelectItem value="20mm">20mm</SelectItem>
+                                <SelectItem value="22mm" className="text-orange-600 font-bold">22mm</SelectItem>
+                                <SelectItem value="20mm" className="text-yellow-600 font-bold">20mm</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

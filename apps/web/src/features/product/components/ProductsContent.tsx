@@ -108,7 +108,7 @@ export const ProductsContent = ({ storeId, type, title, onAddToCart }: { storeId
                     value={stats.variant1}
                     subTitle=""
                     icon={type === 'stove' ? Flame : Settings}
-                    color="blue"
+                    color="orange"
                     isActive={burnerFilter === 'single' || regulatorFilter === '22mm'}
                     onClick={() => {
                         setShowDamaged(false);

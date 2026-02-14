@@ -39,8 +39,9 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
      // Explicitly attach image to ensure store picks it up (bypassing potential nesting issues)
      const productWithImage = {
         ...product,
-        image: product.variant?.cylinderImage,
-        color: product.variant?.cylinderColor
+        brandName: product.brandId?.name || product.brandName,
+        image: product.brandId?.cylinderImage || product.variant?.cylinderImage,
+        color: product.brandId?.color || product.variant?.cylinderColor
      };
      addItem(productWithImage, qty);
      setQty(1); // Reset after add
@@ -58,16 +59,16 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
         <div className="flex justify-between items-start mb-2">
             {/* Left: Brand Name & Logo */}
             <div className="flex flex-col gap-1">
-                <div className="font-bold text-sm leading-tight max-w-[120px] text-foreground">{product.brandName}</div>
+                <div className="font-bold text-sm leading-tight max-w-[120px] text-foreground">{product.brandId?.name || product.brandName}</div>
                 <div className="w-16 h-8 border rounded flex items-center justify-center bg-gray-50 text-[10px] text-muted-foreground font-semibold">
-                    Logo
+                    {product.brandId?.logo ? <img src={product.brandId.logo} alt="Logo" className="max-h-full max-w-full" /> : 'Logo'}
                 </div>
             </div>
 
             {/* Right: Size & Regulator */}
             <div className="flex flex-col gap-1 items-end">
                 <Badge variant="outline" className="h-7 min-w-[60px] justify-center bg-slate-50">{product.variant?.size}</Badge>
-                <Badge variant="outline" className="h-7 min-w-[60px] justify-center bg-slate-50">{product.variant?.regulator}</Badge>
+                <Badge variant="outline" className={`h-7 min-w-[60px] justify-center border-0 font-bold ${product.variant?.regulator === '22mm' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.variant?.regulator}</Badge>
             </div>
         </div>
 
@@ -78,11 +79,11 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
                  <div className="w-20 h-28 relative">
                      <div
                         className="absolute w-16 h-24 rounded opacity-20 blur-xl top-2 left-2"
-                        style={{ backgroundColor: product.variant?.cylinderColor || '#ccc' }}
+                        style={{ backgroundColor: product.brandId?.color || product.variant?.cylinderColor || '#ccc' }}
                      ></div>
-                     {product.variant?.cylinderImage && (
+                     {(product.brandId?.cylinderImage || product.variant?.cylinderImage) && (
                         <img
-                            src={product.variant.cylinderImage}
+                            src={product.brandId?.cylinderImage || product.variant?.cylinderImage}
                             alt="Cylinder"
                             className="h-full object-contain relative z-10 drop-shadow-sm"
                         />

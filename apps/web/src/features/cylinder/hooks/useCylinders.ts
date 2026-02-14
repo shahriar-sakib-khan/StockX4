@@ -55,3 +55,17 @@ export const useUpdateInventory = () => {
         },
     });
 };
+
+export const useInventoryService = () => {
+    const queryClient = useQueryClient();
+
+    const upsertInventory = useMutation({
+        mutationFn: ({ storeId, data }: { storeId: string; data: any }) =>
+            cylinderApi.upsertInventory(storeId, data),
+        onSuccess: (_, variables) => {
+             queryClient.invalidateQueries({ queryKey: ['inventory', variables.storeId] });
+        },
+    });
+
+    return { upsertInventory };
+};

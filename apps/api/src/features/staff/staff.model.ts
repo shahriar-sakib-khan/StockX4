@@ -6,6 +6,8 @@ export interface IStaff extends Omit<CreateStaffInput, 'password'>, Document {
   storeId: Types.ObjectId;
   passwordHash: string;
   isActive: boolean;
+  salaryDue: number;
+  lastSalaryProcessed?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +20,10 @@ const staffSchema = new Schema<IStaff>(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: StaffRole.options, default: 'staff' },
     image: { type: String },
+    salary: { type: Number, default: 0 },
+    salaryDue: { type: Number, default: 0 },
+    lastSalaryProcessed: { type: Date, default: new Date() }, // Default to creation time
+    phone: { type: String },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

@@ -23,8 +23,12 @@ export const POSCylinders = ({ storeId }: POSCylindersProps) => {
     if (item.category && item.category !== 'cylinder') return false;
 
     // 1. Search Filter
-    const matchesSearch = item.brandName.toLowerCase().includes(filterSearch.toLowerCase()) ||
-                          item.variant?.size.toLowerCase().includes(filterSearch.toLowerCase());
+    const brandName = item.brandId?.name || item.brandName || '';
+    const size = item.variant?.size || '';
+    const search = (filterSearch || '').toLowerCase();
+
+    const matchesSearch = brandName.toLowerCase().includes(search) ||
+                          size.toLowerCase().includes(search);
 
     // 2. Size Filter
     const matchesSize = filterSize === 'all' || item.variant?.size === filterSize;

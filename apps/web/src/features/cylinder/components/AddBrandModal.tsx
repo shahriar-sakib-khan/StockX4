@@ -1,8 +1,7 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { Plus, Check, Loader2, Minus, Trash2 } from "lucide-react";
-import { useBrands } from "@/features/brand/hooks/useBrands";
-import { useSubscribeBatchBrand, useRemoveBrand } from "../hooks/useCylinders";
+import { useBrands, useUpdateStoreBrandsBulk } from "@/features/brand/hooks/useBrands";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Avatar } from "@/components/ui/Avatar";
@@ -14,11 +13,10 @@ interface AddBrandModalProps {
 }
 
 export const AddBrandModal = ({ storeId, existingBrandIds }: AddBrandModalProps) => {
-    const [open, setOpen] = useState(false);
-    const { data, isLoading } = useBrands();
-    const subscribeBatch = useSubscribeBatchBrand();
-    const removeBrand = useRemoveBrand();
+    const { data, isLoading } = useBrands(storeId);
+    const updateBulk = useUpdateStoreBrandsBulk();
 
+    const [open, setOpen] = useState(false);
     // State for new additions
     const [brandsToAdd, setBrandsToAdd] = useState<string[]>([]);
     // State for removals (from existing)
@@ -34,23 +32,82 @@ export const AddBrandModal = ({ storeId, existingBrandIds }: AddBrandModalProps)
     const handleUpdate = async () => {
         if (brandsToAdd.length === 0 && brandsToRemove.length === 0) return;
 
-        const promises = [];
+        // Classify added/removed brands
+        const globalToAdd: string[] = [];
+        const customToAdd: string[] = [];
+        const globalToRemove: string[] = [];
+        const customToRemove: string[] = [];
 
-        if (brandsToAdd.length > 0) {
-            promises.push(subscribeBatch.mutateAsync({ storeId, globalBrandIds: brandsToAdd }));
-        }
+        // Helper to check if a brand ID is custom
+        const isCustomBrand = (id: string) => {
+            const brand = brands.find((b: any) => b._id === id);
+            return brand?.isCustom || false;
+        };
 
-        if (brandsToRemove.length > 0) {
-            const deletePromises = brandsToRemove.map(id => removeBrand.mutateAsync({ storeId, globalBrandId: id }));
-            promises.push(...deletePromises);
-        }
+        brandsToAdd.forEach(id => {
+            if (isCustomBrand(id)) customToAdd.push(id);
+            else globalToAdd.push(id);
+        });
 
+        brandsToRemove.forEach(id => {
+            if (isCustomBrand(id)) customToRemove.push(id);
+            else globalToRemove.push(id);
+        });
+
+        // For Bulk Update (Activation)
+        // We need to send ALL currently active brands + new ones - removed ones?
+        // Actually, the API `updateStoreBrandsBulk` sets active state.
+        // It deactivates everything and activates what we send.
+        // So we should construct the "Final List" of IDs to send.
+
+        // HOWEVER, the current implementation of `AddBrandModal` is incremental (Add/Remove).
+        // `updateStoreBrandsBulk` in the API (as I just wrote it) is "Replace All".
+        // It deactivates ALL, then activates the list.
+        // If I use `updateStoreBrandsBulk`, I must send the FULL state of desired brands.
+
+        // But `useSubscribeBatchBrand` calls `updateStoreBrandsBulk`.
+        // If I want to use the incremental approach (Add/Remove), I should use `addStoreBrand` and `deleteStoreBrand` individually?
+        // OR I should verify `useSubscribeBatchBrand` implementation.
+
+        // Let's look at `useBrands.ts`:
+        // export const useSubscribeBatchBrand = () => { ... brandApi.updateStoreBrandsBulk ... }
+
+        // If the API does "Deactivate All", then I MUST send the complete list of *desired* active brands.
+        // `existingBrandIds` contains current active ones.
+        // `brandsToAdd` are new ones.
+        // `brandsToRemove` are ones to drop.
+
+        // Desired List = (Existing - Removed) + Added
+        const currentSet = new Set(existingBrandIds);
+        brandsToRemove.forEach(id => currentSet.delete(id));
+        brandsToAdd.forEach(id => currentSet.add(id));
+
+        const finalDesiredIds = Array.from(currentSet);
+
+        const finalGlobalIds: string[] = [];
+        const finalCustomIds: string[] = [];
+
+        finalDesiredIds.forEach(id => {
+             // We need to look up if it is custom.
+             // But valid `id` might not be in `brands` list if `brands` only fetches *active*?
+             // No, `useBrands` fetches ALL global and ALL Store (which includes active/inactive).
+             if (isCustomBrand(id)) finalCustomIds.push(id);
+             else finalGlobalIds.push(id);
+        });
+
+        // Use the Bulk Update API which is safer and cleaner
         try {
-            await Promise.all(promises);
+            await updateBulk.mutateAsync({
+                storeId,
+                globalBrandIds: finalGlobalIds,
+                customBrandIds: finalCustomIds
+            });
             toast.success("Inventory updated");
             setOpen(false);
+            // Reset local state
+            setBrandsToAdd([]);
+            setBrandsToRemove([]);
         } catch (error: any) {
-             // extracting error message
              const errorMsg = error?.response?.json ? (await error.response.json()).error : error.message;
              toast.error(typeof errorMsg === 'string' ? errorMsg : "Failed to update inventory");
              console.error(error);
@@ -78,9 +135,11 @@ export const AddBrandModal = ({ storeId, existingBrandIds }: AddBrandModalProps)
     };
 
     const brands = data?.brands || [];
+    // Show all brands (Global + Custom)
+    // Removed legacy variant check as GlobalBrand schema no longer has variants array.
     const availableBrands = brands;
 
-    const isPending = subscribeBatch.isPending || removeBrand.isPending;
+    const isPending = updateBulk.isPending;
     const hasChanges = brandsToAdd.length > 0 || brandsToRemove.length > 0;
 
     return (

@@ -17,7 +17,14 @@ const seedUsers = async () => {
             { email: 'admin@gmail.com', password: 'admin123', name: 'Admin User', role: 'admin' },
             { email: 'test1@gmail.com', password: 'password123', name: 'Test User One', role: 'user' },
             { email: 'test2@gmail.com', password: 'password123', name: 'Test User Two', role: 'user' },
-            { email: 'test3@gmail.com', password: 'password123', name: 'Test User Three', role: 'user' }
+            { email: 'test3@gmail.com', password: 'password123', name: 'Test User Three', role: 'user' },
+            {
+                _id: new mongoose.Types.ObjectId('5f8d04f147373d4722881234'),
+                email: 'sakib@gmail.com',
+                password: '123456',
+                name: 'Sakib Khan',
+                role: 'user'
+            }
         ];
 
         for (const u of users) {
