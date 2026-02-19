@@ -48,6 +48,13 @@
     --sidebar-background: 222.2 47.4% 11.2%; /* slate-900 equivalent */
     --sidebar-foreground: 210 40% 98%;
     --sidebar-border: 217.2 32.6% 17.5%; /* slate-800/white/10 replacement approx */
+
+    /* StockX Semantic Colors */
+    --income: 142.1 76.2% 36.3%; /* green-600 */
+    --expense: 346.8 77.2% 49.8%; /* red-500 */
+    --warning: 45 93% 47%; /* amber-500 */
+    --product-20mm: 48 96% 53%; /* yellow-400 */
+    --product-22mm: 32 95% 55%; /* orange-500 */
   }
 
   .dark {

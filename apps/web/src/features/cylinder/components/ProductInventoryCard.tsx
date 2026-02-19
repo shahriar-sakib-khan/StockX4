@@ -87,22 +87,22 @@ export const ProductInventoryCard = ({ item, storeId, onBuy, onSell, onAdjust, t
 
                     {/* Inventory Counters - Big & Colorful */}
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-emerald-50 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-emerald-100 min-w-0 shadow-sm transition-all hover:shadow-md">
-                            <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider truncate w-full mb-0.5">Stock</span>
-                            <span className="text-3xl lg:text-4xl font-black text-emerald-700 leading-none">
+                        <div className="bg-income/10 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-income/20 min-w-0 shadow-sm transition-all hover:shadow-md">
+                            <span className="text-[9px] font-black text-income uppercase tracking-wider truncate w-full mb-0.5">Stock</span>
+                            <span className="text-3xl lg:text-4xl font-black text-income leading-none">
                                 {item.counts?.full || 0}
                             </span>
                         </div>
                         <div
-                            className="bg-rose-50 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-rose-100 cursor-pointer hover:bg-rose-100 transition-colors group/defect min-w-0 shadow-sm transition-all hover:shadow-md relative"
+                            className="bg-expense/10 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-expense/20 cursor-pointer hover:bg-expense/20 transition-colors group/defect min-w-0 shadow-sm transition-all hover:shadow-md relative"
                             onClick={() => onAdjust(item)}
                             title="Manage Defects"
                         >
                             <div className="absolute top-1 right-1 p-1 bg-white/50 rounded-full hover:bg-white transition-colors">
-                                <PenLine className="w-3 h-3 text-rose-500" />
+                                <PenLine className="w-3 h-3 text-expense" />
                             </div>
-                            <span className="text-[9px] font-black text-rose-600 uppercase tracking-wider truncate w-full mb-0.5">Defect</span>
-                            <span className="text-3xl lg:text-4xl font-black text-rose-700 leading-none">
+                            <span className="text-[9px] font-black text-expense uppercase tracking-wider truncate w-full mb-0.5">Defect</span>
+                            <span className="text-3xl lg:text-4xl font-black text-expense leading-none">
                                 {item.counts?.defected || 0}
                             </span>
                         </div>

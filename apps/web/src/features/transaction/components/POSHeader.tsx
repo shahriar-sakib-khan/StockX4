@@ -1,13 +1,11 @@
 import { usePosStore } from '../stores/pos.store';
 import { useStaffStore } from '@/features/staff/stores/staff.store';
-import { CustomerSelect } from './CustomerSelect';
+import { CustomerSelectionModal } from './CustomerSelectionModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { Modal } from '@/components/ui/Modal';
 
 interface POSHeaderProps {
     storeId?: string;
@@ -17,9 +15,8 @@ interface POSHeaderProps {
 }
 
 export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderProps) => {
-    const [showCustomerError, setShowCustomerError] = useState(false);
     const [isCustomerModalOpen, setCustomerModalOpen] = useState(false);
-    const { customer, getTotals, clearCart } = usePosStore();
+    const { getTotals, clearCart, customer } = usePosStore();
     const { staff } = useStaffStore();
     const { netTotal } = getTotals();
     const navigate = useNavigate();
@@ -28,21 +25,12 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
     const effectiveStoreId = storeId || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
 
     const handleDone = () => {
-        if (!customer) {
-            setCustomerModalOpen(true);
+        if (netTotal === 0) {
+            toast.error("Cart is empty");
             return;
         }
-        setShowCustomerError(false);
-        navigate(effectiveStoreId ? `/stores/${effectiveStoreId}/pos/checkout` : '/pos/checkout');
+        setCustomerModalOpen(true);
     };
-
-    // Reset error and close modal when customer is selected
-    useEffect(() => {
-        if (customer) {
-            setShowCustomerError(false);
-            setCustomerModalOpen(false);
-        }
-    }, [customer]);
 
     return (
         <div className="flex items-center justify-between border rounded-lg p-2 bg-white shadow-sm shrink-0 h-16">
@@ -70,8 +58,15 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
                    </Link>
                )}
 
-               <div className="w-[300px]">
-                   {effectiveStoreId && <CustomerSelect storeId={effectiveStoreId} hasError={showCustomerError} />}
+               <div className="flex flex-col">
+                   <h1 className="font-bold text-lg leading-none">POS Terminal</h1>
+                   {customer ? (
+                        <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                            Current: {customer.name}
+                        </span>
+                   ) : (
+                       <span className="text-xs text-muted-foreground">No Customer Selected</span>
+                   )}
                </div>
            </div>
 
@@ -95,24 +90,13 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
                 </Button>
            </div>
 
-           {/* Customer Selection Modal */}
-           <Modal
-               isOpen={isCustomerModalOpen}
-               onClose={() => setCustomerModalOpen(false)}
-               title="Select Customer"
-               className="max-w-md"
-           >
-               <div className="space-y-4">
-                   <p className="text-muted-foreground text-sm">
-                       Please select a Customer or Shop to proceed with the invoice.
-                   </p>
-                   {effectiveStoreId && (
-                       <div className="relative z-50">
-                           <CustomerSelect storeId={effectiveStoreId} />
-                       </div>
-                   )}
-               </div>
-           </Modal>
+           {effectiveStoreId && (
+                <CustomerSelectionModal
+                    isOpen={isCustomerModalOpen}
+                    onClose={() => setCustomerModalOpen(false)}
+                    storeId={effectiveStoreId}
+                />
+           )}
         </div>
     );
 };

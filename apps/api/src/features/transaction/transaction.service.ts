@@ -35,6 +35,7 @@ export class TransactionService {
           size: item.size,
           regulator: item.regulator,
           description: item.description,
+          isReturn: (item as any).isReturn || false, // Cast to any to bypass strict Zod type input for now
         };
       });
 
@@ -89,24 +90,6 @@ export class TransactionService {
           }
       }
 
-      if (data.type !== 'DUE_PAYMENT' && dueAmount > 0 && data.customerId && data.customerType) {
-          // DUE_PAYMENT means user is PAYING OFF debt.
-          // paidAmount decreases totalDue.
-          const payment = data.paidAmount;
-          if (payment > 0 && data.customerId && data.customerType) {
-              if (data.customerType === 'Customer') {
-                  await CustomerModel.findByIdAndUpdate(
-                      data.customerId,
-                      { $inc: { totalDue: -payment } }
-                  ).session(session);
-              } else if (data.customerType === 'Shop') {
-                   await ShopModel.findByIdAndUpdate(
-                      data.customerId,
-                      { $inc: { totalDue: -payment } }
-                  ).session(session);
-              }
-          }
-      }
 
       // Normal Transaction with Due (moved outside else-if chain to allow Expense + Due mixed if ever needed, but mainly to fit structure)
       if (data.type !== 'DUE_PAYMENT' && dueAmount > 0 && data.customerId && data.customerType) {
@@ -128,28 +111,18 @@ export class TransactionService {
       if (data.type !== 'DUE_PAYMENT') { // Skip inventory for due payments
           for (const item of itemsWithSubtotal) {
             if (item.type === 'CYLINDER') {
-                 // For now, simple logic based on Transaction Type.
-                 // In future, if Mixed Cart is sent, we need 'direction' per item.
-                if (data.type === 'SALE') {
-                    // Selling: Decrease Full, Increase Empty?
-                    // Usually "Exchange" = Decrease Full, Increase Empty.
-                    // "New Sale" = Decrease Full.
-                    // "Refill" = Decrease Full, Increase Empty (Customer gives empty).
-
-                    // Let's assume standard "Refill/Exchange" behavior for SALE for now,
-                    // or just simple decrement if it's just a sale.
-                    // The logical flow determines this.
-                    // As per user wireframe, "Selling" probably means stock out.
-
-                    await StoreInventory.updateOne(
-                        { _id: item.productId, storeId } as any,
-                        { $inc: { 'counts.full': -item.quantity } }
-                    ).session(session);
-                } else if (data.type === 'RETURN') {
-                    // Incoming Empty
+                 // Logic based on Item Direction (isReturn) or Transaction Type
+                if (item.isReturn === true || data.type === 'RETURN') {
+                    // Incoming Empty (Return)
                     await StoreInventory.updateOne(
                         { _id: item.productId, storeId } as any,
                         { $inc: { 'counts.empty': item.quantity } }
+                    ).session(session);
+                } else if (data.type === 'SALE') {
+                    // Outgoing Full (Sale)
+                    await StoreInventory.updateOne(
+                        { _id: item.productId, storeId } as any,
+                        { $inc: { 'counts.full': -item.quantity } }
                     ).session(session);
                 }
             }

@@ -33,9 +33,13 @@ export const Modal = ({ isOpen, onClose, title, children, className, align = 'ce
   if (!isOpen) return null;
 
   return createPortal(
-    <div className={`fixed inset-0 z-[9999] flex justify-center p-4 bg-black/50 backdrop-blur-sm ${align === 'top' ? 'items-start pt-20' : 'items-center'}`}>
+    <div
+        className={`fixed inset-0 z-[9999] flex justify-center p-4 bg-black/50 backdrop-blur-sm ${align === 'top' ? 'items-start pt-20' : 'items-center'}`}
+        onClick={onClose} // Close on backdrop click
+    >
       <div
         ref={modalRef}
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking content
         className={`bg-white text-card-foreground border border-border rounded-xl w-full shadow-2xl animate-in fade-in zoom-in-95 duration-200 ${className || 'max-w-md'}`}
         role="dialog"
         aria-modal="true"

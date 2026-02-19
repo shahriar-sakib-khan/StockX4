@@ -103,7 +103,7 @@ export const CustomerPage = () => {
 
                                 <div className="pt-2 border-t border-dashed flex justify-between items-center">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Due</span>
-                                    <span className={`text-lg font-black ${customer.totalDue ? 'text-red-600' : 'text-emerald-600'}`}>
+                                    <span className={`text-2xl font-black ${customer.totalDue ? 'text-expense' : 'text-income'}`}>
                                         ৳{customer.totalDue || 0}
                                     </span>
                                 </div>

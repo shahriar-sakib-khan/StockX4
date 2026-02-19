@@ -48,8 +48,12 @@ describe('Transaction Routes', () => {
     });
 
     beforeEach(async () => {
-        // Reset Inventory
+        // Reset ALL Collections
+        await mongoose.connection.collection('active_transactions').deleteMany({}); // If exists?
+        await mongoose.connection.collection('transactions').deleteMany({});
         await StoreInventory.deleteMany({});
+        await CustomerModel.deleteMany({});
+        await mongoose.connection.collection('shops').deleteMany({});
 
         // Seed a Product
         productId = new mongoose.Types.ObjectId().toString();
@@ -173,5 +177,128 @@ describe('Transaction Routes', () => {
         // Verify Customer Balance Update
         const updatedCustomer = await CustomerModel.findById(customer._id);
         expect(updatedCustomer?.totalDue).toBe(1000);
+    });
+
+    it('should create a transaction with due amount and update Shop balance (B2B)', async () => {
+        // 1. Create a Shop
+        const shop = await mongoose.connection.collection('shops').insertOne({
+            storeId: new mongoose.Types.ObjectId(storeId),
+            name: 'B2B Shop',
+            phone: '01711111111',
+            address: 'Market',
+            totalDue: 0,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        });
+        const shopId = shop.insertedId.toString();
+
+        const payload = {
+            items: [
+                {
+                    productId: productId,
+                    type: 'CYLINDER',
+                    quantity: 5,
+                    unitPrice: 1500, // Total 7500
+                    variant: '12kg Red'
+                }
+            ],
+            type: 'SALE',
+            paymentMethod: 'DUE',
+            finalAmount: 7500,
+            paidAmount: 2500, // Due = 5000
+            customerId: shopId,
+            customerType: 'Shop'
+        };
+
+        const res = await request(app)
+            .post('/transactions')
+            .set('Authorization', `Bearer ${token}`)
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        expect(res.body.dueAmount).toBe(5000);
+
+        // Verify Shop Balance Update
+        const updatedShop = await mongoose.connection.collection('shops').findOne({ _id: shop.insertedId });
+        expect(updatedShop?.totalDue).toBe(5000);
+    });
+
+    it('should handle REFILL sale correctly (Full -1, Empty +1)', async () => {
+        // Initial: Full=10, Empty=5
+        const payload = {
+            items: [
+                {
+                    productId: productId,
+                    type: 'CYLINDER',
+                    quantity: 2,
+                    unitPrice: 1200,
+                    variant: '12kg Red',
+                    saleType: 'REFILL' // Explicit Refill
+                }
+            ],
+            type: 'SALE',
+            paymentMethod: 'CASH'
+        };
+
+        const res = await request(app)
+            .post('/transactions')
+            .set('Authorization', `Bearer ${token}`)
+            .send(payload);
+
+        expect(res.status).toBe(201);
+
+        // Verify Stock Movement
+        // SALE ITEM: Quantity 2. Should Decrease Full by 2.
+        // REFILL implies NO return item sent here (unless payload had one).
+        // If we send ONLY sale item, and it has NO isReturn=true, then:
+        // Full Stock: 10 - 2 = 8.
+        // Empty Stock: 5 (Unchanged).
+
+        // IF we wanted strict Refill (Take Full, Give Empty), the frontend should have sent the return item.
+        // Our test payload only sent the Sale item.
+        // So we expect: Full=8, Empty=5.
+        // This confirms 'REFILL' sales rely on explicit return items in the cart.
+
+        const inventory = await StoreInventory.findById(productId);
+        expect(inventory?.counts.full).toBe(8);
+        expect(inventory?.counts.empty).toBe(5);
+
+        // NOW test with explicit isReturn item (which frontend does for Refill mode)
+         const payloadWithReturn = {
+            items: [
+                {
+                    productId: productId,
+                    type: 'CYLINDER',
+                    quantity: 1,
+                    unitPrice: 1200,
+                    variant: '12kg Red',
+                    // Default isReturn=false
+                },
+                {
+                    productId: productId,
+                    type: 'CYLINDER',
+                    quantity: 1,
+                    unitPrice: 0,
+                    variant: '12kg Red',
+                    isReturn: true // Explicit Return
+                }
+            ],
+            type: 'SALE',
+            paymentMethod: 'CASH'
+        };
+
+        const res2 = await request(app)
+            .post('/transactions')
+            .set('Authorization', `Bearer ${token}`)
+            .send(payloadWithReturn);
+
+        expect(res2.status).toBe(201);
+
+        const inventory2 = await StoreInventory.findById(productId);
+        // Previous: Full=8, Empty=5.
+        // New: Sell 1 (Full -1), Return 1 (Empty +1).
+        // Result: Full=7, Empty=6.
+        expect(inventory2?.counts.full).toBe(7);
+        expect(inventory2?.counts.empty).toBe(6);
     });
 });

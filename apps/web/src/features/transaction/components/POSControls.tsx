@@ -14,24 +14,24 @@ export const POSControls = () => {
   } = usePosStore();
 
   return (
-      <div className="flex items-center justify-between bg-white border rounded-lg p-2 gap-4 shrink-0 shadow-sm h-14">
+      <div className="flex flex-col md:flex-row items-center justify-between bg-white border rounded-lg p-2 gap-2 shrink-0 shadow-sm h-auto md:h-14">
 
           {/* Selling Mode Toggles */}
-          <div className="flex items-center border rounded-md overflow-hidden bg-slate-100 p-1 gap-1">
+          <div className="flex items-center border rounded-md overflow-hidden bg-slate-100 p-1 gap-1 w-full md:w-auto justify-center">
              <button
-                className={`px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'PACKAGED' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`flex-1 md:flex-none px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'PACKAGED' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
                 onClick={() => setMode('PACKAGED')}
              >
                 Packaged
              </button>
              <button
-                className={`px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'REFILL' ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`flex-1 md:flex-none px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'REFILL' ? 'bg-orange-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
                 onClick={() => setMode('REFILL')}
              >
                 Gas Refill
              </button>
              <button
-                className={`px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'EMPTY' ? 'bg-slate-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`flex-1 md:flex-none px-3 py-1 text-xs font-bold rounded uppercase transition-colors ${mode === 'EMPTY' ? 'bg-slate-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
                 onClick={() => setMode('EMPTY')}
              >
                 Empty
@@ -39,7 +39,7 @@ export const POSControls = () => {
           </div>
 
           {/* Categories */}
-          <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as any)} className="w-[300px]">
+          <Tabs value={activeCategory} onValueChange={(v) => setActiveCategory(v as any)} className="w-full md:w-[300px]">
             <TabsList className="grid w-full grid-cols-3 h-9">
                 <TabTrigger value="cylinder">Cylinders</TabTrigger>
                 <TabTrigger value="stove">Stoves</TabTrigger>
@@ -48,12 +48,12 @@ export const POSControls = () => {
           </Tabs>
 
           {/* Search & Filters */}
-          <div className="flex items-center gap-2 flex-1 justify-end">
+          <div className="flex items-center gap-2 w-full md:flex-1 justify-between md:justify-end overflow-x-auto">
                {/* Controls for Cylinders */}
                {activeCategory === 'cylinder' && (
                    <>
                        <Select value={filterSize} onValueChange={setFilterSize}>
-                            <SelectTrigger className="w-[90px] h-9 text-xs">
+                            <SelectTrigger className="w-[80px] md:w-[90px] h-9 text-xs">
                                 <SelectValue placeholder="Size" />
                             </SelectTrigger>
                             <SelectContent>
@@ -65,7 +65,7 @@ export const POSControls = () => {
                         </Select>
 
                         <Select value={filterRegulator} onValueChange={setFilterRegulator}>
-                            <SelectTrigger className="w-[90px] h-9 text-xs">
+                            <SelectTrigger className="w-[80px] md:w-[90px] h-9 text-xs">
                                 <SelectValue placeholder="Regulator" />
                             </SelectTrigger>
                             <SelectContent>
@@ -111,7 +111,7 @@ export const POSControls = () => {
                   placeholder="Search..."
                   value={filterSearch}
                   onChange={(e) => setFilterSearch(e.target.value)}
-                  className="max-w-[150px] h-9 text-xs"
+                  className="flex-1 md:max-w-[150px] h-9 text-xs min-w-[100px]"
                />
           </div>
       </div>

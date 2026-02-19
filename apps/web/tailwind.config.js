@@ -56,6 +56,13 @@ export default {
            DEFAULT: "hsl(var(--sidebar-background))",
            foreground: "hsl(var(--sidebar-foreground))",
            border: "hsl(var(--sidebar-border))",
+        },
+        income: "hsl(var(--income))",
+        expense: "hsl(var(--expense))",
+        warning: "hsl(var(--warning))",
+        product: {
+          "20mm": "hsl(var(--product-20mm))",
+          "22mm": "hsl(var(--product-22mm))",
         }
       },
       borderRadius: {

@@ -35,7 +35,7 @@ export const InventoryPage = () => {
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
     // Layout State
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     // Toggle Handlers

@@ -1,4 +1,3 @@
-
 # GEMINI.md - Agent Instructions & Principles
 
 These instructions must be followed before every response and every change made to the codebase.
@@ -12,7 +11,7 @@ These instructions must be followed before every response and every change made 
 ## 2. Modular & Granular Architecture
 *   **Reuse code.** Do not duplicate logic. If logic appears in two places, extract it into a shared utility or component.
 *   **Component-Based Structure:** Break down large files into smaller, single-responsibility components or functions.
-*   **Import/Export:** Use clear interfaces for modules.
+*   **Import/Export:** Use clear interfaces for modules. Use files of the same scope/module in a single module directory or subfolder.
 
 ## 3. Comprehensive Testing
 *   **100% Test Coverage:** Every backend route MUST have tests covering:
@@ -32,14 +31,20 @@ These instructions must be followed before every response and every change made 
 *   **Reflect:** Before finalizing a task, ask: "Did I introduce any regression? Is this the simplest way?"
 
 ## 6. Project Specific Guidelines
-*   **Accessibility & UX for Low Literacy:**
-    *   **Big & Colorful:** Fonts should be large and easy to read. Use distinct colors to separate sections.
-    *   **Self-Explanatory Design:** The UI must be intuitive enough for older or low-literacy users to understand without instruction.
-*   **Consistent Color Coding:**
-    *   **Green:** Incomes, Success, Positive Values.
-    *   **Red:** Expenses, Errors, Negative Values, Deletion.
-    *   **Yellow/Amber:** Dues, Warnings, Pending Actions.
-*   **Responsive Design:** The application must be fully responsive and functional across all screen sizes (Mobile, Tablet, Desktop).
+*   **Target Audience:** Elderly, low-literacy LPG dealers and staff in Bangladesh.
+*   **Accessibility & UX:**
+    *   **Self-Explanatory:** UI must be intuitive. Buttons and links must be instantly recognizable.
+    *   **Typography:** Numbers and text should be **LARGE**, **BOLD**, and **High Contrast**.
+    *   **Responsiveness:** fully responsive UI for all screen sizes (Mobile, Tablet, Desktop).
+    *   **Modals:** MUST close when clicking outside the modal content area (backdrop click).
+*   **Color Coding (Strict Adherence):**
+    *   **Green:** Money Incoming, Success, Positive Values (e.g., Payment Received, Stock Added).
+    *   **Red:** Money Outgoing, Expense, Error, Negative Values, Deletion (e.g., Payment Sent, Stock Damaged).
+    *   **Yellow/Amber:** Dues (Receivable/Payable), Warnings, Pending Actions.
+    *   **Product Colors:**
+        *   **Yellow:** 20mm items.
+        *   **Orange:** 22mm items.
+*   **Design Theme:** Minimalist, Modern, Flat, but "Big and Colorful". avoid clutter.
 
 ## 7. Additional Instructions
 *   **Safety First:** Always use `SafeToAutoRun: false` for destructive commands unless absolutely certain.

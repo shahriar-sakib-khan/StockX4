@@ -9,7 +9,25 @@ const router: Router = Router();
 export class TransactionController {
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = CreateTransactionSchema.parse(req.body);
+      // Extend the schema locally to allow isReturn
+      const ExtendedItemSchema = z.object({
+          productId: z.string(),
+          type: z.enum(['CYLINDER', 'ACCESSORY', 'FUEL', 'REPAIR']),
+          quantity: z.number().min(1),
+          unitPrice: z.number().min(0),
+          variant: z.string().optional(),
+          name: z.string().optional(),
+          size: z.string().optional(),
+          regulator: z.string().optional(),
+          description: z.string().optional(),
+          isReturn: z.boolean().optional(),
+      });
+
+      const ExtendedTransactionSchema = CreateTransactionSchema.extend({
+          items: z.array(ExtendedItemSchema)
+      });
+
+      const data = ExtendedTransactionSchema.parse(req.body);
       // storeId comes from Auth middleware (Staff or Owner)
       // If Staff, req.user.storeId. If Owner (testing?), might need param.
       // Assuming 'requireAuth' populates 'req.user' which has 'storeId' for Staff.

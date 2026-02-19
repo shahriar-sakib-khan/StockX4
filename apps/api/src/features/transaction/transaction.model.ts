@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { CreateTransactionSchema, TransactionItemSchema as ZodTransactionItemSchema } from '@repo/shared';
 
 // Derive Types from Zod
-export type ITransactionItem = z.infer<typeof ZodTransactionItemSchema>;
+export type ITransactionItem = z.infer<typeof ZodTransactionItemSchema> & { isReturn?: boolean };
 
 export interface ITransaction extends Document {
     storeId: Types.ObjectId;
@@ -36,6 +36,7 @@ const MongoTransactionItemSchema = new Schema({
     size: { type: String },
     regulator: { type: String },
     description: { type: String },
+    isReturn: { type: Boolean, default: false }, // Added to track return items in a Sale
 }, { _id: false });
 
 const TransactionSchema = new Schema<ITransaction>({

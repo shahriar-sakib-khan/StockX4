@@ -64,12 +64,12 @@ export const InventoryCard = ({ item, storeId, onBuy, onSell, fallbackImage }: I
 
     // Inventory Status Logic
     const totalStock = counts.full;
-    let statusConfig = { label: "In Stock", color: "bg-emerald-500 text-white border-emerald-600 shadow-emerald-200" };
+    let statusConfig = { label: "In Stock", color: "bg-income text-primary-foreground border-income shadow-sm" };
 
     if (totalStock === 0) {
-        statusConfig = { label: "Out of Stock", color: "bg-rose-500 text-white border-rose-600 shadow-rose-200" };
+        statusConfig = { label: "Out of Stock", color: "bg-expense text-primary-foreground border-expense shadow-sm" };
     } else if (totalStock < 50) {
-        statusConfig = { label: "Low Stock", color: "bg-amber-500 text-white border-amber-600 shadow-amber-200" };
+        statusConfig = { label: "Low Stock", color: "bg-warning text-white border-warning shadow-sm" };
     }
 
     return (

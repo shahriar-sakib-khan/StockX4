@@ -108,7 +108,7 @@ export const ShopPage = () => {
 
                                 <div className="pt-2 border-t border-dashed flex justify-between items-center">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Due</span>
-                                    <span className={`text-lg font-black ${shop.totalDue ? 'text-red-600' : 'text-emerald-600'}`}>
+                                    <span className={`text-2xl font-black ${shop.totalDue ? 'text-expense' : 'text-income'}`}>
                                         ৳{shop.totalDue || 0}
                                     </span>
                                 </div>

@@ -79,19 +79,43 @@ export const StoreLayout = ({ children }: LayoutProps) => {
     { icon: Users, label: 'Staff', path: `/stores/${id}/staff` },
   ];
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // ... (existing code)
+
   const SidebarContent = () => (
     <>
       {/* Store Brand / Switcher */}
-      <div className="p-6 border-b border-border">
-         <Link to="/stores" className="flex items-center text-xs text-muted-foreground hover:text-primary mb-4 transition-colors">
-            <ArrowLeft size={14} className="mr-1" />
-            Back to All Stores Portal
-         </Link>
+      <div className={`p-4 border-b border-border flex flex-col gap-4 ${isSidebarCollapsed ? 'items-center' : ''}`}>
+         <div className="flex items-center justify-between w-full">
+            {!isSidebarCollapsed && (
+                 <Link to="/stores" className="flex items-center text-xs text-muted-foreground hover:text-primary transition-colors">
+                    <ArrowLeft size={14} className="mr-1" />
+                    Back
+                 </Link>
+            )}
+            <Button
+               variant="ghost"
+               size="icon"
+               className={`text-muted-foreground hover:text-foreground h-6 w-6 ${isSidebarCollapsed ? '' : 'ml-auto'}`}
+               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+               title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+           >
+               {isSidebarCollapsed ? <Menu size={16} /> : <div className="flex items-center"><Menu size={16} /></div>}
+           </Button>
+         </div>
+
          {store ? (
-             <div>
-                 <h2 className="text-xl font-bold text-foreground truncate">{store.name}</h2>
-                 <p className="text-xs text-muted-foreground font-mono truncate">{store.slug}</p>
-             </div>
+             !isSidebarCollapsed ? (
+                 <div>
+                     <h2 className="text-xl font-bold text-foreground truncate">{store.name}</h2>
+                     <p className="text-xs text-muted-foreground font-mono truncate">{store.slug}</p>
+                 </div>
+             ) : (
+                 <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-lg">
+                     {store.name.substring(0, 2).toUpperCase()}
+                 </div>
+             )
          ) : (
              <div className="animate-pulse h-8 bg-muted rounded w-3/4"></div>
          )}
@@ -107,16 +131,18 @@ export const StoreLayout = ({ children }: LayoutProps) => {
               location.pathname === item.path
                 ? 'bg-primary/10 text-primary shadow-sm border border-primary/20'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            }`}
+            } ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}
+            title={isSidebarCollapsed ? item.label : undefined}
           >
             <item.icon size={20} />
-            <span>{item.label}</span>
+            {!isSidebarCollapsed && <span>{item.label}</span>}
           </Link>
         ))}
       </nav>
 
       {/* Bottom Section: Settings & Profile */}
       <div className="p-4 border-t border-border space-y-2">
+
           <Link
             to={`/stores/${id}/settings`}
             onClick={() => setMobileMenuOpen(false)}
@@ -124,23 +150,26 @@ export const StoreLayout = ({ children }: LayoutProps) => {
               location.pathname.includes('/settings')
                 ? 'bg-muted text-foreground'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-            }`}
+            } ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}
+             title={isSidebarCollapsed ? 'Store Settings' : undefined}
           >
             <Settings size={20} />
-            <span>Store Settings</span>
+            {!isSidebarCollapsed && <span>Store Settings</span>}
           </Link>
 
-    <div className="pt-2 flex items-center justify-between px-4 pb-2 text-muted-foreground">
-        <div className="flex items-center space-x-2 cursor-pointer hover:text-foreground" onClick={() => navigate(isOwner ? '/profile' : '#')}>
+    <div className={`pt-2 flex items-center ${isSidebarCollapsed ? 'justify-center flex-col gap-4' : 'justify-between'} px-4 pb-2 text-muted-foreground`}>
+        <div className={`flex items-center space-x-2 cursor-pointer hover:text-foreground ${isSidebarCollapsed ? 'justify-center' : ''}`} onClick={() => navigate(isOwner ? '/profile' : '#')}>
             <Avatar
                 src={(currentUser as any)?.avatar || (currentUser as any)?.image}
                 alt={currentUser?.name}
                 size="sm"
             />
-            <div className="text-sm">
-                <p className="font-medium text-foreground">{currentUser?.name}</p>
-                {isStaff && <p className="text-xs capitalize text-primary font-semibold">{staff?.role}</p>}
-            </div>
+            {!isSidebarCollapsed && (
+                <div className="text-sm">
+                    <p className="font-medium text-foreground">{currentUser?.name}</p>
+                    {isStaff && <p className="text-xs capitalize text-primary font-semibold">{staff?.role}</p>}
+                </div>
+            )}
         </div>
         <Button
             onClick={handleLogout}
@@ -159,12 +188,12 @@ export const StoreLayout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 bg-card border-r border-border flex-col fixed inset-y-0 z-50">
+      <aside className={`hidden md:flex ${isSidebarCollapsed ? 'w-20' : 'w-64'} bg-card border-r border-border flex-col fixed inset-y-0 z-50 transition-all duration-300`}>
         <SidebarContent />
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-64 min-w-0 transition-all duration-300">
+      <div className={`flex-1 flex flex-col ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'} min-w-0 transition-all duration-300`}>
         {/* Topbar (Breadcrumbs / Title) + Mobile Menu Trigger */}
         <header className="h-16 bg-card border-b border-border flex items-center justify-between px-4 md:px-8 shadow-sm">
            <div className="flex items-center">
