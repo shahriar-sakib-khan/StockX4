@@ -1,0 +1,25 @@
+meta {
+  name: Staff Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/staff/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "storeId": "{{storeId}}",
+    "staffId": "staff1",
+    "password": "123456"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) {
+      bru.setEnvVar("staffToken", res.body.accessToken);
+  }
+}

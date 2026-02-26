@@ -1,0 +1,208 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90mC:/__projects/MERN/StockX/StockX4/apps/api[39m
+
+ [32m✓[39m src/features/vehicle/vehicle.controller.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1046[2mms[22m[39m
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould create a new global brand
+[22m[39m[INCOMING] POST /brands | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould create a new global brand
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: POST /brands 201 261 - 16.161 ms
+
+[90mstdout[2m | src/features/cylinder/cylinder.remove.test.ts[2m > [22m[2mCylinder Removal Feature[2m > [22m[2mshould remove brand from inventory
+[22m[39m[INCOMING] POST /cylinders/inventory | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.remove.test.ts[2m > [22m[2mCylinder Removal Feature[2m > [22m[2mshould remove brand from inventory
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: POST /cylinders/inventory 404 159 - 11.993 ms
+
+[90mstdout[2m | src/features/cylinder/cylinder.remove.test.ts[2m > [22m[2mCylinder Removal Feature[2m > [22m[2mshould remove brand from inventory
+[22m[39m[INCOMING] DELETE /cylinders/inventory/brands/699827302fbf32a4d59c15cc | Origin: undefined
+[CORS] Incoming origin: undefined
+2026-02-20 15:19:44 [[32minfo[39m]: DELETE /cylinders/inventory/brands/699827302fbf32a4d59c15cc 404 193 - 2.365 ms
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould fail if brand name is duplicate
+[22m[39m[INCOMING] POST /brands | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould fail if brand name is duplicate
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: POST /brands 409 37 - 4.173 ms
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /cylinders/inventory/upsert[2m > [22m[2mshould upsert inventory item (Cylinder)
+[22m[39m[INCOMING] POST /cylinders/inventory/upsert | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /cylinders/inventory/upsert[2m > [22m[2mshould upsert inventory item (Cylinder)
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: POST /cylinders/inventory/upsert 200 398 - 16.581 ms
+
+ [31m❯[39m src/features/cylinder/cylinder.remove.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 886[2mms[22m[39m
+[31m     [31m×[31m should remove brand from inventory[39m[32m 215[2mms[22m[39m
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /cylinders/inventory/upsert[2m > [22m[2mshould upsert inventory item (Stove)
+[22m[39m[INCOMING] POST /cylinders/inventory/upsert | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPOST /cylinders/inventory/upsert[2m > [22m[2mshould upsert inventory item (Stove)
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: POST /cylinders/inventory/upsert 200 373 - 5.892 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes
+[22m[39mMongo URI: mongodb://127.0.0.1:6991/?replicaSet=testset
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPATCH /cylinders/inventory/:id[2m > [22m[2mshould update stock counts
+[22m[39m[INCOMING] PATCH /cylinders/inventory/69982730322002e664093bab | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/cylinder/cylinder.controller.test.ts[2m > [22m[2mCylinder Feature[2m > [22m[2mPATCH /cylinders/inventory/:id[2m > [22m[2mshould update stock counts
+[22m[39m2026-02-20 15:19:44 [[32minfo[39m]: PATCH /cylinders/inventory/69982730322002e664093bab 200 398 - 16.465 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes
+[22m[39mReplSet Status: testset
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a SALE transaction and decrement full stock
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a SALE transaction and decrement full stock
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 497 - 29.465 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a RETURN transaction and increment empty stock
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a RETURN transaction and increment empty stock
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 484 - 16.043 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould fail if authentication is missing
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould fail if authentication is missing
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 401 37 - 0.580 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a transaction with due amount and update Customer balance
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a transaction with due amount and update Customer balance
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 564 - 17.035 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a transaction with due amount and update Shop balance (B2B)
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould create a transaction with due amount and update Shop balance (B2B)
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 561 - 15.638 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould handle REFILL sale correctly (Full -1, Empty +1)
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould handle REFILL sale correctly (Full -1, Empty +1)
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 497 - 19.697 ms
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould handle REFILL sale correctly (Full -1, Empty +1)
+[22m[39m[INCOMING] POST /transactions | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/transaction/transaction.routes.test.ts[2m > [22m[2mTransaction Routes[2m > [22m[2mshould handle REFILL sale correctly (Full -1, Empty +1)
+[22m[39m2026-02-20 15:19:45 [[32minfo[39m]: POST /transactions 201 655 - 9.938 ms
+
+ [32m✓[39m src/features/cylinder/cylinder.controller.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1415[2mms[22m[39m
+ [31m❯[39m src/features/transaction/transaction.routes.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 1603[2mms[22m[39m
+     [32m✓[39m should create a SALE transaction and decrement full stock[32m 84[2mms[22m[39m
+     [32m✓[39m should create a RETURN transaction and increment empty stock[32m 50[2mms[22m[39m
+     [32m✓[39m should fail if authentication is missing[32m 20[2mms[22m[39m
+     [32m✓[39m should create a transaction with due amount and update Customer balance[32m 46[2mms[22m[39m
+[31m     [31m×[31m should create a transaction with due amount and update Shop balance (B2B)[39m[32m 52[2mms[22m[39m
+     [32m✓[39m should handle REFILL sale correctly (Full -1, Empty +1)[32m 68[2mms[22m[39m
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould create a new global brand
+[22m[39m[INCOMING] POST /brands | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mPOST /brands[2m > [22m[2mshould create a new global brand
+[22m[39m2026-02-20 15:19:46 [[32minfo[39m]: POST /brands 201 410 - 27.449 ms
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mGET /brands[2m > [22m[2mshould return all brands
+[22m[39m[INCOMING] GET /brands | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mGET /brands[2m > [22m[2mshould return all brands
+[22m[39m2026-02-20 15:19:46 [[32minfo[39m]: GET /brands 200 345 - 9.050 ms
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mPUT /brands/:id[2m > [22m[2mshould update a brand
+[22m[39m[INCOMING] PUT /brands/69982732fca2038395962307 | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mPUT /brands/:id[2m > [22m[2mshould update a brand
+[22m[39m2026-02-20 15:19:46 [[32minfo[39m]: PUT /brands/69982732fca2038395962307 200 339 - 12.288 ms
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mDELETE /brands/:id[2m > [22m[2mshould delete a brand
+[22m[39m[INCOMING] DELETE /brands/69982732fca203839596231b | Origin: undefined
+[CORS] Incoming origin: undefined
+
+[90mstdout[2m | src/features/brand/brand.controller.test.ts[2m > [22m[2mBrand Feature[2m > [22m[2mDELETE /brands/:id[2m > [22m[2mshould delete a brand
+[22m[39m2026-02-20 15:19:46 [[32minfo[39m]: DELETE /brands/69982732fca203839596231b 200 40 - 4.856 ms
+
+ [32m✓[39m src/features/brand/brand.controller.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 1253[2mms[22m[39m
+ [32m✓[39m src/features/store/store.controller.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1232[2mms[22m[39m
+ [32m✓[39m src/features/customer/customer.controller.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 894[2mms[22m[39m
+ [32m✓[39m src/features/product/product.controller.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 773[2mms[22m[39m
+ [32m✓[39m src/features/auth/auth.controller.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 54[2mms[22m[39m
+ [32m✓[39m src/features/user/user.controller.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m src/features/product/product.add.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 804[2mms[22m[39m
+ [32m✓[39m src/features/auth/auth.service.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+ [32m✓[39m src/features/dashboard/dashboard.service.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/features/staff/staff.controller.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 5911[2mms[22m[39m
+       [33m[2m✓[22m[39m should create staff in a store with image [33m 346[2mms[22m[39m
+       [33m[2m✓[22m[39m should enforce scoped uniqueness (same ID allowed in different stores) [33m 616[2mms[22m[39m
+       [33m[2m✓[22m[39m should prevent duplicate ID in SAME store [33m 576[2mms[22m[39m
+       [33m[2m✓[22m[39m should list staff for owner [33m 808[2mms[22m[39m
+       [33m[2m✓[22m[39m should login with correct storeId + staffId + password [33m 866[2mms[22m[39m
+       [33m[2m✓[22m[39m should login with Store SLUG + staffId + password [33m 1034[2mms[22m[39m
+       [33m[2m✓[22m[39m should fail with wrong password [33m 625[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/features/cylinder/cylinder.remove.test.ts[2m > [22mCylinder Removal Feature[2m > [22mshould remove brand from inventory
+[31m[1mAssertionError[22m: expected 404 to be 200 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 200[39m
+[31m+ 404[39m
+
+[36m [2m❯[22m src/features/cylinder/cylinder.remove.test.ts:[2m57:31[22m[39m
+    [90m 55| [39m            [33m.[39m[35mset[39m([32m'x-store-id'[39m[33m,[39m storeId)[33m;[39m
+    [90m 56| [39m
+    [90m 57| [39m        [34mexpect[39m(delRes[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m200[39m)[33m;[39m
+    [90m   | [39m                              [31m^[39m
+    [90m 58| [39m
+    [90m 59| [39m        [35mconst[39m res [33m=[39m [35mawait[39m [34mrequest[39m(app)
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/features/transaction/transaction.routes.test.ts[2m > [22mTransaction Routes[2m > [22mshould create a transaction with due amount and update Shop balance (B2B)
+[31m[1mAssertionError[22m: expected +0 to be 5000 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5000[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m src/features/transaction/transaction.routes.test.ts:[2m223:39[22m[39m
+    [90m221| [39m        [90m// Verify Shop Balance Update[39m
+    [90m222| [39m        const updatedShop = await mongoose.connection.collection('shop…
+    [90m223| [39m        [34mexpect[39m(updatedShop[33m?.[39mtotalDue)[33m.[39m[34mtoBe[39m([34m5000[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m224| [39m    })[33m;[39m
+    [90m225| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (14)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m65 passed[39m[22m[90m (67)[39m
+[2m   Start at [22m 15:19:41
+[2m   Duration [22m 7.56s[2m (transform 2.12s, setup 0ms, import 15.47s, tests 15.98s, environment 4ms)[22m
+
