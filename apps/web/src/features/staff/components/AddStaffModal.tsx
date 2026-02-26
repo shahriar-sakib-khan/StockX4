@@ -1,0 +1,119 @@
+import { useCreateStaff } from '../hooks/useStaff';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/ui/Modal';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createStaffSchema, CreateStaffInput } from '@repo/shared';
+import { ImageUpload } from '@/components/ui/ImageUpload';
+
+interface AddStaffModalProps {
+  storeId: string;
+  onClose: () => void;
+}
+
+export const AddStaffModal = ({ storeId, onClose }: AddStaffModalProps) => {
+  const createStaff = useCreateStaff();
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreateStaffInput>({
+    resolver: zodResolver(createStaffSchema),
+    defaultValues: {
+        role: 'staff'
+    }
+  });
+
+  const onSubmit = (data: CreateStaffInput) => {
+    createStaff.mutate({ storeId, data }, {
+      onSuccess: () => {
+        onClose();
+      },
+      onError: (error: any) => {
+          // Ideally handle error message from backend
+          // Here we rely on useAuth or global toaster if setup, or hook onError
+          // Ky throws errors which react-query captures.
+      }
+    });
+  };
+
+  return (
+    <Modal isOpen={true} onClose={onClose} title="Add Staff Member">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Name</label>
+            <Input
+              {...register('name')}
+              placeholder="e.g. John Doe"
+            />
+            {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Phone / Email</label>
+             <Input
+               {...register('contact')}
+               placeholder="e.g. 01711111111 or john@store.com"
+             />
+             {errors.contact && <p className="text-destructive text-xs">{errors.contact.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Password</label>
+             <Input
+               {...register('password')}
+               placeholder="******"
+               type="password"
+             />
+             {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">Role</label>
+            <select
+              {...register('role')}
+              className="w-full bg-background border border-border rounded-md p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+                <option value="staff">Staff</option>
+                <option value="manager">Manager</option>
+                <option value="driver">Driver</option>
+                <option value="owner">Owner</option>
+            </select>
+             {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Monthly Salary</label>
+             <Input
+               {...register('salary')}
+               type="number"
+               placeholder="0.00"
+               min="0"
+             />
+             {errors.salary && <p className="text-destructive text-xs">{errors.salary.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+             <label className="text-sm font-medium text-foreground">Profile Image (Optional)</label>
+             <Controller
+                control={control}
+                name="image"
+                render={({ field }) => (
+                     <ImageUpload
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        disabled={createStaff.isPending}
+                    />
+                )}
+             />
+             {errors.image && <p className="text-destructive text-xs">{errors.image.message}</p>}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full mt-4"
+            disabled={createStaff.isPending}
+          >
+            {createStaff.isPending ? 'Adding...' : 'Add Staff'}
+          </Button>
+        </form>
+    </Modal>
+  );
+};

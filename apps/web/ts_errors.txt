@@ -1,0 +1,4 @@
+src/App.tsx(22,26): error TS2307: Cannot find module './features/shop/pages/ShopPage' or its corresponding type declarations.
+src/features/transaction/components/CustomerSelectionModal.tsx(10,26): error TS2307: Cannot find module '@/features/shop/hooks/useShops' or its corresponding type declarations.
+src/features/transaction/components/CustomerSelectionModal.tsx(13,26): error TS2307: Cannot find module '@/features/shop/components/ShopForm' or its corresponding type declarations.
+src/features/transaction/components/CustomerSelectionModal.tsx(115,48): error TS7006: Parameter 'shop' implicitly has an 'any' type.

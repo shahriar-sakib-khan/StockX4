@@ -1,0 +1,14 @@
+# Apps/Web
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+.turbo/
+
+# Local product images
+public/brands/
+public/cylinder/
+public/stoves/
+public/regulators/
+public/products/

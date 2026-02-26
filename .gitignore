@@ -1,0 +1,54 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Production
+dist
+build
+.next
+.output
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+*_log.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.sublime-workspace
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Local product/brand images — uploaded to Cloudinary from local machine only.
+# These are intentionally excluded from git. Source: apps/web/public/
+apps/web/public/brands/
+apps/web/public/cylinder/
+apps/web/public/stoves/
+apps/web/public/regulators/
+apps/web/public/products/
+
+# Scripts — local only, never committed
+# Covers all workspaces: apps/api, apps/web, etc.
+**/scripts/
+
+# Generated data files by scripts — local only
+uploads.json
+upload-results.json
+cloudinary-urls.json
+*.log.txt
