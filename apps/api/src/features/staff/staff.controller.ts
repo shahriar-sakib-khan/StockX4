@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StaffService } from './staff.service';
 import { StoreService } from '../store/store.service';
-import { createStaffSchema, staffLoginSchema } from '@repo/shared';
+import { createStaffSchema } from '@repo/shared';
 
 export class StaffController {
 
@@ -61,21 +61,6 @@ export class StaffController {
       await StaffService.delete(storeId, staffId);
       return res.status(200).json({ success: true });
     } catch (error: any) {
-      if (error.message === 'Staff not found') return res.status(404).json({ error: 'Staff not found' });
-      return res.status(500).json({ error: error.message });
-    }
-  }
-
-  static async login(req: Request, res: Response) {
-    try {
-      const result = staffLoginSchema.safeParse(req.body);
-      if (!result.success) return res.status(400).json({ error: result.error.errors });
-      const data = await StaffService.login(result.data);
-      return res.status(200).json(data);
-    } catch (error: any) {
-      if (error.message === 'Invalid credentials' || error.message === 'Account inactive') {
-        return res.status(401).json({ error: error.message });
-      }
       return res.status(500).json({ error: error.message });
     }
   }

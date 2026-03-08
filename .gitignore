@@ -36,12 +36,8 @@ coverage
 .turbo
 
 # Local product/brand images — uploaded to Cloudinary from local machine only.
-# These are intentionally excluded from git. Source: apps/web/public/
-apps/web/public/brands/
-apps/web/public/cylinder/
-apps/web/public/stoves/
-apps/web/public/regulators/
-apps/web/public/products/
+# This folder is globally ignored to prevent slow git pushes.
+ignored-public/
 
 # Scripts — local only, never committed
 # Covers all workspaces: apps/api, apps/web, etc.

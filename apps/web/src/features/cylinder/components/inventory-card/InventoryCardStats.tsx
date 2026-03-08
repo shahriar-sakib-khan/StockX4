@@ -2,6 +2,7 @@ import { PenLine } from "lucide-react";
 
 interface InventoryCardStatsProps {
     counts: {
+        packaged?: number;
         full: number;
         empty: number;
         defected: number;
@@ -19,7 +20,7 @@ export const InventoryCardStats = ({ counts, onDefectClick, highlight, pendingQu
                     Pkg
                 </span>
                 <span className="text-2xl sm:text-3xl font-black text-emerald-700 leading-none break-words max-w-full block relative flex items-center justify-center gap-1 flex-wrap">
-                    {counts.full}
+                    {counts.packaged || 0}
                     {pendingQuantity && pendingQuantity > 0 ? (
                         <span className="text-[10px] font-black text-white bg-emerald-500 px-1.5 py-0.5 rounded-md shadow-sm animate-in zoom-in-50">
                             +{pendingQuantity}
@@ -29,7 +30,7 @@ export const InventoryCardStats = ({ counts, onDefectClick, highlight, pendingQu
             </div>
             <div className={`bg-cyan-50 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-cyan-100 min-w-0 shadow-sm transition-all h-full ${highlight ? 'ring-2 ring-cyan-500 animate-pulse shadow-md scale-105' : 'hover:shadow-md'}`}>
                 <span className="text-[9px] font-black text-cyan-600 uppercase tracking-wider w-full mb-0.5">Refill</span>
-                <span className="text-2xl sm:text-3xl font-black text-cyan-700 leading-none break-words max-w-full block">{counts.empty}</span>
+                <span className="text-2xl sm:text-3xl font-black text-cyan-700 leading-none break-words max-w-full block">{counts.full}</span>
             </div>
             <div className="bg-slate-50 rounded-lg py-2 px-1 flex flex-col items-center justify-center text-center border border-slate-200 min-w-0 shadow-sm transition-all hover:shadow-md h-full">
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider w-full mb-0.5">Empty</span>

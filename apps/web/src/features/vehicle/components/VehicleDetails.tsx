@@ -6,10 +6,10 @@ import { VehicleForm } from '@/features/vehicle/components/VehicleForm';
 import { CardDescription } from '@/components/ui/card';
 import { Phone, User, ReceiptText, Banknote, Edit, Calendar, Fuel, Wrench, Truck } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTransactions } from '@/features/transaction/api/transaction.api';
+import { useTransactions } from '@/features/pos/api/transaction.api';
 import { AddVehicleExpenseModal } from './AddVehicleExpenseModal';
 import { useParams } from 'react-router-dom';
-import { Receipt } from '@/features/transaction/components/Receipt';
+import { Receipt } from '@/features/pos/components/Receipt';
 
 interface VehicleDetailsProps {
     vehicleId: string;

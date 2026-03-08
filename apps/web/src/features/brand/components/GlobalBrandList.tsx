@@ -47,7 +47,7 @@ export const GlobalBrandList = () => {
                 {brands.map((brand: any) => (
                     <div key={brand._id} className="group relative border rounded-xl overflow-hidden bg-card shadow-sm hover:shadow-md transition-all flex h-40">
                         {/* Actions Overlay */}
-                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <div className="absolute top-2 right-2 flex gap-1 z-10">
                             <Button
                                 variant="secondary"
                                 size="icon"

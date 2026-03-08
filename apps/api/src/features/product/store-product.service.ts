@@ -1,6 +1,7 @@
 import { StoreProduct } from './store-product.model';
 import { StoreBrand } from '../brand/store-brand.model';
 import { StoreModel } from '../store/store.model';
+import { GlobalProduct } from './global-product.model';
 import mongoose from 'mongoose';
 
 export class StoreProductService {
@@ -70,6 +71,10 @@ export class StoreProductService {
         const name = `${details.brandName} ${details.burners}-Burner Stove${modelPart}`;
         const normalizedDetails = { ...details, model: normalizedModel };
 
+        // Fetch default image from GlobalProduct
+        const gp = await GlobalProduct.findOne({ type: 'stove', burnerCount: String(details.burners) });
+        const image = gp?.image || '';
+
         // Identity: brandName + burners + normalized model (empty == no model)
         const doc = await StoreProduct.findOneAndUpdate(
             {
@@ -80,7 +85,7 @@ export class StoreProductService {
                 'details.burners': details.burners,
                 'details.model': normalizedModel,
             },
-            { $set: { name, isActive: true, isArchived: false, details: normalizedDetails } },
+            { $set: { name, image, isActive: true, isArchived: false, details: normalizedDetails } },
             { upsert: true, new: true }
         );
         return doc;
@@ -95,6 +100,10 @@ export class StoreProductService {
         const name = `${details.brandName} ${details.type} Regulator${modelPart}`;
         const normalizedDetails = { ...details, model: normalizedModel };
 
+        // Fetch default image from GlobalProduct
+        const gp = await GlobalProduct.findOne({ type: 'regulator', regulatorType: details.type });
+        const image = gp?.image || '';
+
         // Identity: brandName + type + normalized model (empty == no model)
         const doc = await StoreProduct.findOneAndUpdate(
             {
@@ -105,7 +114,7 @@ export class StoreProductService {
                 'details.type': details.type,
                 'details.model': normalizedModel,
             },
-            { $set: { name, isActive: true, isArchived: false, details: normalizedDetails } },
+            { $set: { name, image, isActive: true, isArchived: false, details: normalizedDetails } },
             { upsert: true, new: true }
         );
         return doc;

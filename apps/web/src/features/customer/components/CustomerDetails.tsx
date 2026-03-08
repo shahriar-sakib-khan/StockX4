@@ -6,12 +6,16 @@ import { CustomerForm } from '@/features/customer/components/CustomerForm';
 import { CardDescription } from '@/components/ui/card';
 import { Phone, MapPin, User, ReceiptText, Banknote, Edit, Calendar, PackageMinus } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTransactions, transactionApi } from '@/features/transaction/api/transaction.api';
+import { useTransactions, transactionApi } from '@/features/pos/api/transaction.api';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Receipt } from '@/features/transaction/components/Receipt';
+import { Receipt } from '@/features/pos/components/Receipt';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
+import { useProducts } from '@/features/product/hooks/useProducts';
+import { useCreateTransaction } from '@/features/pos/api/transaction.api';
+import { DueCylinderModal } from '@/features/pos/components/DueCylinderModal';
+import { AllocatedDue } from '@/features/pos/stores/pos.types';
 
 interface CustomerDetailsProps {
     customerId: string;
@@ -28,8 +32,12 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
 
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isPayDueOpen, setIsPayDueOpen] = useState(false);
+    const [isDueSettlementOpen, setIsDueSettlementOpen] = useState(false);
     const [payAmount, setPayAmount] = useState('');
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
+
+    const { data: products } = useProducts(safeStoreId);
+    const settleTransaction = useCreateTransaction();
 
     const queryClient = useQueryClient();
 
@@ -67,6 +75,56 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
         payDueMutation.mutate(amount);
     };
 
+    const handleSettleDue = async (allocated: AllocatedDue[]) => {
+        const itemsToSettle = allocated.filter(a => a.selectedQty > 0).map(a => ({
+            productId: a.productId,
+            name: a.brandName,
+            type: 'CYLINDER' as const,
+            quantity: a.selectedQty,
+            unitPrice: 0,
+            variant: a.brandName,
+            size: a.size,
+            regulator: a.regulator,
+            isSettled: true
+        }));
+
+        if (itemsToSettle.length === 0) return;
+
+        settleTransaction.mutate({
+            storeId: safeStoreId,
+            data: {
+                customerId,
+                customerType: 'Customer',
+                type: 'DUE_CYLINDER_SETTLEMENT',
+                items: itemsToSettle,
+                paidAmount: 0,
+                finalAmount: 0,
+                paymentMethod: 'CASH'
+            }
+        }, {
+            onSuccess: () => {
+                toast.success('Due cylinders returned successfully');
+                setIsDueSettlementOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+            }
+        });
+    };
+
+    const dueCylinders = customer?.dueCylinders || [];
+    const mappedDueItems: AllocatedDue[] = dueCylinders.map((due: any) => {
+        const product = products?.find((p: any) => p._id === due.productId);
+        return {
+            productId: due.productId,
+            brandName: due.brandName,
+            quantity: 0,
+            maxQty: due.quantity,
+            selectedQty: 0,
+            image: due.image || product?.image,
+            size: due.size || product?.size,
+            regulator: due.regulator || product?.regulator
+        };
+    });
+
     if (!isOpen) return null;
 
     return (
@@ -88,12 +146,26 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
                                 )}
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold flex items-center gap-2">
-                                    {customer.name}
-                                    {/* Assuming customer has totalDue, if not we might need to compute or backend needs to send it */}
-                                    {/* For now, let's assume the API returns it or we treat it as 0 if missing */}
-                                    {(customer.totalDue || 0) > 0 && <span className="text-sm bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-normal">Due: ৳{customer.totalDue}</span>}
+                                <h2 className="text-2xl font-bold flex flex-wrap items-center gap-2">
+                                    <span className="shrink-0">{customer.name}</span>
+
+                                    <div className="flex items-center gap-2">
+                                        {(customer.totalDue || 0) > 0 && (
+                                            <span className="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-bold border border-red-200 shadow-sm">
+                                                Due: ৳{customer.totalDue.toLocaleString()}
+                                            </span>
+                                        )}
+
+                                        {dueCylinders.length > 0 && (
+                                            <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold border border-amber-200 shadow-sm">
+                                                Cylinders: {dueCylinders.reduce((sum: number, d: any) => sum + d.quantity, 0)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </h2>
+                                <div className="text-xs font-bold text-slate-400 mt-0.5 tracking-widest uppercase bg-slate-100/50 px-2 py-0.5 rounded w-fit border border-slate-200/50">
+                                    ID: {customer._id.substring(customer._id.length - 6).toUpperCase()}
+                                </div>
                                 <CardDescription className="mt-1 flex flex-col gap-1">
                                     <div className="flex items-center gap-2">
                                         <Phone className="w-4 h-4" /> {customer.phone}
@@ -117,17 +189,31 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
                     </div>
 
                     {/* Due Cylinders Section */}
-                    {customer.dueCylinders && customer.dueCylinders.length > 0 && (
+                    {dueCylinders.length > 0 && (
                         <div className="p-6 bg-slate-50 border-b">
-                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                                <PackageMinus className="w-5 h-5 text-orange-500" />
-                                Due Cylinders
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {customer.dueCylinders.map((due: any, idx: number) => (
-                                    <div key={idx} className="bg-white border text-center border-orange-200 rounded-xl p-4 shadow-sm flex flex-col items-center justify-center gap-2">
-                                        <span className="text-xl font-bold text-orange-600">{due.quantity}x</span>
-                                        <span className="font-medium">{due.brandName}</span>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <PackageMinus className="w-5 h-5 text-orange-500" />
+                                    Due Cylinders
+                                </h3>
+                                <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50 font-bold" onClick={() => setIsDueSettlementOpen(true)}>
+                                    Return Due Cylinders
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {mappedDueItems.map((item: any, idx: number) => (
+                                    <div key={idx} className="bg-white border text-center border-orange-100 rounded-xl p-4 shadow-sm flex flex-col items-center justify-center gap-1 group hover:border-orange-300 transition-colors">
+                                        {item.image ? (
+                                            <img src={item.image} alt="" className="w-12 h-12 object-contain mb-1 mix-blend-multiply" />
+                                        ) : (
+                                            <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-bold mb-1">No Img</div>
+                                        )}
+                                        <span className="text-lg font-black text-orange-600 leading-none">{item.maxQty}x</span>
+                                        <span className="font-bold text-xs text-slate-700 leading-tight">{item.brandName}</span>
+                                        <div className="flex gap-1 mt-1">
+                                            {item.size && <span className="text-[8px] font-black bg-blue-50 text-blue-600 px-1 py-0.5 rounded border border-blue-100">{item.size}</span>}
+                                            {item.regulator && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1 py-0.5 rounded border border-amber-100">{item.regulator}</span>}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -242,6 +328,16 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
                     </div>
                 )}
             </Modal>
+
+            {/* Due Settlement Modal */}
+            <DueCylinderModal
+                isOpen={isDueSettlementOpen}
+                onClose={() => setIsDueSettlementOpen(false)}
+                title="Return Due Cylinders"
+                mode="SETTLE"
+                items={mappedDueItems}
+                onConfirm={handleSettleDue}
+            />
         </Modal>
     );
 };

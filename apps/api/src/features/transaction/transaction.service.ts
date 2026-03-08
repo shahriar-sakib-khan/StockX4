@@ -9,7 +9,21 @@ import { ProductModel } from '../product/product.model';
 import mongoose from 'mongoose';
 
 
+import { StoreModel } from '../store/store.model';
+
 export class TransactionService {
+  /**
+   * Generates alphabetical sequence: A, B, C... Z, AA, AB...
+   */
+  private static getAlphabetSequence(num: number): string {
+    let result = '';
+    while (num >= 0) {
+      result = String.fromCharCode((num % 26) + 65) + result;
+      num = Math.floor(num / 26) - 1;
+    }
+    return result;
+  }
+
   static async create(
     storeId: string,
     staffId: string | undefined,
@@ -19,6 +33,29 @@ export class TransactionService {
     session.startTransaction();
 
     try {
+      // 0. Generate Custom Invoice Number
+      const now = new Date();
+      const datePart = (now.getDate().toString().padStart(2, '0')) +
+                       ((now.getMonth() + 1).toString().padStart(2, '0')) +
+                       (now.getFullYear().toString().slice(-2));
+
+      // Count transactions for this store today
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+      const dailyCount = await Transaction.countDocuments({
+          storeId: new mongoose.Types.ObjectId(storeId),
+          createdAt: { $gte: startOfDay, $lte: endOfDay }
+      }).session(session);
+
+      const sequencePart = this.getAlphabetSequence(dailyCount);
+
+      // Get Store Code
+      const store = await StoreModel.findById(storeId).session(session);
+      const storeCode = store?.code || store?.name.split(' ').map(w => w[0]).join('').toUpperCase() || 'ST';
+
+      const invoiceNumber = `${datePart}${sequencePart}-${storeCode}`;
+
       // 1. Calculate Total & Prepare Items
       let totalAmount = 0;
       const itemsWithSubtotal: (ITransactionItem & { subtotal: number })[] = data.items.map((item) => {
@@ -35,7 +72,11 @@ export class TransactionService {
           size: item.size,
           regulator: item.regulator,
           description: item.description,
-          isReturn: (item as any).isReturn || false, // Cast to any to bypass strict Zod type input for now
+          saleType: (item as any).saleType,
+          burners: (item as any).burners,
+          category: (item as any).category,
+          isReturn: (item as any).isReturn || false,
+          isSettled: (item as any).isSettled || false,
         };
       });
 
@@ -49,19 +90,31 @@ export class TransactionService {
         staffId,
         customerId: data.customerId,
         customerType: data.customerType,
+        customerModel: data.customerType === 'Vehicle' ? 'Vehicle' : (data.customerId ? 'Customer' : undefined),
         items: itemsWithSubtotal,
         totalAmount,
         finalAmount,
         paidAmount,
         dueAmount,
+        invoiceNumber,
         type: data.type,
         paymentMethod: data.paymentMethod,
         status: 'COMPLETED',
         // Add dueCylinders to transaction if it exists
-        ...(data.dueCylinders ? { dueCylinders: data.dueCylinders } : {})
+        ...(data.dueCylinders ? { dueCylinders: data.dueCylinders } : {}),
+        transactorName: data.transactorName,
+        transactorRole: data.transactorRole,
+        receiptUrl: data.receiptUrl
       });
 
       await transaction.save({ session });
+
+      // Populate details for the response
+      await transaction.populate([
+          { path: 'storeId', select: 'name location ownerPhone slug' },
+          { path: 'staffId', select: 'name role' },
+          { path: 'customerId', select: 'name type phone address district ownerName' }
+      ]);
 
       // 3. Update Customer/Shop Due Balance
       if (data.type === 'DUE_PAYMENT') {
@@ -69,7 +122,7 @@ export class TransactionService {
           // paidAmount decreases totalDue.
           const payment = data.paidAmount;
           if (payment > 0 && data.customerId && data.customerType) {
-              if (data.customerType === 'Customer') {
+              if (['retail', 'wholesale', 'Customer'].includes(data.customerType)) {
                   await CustomerModel.findByIdAndUpdate(
                       data.customerId,
                       { $inc: { totalDue: -payment } }
@@ -90,7 +143,7 @@ export class TransactionService {
 
       // Normal Transaction with Due (moved outside else-if chain to allow Expense + Due mixed if ever needed, but mainly to fit structure)
       if (data.type !== 'DUE_PAYMENT' && data.customerId && data.customerType) {
-          if (data.customerType === 'Customer') {
+          if (['retail', 'wholesale', 'Customer'].includes(data.customerType)) {
               const customerUpdates: mongoose.UpdateQuery<any> = {};
 
               if (dueAmount > 0) {
@@ -111,7 +164,10 @@ export class TransactionService {
                               currentDueCylinders.push({
                                   productId: dueItem.productId,
                                   brandName: dueItem.brandName,
-                                  quantity: dueItem.quantity
+                                  quantity: dueItem.quantity,
+                                  size: dueItem.size,
+                                  regulator: dueItem.regulator,
+                                  image: dueItem.image,
                               });
                           }
                       }
@@ -126,40 +182,85 @@ export class TransactionService {
                       customerUpdates
                   ).session(session);
               }
+
+              // Handle Due Cylinder Settlement (if items have isSettled: true)
+              const settledItems = itemsWithSubtotal.filter(i => i.isSettled);
+              if (settledItems.length > 0) {
+                  const customer = await CustomerModel.findById(data.customerId).session(session);
+                  if (customer && customer.dueCylinders) {
+                      const currentDueCylinders = [...customer.dueCylinders];
+                      for (const settledItem of settledItems) {
+                          // USE String() to avoid ObjectId vs string comparison issues
+                          const existingIndex = currentDueCylinders.findIndex(c => String(c.productId) === String(settledItem.productId));
+                          if (existingIndex > -1) {
+                              currentDueCylinders[existingIndex].quantity -= settledItem.quantity;
+                              if (currentDueCylinders[existingIndex].quantity <= 0) {
+                                  currentDueCylinders.splice(existingIndex, 1);
+                              }
+                          }
+                      }
+                      await CustomerModel.findByIdAndUpdate(data.customerId, { $set: { dueCylinders: currentDueCylinders } }).session(session);
+                  }
+              }
           }
       }
 
-      // 4. Update Inventory (Atomic Logic)
-      if (data.type !== 'DUE_PAYMENT') { // Skip inventory for due payments
+      if (data.type !== 'DUE_PAYMENT') {
           for (const item of itemsWithSubtotal) {
-            if (item.type === 'CYLINDER') {
-                 // Logic based on Item Direction (isReturn) or Transaction Type
-                if (item.isReturn === true || data.type === 'RETURN') {
-                    // Incoming Empty (Return)
-                    await StoreInventory.updateOne(
-                        { _id: item.productId, storeId } as any,
-                        { $inc: { 'counts.empty': item.quantity } }
-                    ).session(session);
-                } else if (data.type === 'SALE') {
-                    // Outgoing Full (Sale)
-                    await StoreInventory.updateOne(
-                        { _id: item.productId, storeId } as any,
-                        { $inc: { 'counts.full': -item.quantity } }
-                    ).session(session);
-                }
-            } else if (item.type === 'stove' || item.type === 'regulator' || item.type === 'accessory' || item.type === 'pipe') {
-                 if (item.isReturn === true || data.type === 'RETURN') {
-                    await ProductModel.updateOne(
-                        { _id: item.productId, storeId } as any,
-                        { $inc: { stock: item.quantity } }
-                    ).session(session);
-                } else if (data.type === 'SALE') {
-                    await ProductModel.updateOne(
-                        { _id: item.productId, storeId } as any,
-                        { $inc: { stock: -item.quantity } }
-                    ).session(session);
-                }
-            }
+          const query = {
+            productId: new mongoose.Types.ObjectId(item.productId as any),
+            storeId: new mongoose.Types.ObjectId(storeId)
+          };
+
+              const itemType = item.type?.toUpperCase();
+              const category = item.category?.toLowerCase();
+
+              if (itemType === 'CYLINDER') {
+                  // Cylinder logic: differentiates between Full and Empty
+                  if (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') {
+                      // Incoming Empty
+                      await StoreInventory.updateOne(
+                          query as any,
+                          { $inc: { 'counts.empty': item.quantity } },
+                          { upsert: true } // Ensure record exists
+                      ).session(session);
+                  } else if (data.type === 'SALE') {
+                      // Outgoing Full / Packaged
+                      const saleType = (item as any).saleType;
+
+                      const incQuery: any = {};
+
+                      if (saleType === 'PACKAGED') {
+                          // Selling a completely new, packaged cylinder
+                          incQuery['counts.packaged'] = -item.quantity;
+                      } else {
+                          // Standard REFILL: Give full, no automatic empty increment (empties are handled by explicit isReturn items)
+                          incQuery['counts.full'] = -item.quantity;
+                      }
+
+                      await StoreInventory.updateOne(
+                          query as any,
+                          { $inc: incQuery },
+                          { upsert: true }
+                      ).session(session);
+                  }
+              } else if (itemType === 'ACCESSORY' || category === 'stove' || category === 'regulator' || category === 'pipe' || category === 'accessory') {
+                  // Accessories/Stoves/Regulators: Only track "full" (available stock) in StoreInventory
+                  const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
+                  await StoreInventory.updateOne(
+                      query as any,
+                      { $inc: { 'counts.full': increment } },
+                      { upsert: true }
+                  ).session(session);
+              } else {
+                  // Default fallback for any other types
+                  const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
+                  await StoreInventory.updateOne(
+                      query as any,
+                      { $inc: { 'counts.full': increment } },
+                      { upsert: true }
+                  ).session(session);
+              }
           }
       }
 
@@ -234,7 +335,7 @@ export class TransactionService {
             .sort(sort)
             .skip(skip)
             .limit(limit)
-            .populate('staffId', 'name')
+            .populate('staffId', 'name role')
             .populate('customerId', 'name type'), // Populate customer details
           Transaction.countDocuments(query)
       ]);
@@ -289,7 +390,45 @@ export class TransactionService {
                           $cond: [{ $eq: ["$type", "RETURN"] }, "$finalAmount", 0]
                       }
                   },
+                  cashIncome: {
+                      $sum: {
+                          $cond: [
+                              { $and: [
+                                  { $eq: ["$paymentMethod", "CASH"] },
+                                  { $in: ["$type", ["SALE", "DUE_PAYMENT"]] }
+                              ]},
+                              "$paidAmount",
+                              0
+                          ]
+                      }
+                  },
+                  digitalIncome: {
+                      $sum: {
+                          $cond: [
+                              { $and: [
+                                  { $eq: ["$paymentMethod", "DIGITAL"] },
+                                  { $in: ["$type", ["SALE", "DUE_PAYMENT"]] }
+                              ]},
+                              "$paidAmount",
+                              0
+                          ]
+                      }
+                  },
                   count: { $sum: 1 }
+              }
+          },
+          {
+              $project: {
+                  _id: 0,
+                  totalSales: 1,
+                  totalExpenses: 1,
+                  totalDueCollected: 1,
+                  totalDuePending: 1,
+                  totalReturns: 1,
+                  cashIncome: 1,
+                  digitalIncome: 1,
+                  count: 1,
+                  netCashFlow: { $subtract: [{ $add: ["$cashIncome", "$digitalIncome"] }, "$totalExpenses"] }
               }
           }
       ]);
@@ -300,6 +439,9 @@ export class TransactionService {
           totalDueCollected: 0,
           totalDuePending: 0,
           totalReturns: 0,
+          cashIncome: 0,
+          digitalIncome: 0,
+          netCashFlow: 0,
           count: 0
       };
   }

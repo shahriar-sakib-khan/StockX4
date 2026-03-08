@@ -5,6 +5,7 @@ export interface IStoreInventory extends Document {
   productId: Types.ObjectId; // Reference to StoreProduct (SKU)
 
   counts: {
+    packaged: number;
     full: number;
     empty: number;
     defected: number;
@@ -26,6 +27,7 @@ const StoreInventorySchema = new Schema<IStoreInventory>({
   productId: { type: Schema.Types.ObjectId, ref: 'StoreProduct', required: true, index: true },
 
   counts: {
+    packaged: { type: Number, default: 0 },
     full: { type: Number, default: 0 },
     empty: { type: Number, default: 0 },
     defected: { type: Number, default: 0 }

@@ -70,7 +70,7 @@ export const StoreLayout = ({ children }: LayoutProps) => {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: `/stores/${id}/dashboard` },
-    { icon: History, label: 'Expense Diary', path: `/stores/${id}/history` },
+    { icon: History, label: 'Business Diary', path: `/stores/${id}/history` },
     { icon: ShoppingCart, label: 'POS', path: `/stores/${id}/pos` },
     { icon: User, label: 'Customers (B2C)', path: `/stores/${id}/customers` },
     { icon: Package, label: 'Inventory', path: `/stores/${id}/inventory` },

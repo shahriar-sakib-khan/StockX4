@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from 'sonner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { transactionApi } from '@/features/transaction/api/transaction.api';
+import { transactionApi } from '@/features/pos/api/transaction.api';
 
 interface AddVehicleExpenseModalProps {
     vehicleId: string | null;

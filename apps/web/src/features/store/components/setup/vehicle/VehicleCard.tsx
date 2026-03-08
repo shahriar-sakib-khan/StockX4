@@ -66,7 +66,7 @@ export const VehicleCard = ({ v, onSave, onRemove }: { v: VehicleData; onSave: (
       </div>
       <button
         onClick={() => onRemove(v._id!)}
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-rose-400 hover:text-rose-600 p-1"
+        className="absolute top-2 right-2 text-rose-400 hover:text-rose-600 p-1"
       >
         <Trash2 className="w-4 h-4" />
       </button>

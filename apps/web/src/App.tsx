@@ -9,15 +9,14 @@ import { PortalLayout } from './components/layout/PortalLayout';
 import { AdminLayout } from './components/layout/AdminLayout';
 import { StoresPage } from './features/store/pages/StoresPage';
 import { StoreStaffPage } from './features/store/pages/StoreStaffPage';
-import { StaffLoginPage } from './features/staff/pages/StaffLoginPage';
 import { StaffDashboardPage } from './features/staff/pages/StaffDashboardPage';
 import { StaffProtectedRoute } from './features/staff/components/StaffProtectedRoute';
 import { StoreLayout } from './components/layout/StoreLayout';
-import { CheckoutPage } from './features/transaction/pages/CheckoutPage';
+import { CheckoutPage } from './features/pos/pages/CheckoutPage';
 
 import { SettingsPage } from './features/settings/pages/SettingsPage'; // Keeping Settings in pages for now or move to common/settings
 import { ProfilePage } from './features/users/pages/ProfilePage';
-import { HistoryPage } from './pages/HistoryPage';
+import { HistoryPage } from './features/history/pages/HistoryPage';
 import { StoreDashboard } from './features/store/pages/StoreDashboard';
 import { CustomerPage } from './features/customer/pages/CustomerPage';
 import { VehiclePage } from './features/vehicle/pages/VehiclePage';
@@ -28,7 +27,7 @@ import { StoreSetupPage } from './pages/StoreSetupPage';
 
 import { Toaster } from 'sonner';
 
-import { POSRouteManager } from './features/transaction/components/POSRouteManager';
+import { POSRouteManager } from './features/pos/components/POSRouteManager';
 
 function App() {
   return (
@@ -54,7 +53,6 @@ function App() {
                 <CheckoutPage />
             </StaffProtectedRoute>
         } />
-
         {/* Store Context (Nested Layout) */}
         <Route path="/stores/:id" element={<StoreLayout />}>
            <Route index element={<Navigate to="dashboard" replace />} />
@@ -66,7 +64,6 @@ function App() {
            <Route path="history" element={<HistoryPage />} />
            <Route path="settings" element={<StoreSettingsPage />} />
         </Route>
-        <Route path="/staff/login" element={<StaffLoginPage />} />
         <Route path="/pos" element={
           <StaffProtectedRoute>
             <StaffDashboardPage />

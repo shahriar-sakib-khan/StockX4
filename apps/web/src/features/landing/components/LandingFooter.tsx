@@ -7,15 +7,15 @@ export const LandingFooter = () => {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid md:grid-cols-4 gap-12 mb-16">
                     <div className="col-span-1 md:col-span-2">
-                        <div className="flex items-center gap-3 mb-6">
-                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                                <CircuitBoard className="w-6 h-6 text-slate-900" />
-                             </div>
-                             <div>
-                                 <h3 className="text-xl font-bold leading-none">STOCK X</h3>
-                                 <p className="text-xs text-slate-400">LPG Management Platform</p>
-                             </div>
-                        </div>
+                         <div className="flex items-center gap-3 mb-6">
+                              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center overflow-hidden p-1">
+                                 <img src="/stockx-logo.png" alt="StockXBD Logo" className="w-full h-full object-contain" />
+                              </div>
+                              <div>
+                                  <h3 className="text-xl font-bold leading-none">StockXBD</h3>
+                                  <p className="text-xs text-slate-400">LPG Management Platform</p>
+                              </div>
+                         </div>
                         <p className="text-slate-400 leading-relaxed max-w-sm">
                             Bangladesh's leading LPG business management solution. Streamline your operations, boost efficiency, and grow your business with our comprehensive platform.
                         </p>
@@ -63,7 +63,7 @@ export const LandingFooter = () => {
                 </div>
 
                 <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-                    <p>&copy; {new Date().getFullYear()} STOCK X. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} StockXBD. All rights reserved.</p>
                     <div className="flex gap-6">
                         <Link to="#" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link to="#" className="hover:text-white transition-colors">Terms of Service</Link>

@@ -1,0 +1,6 @@
+
+> web@0.0.0 build C:\__projects\MERN\StockX\StockX4\apps\web
+> tsc && vite build "--filter" "web"
+
+Terminate batch job (Y/N)? Terminate batch job (Y/N)? 
+^C

@@ -54,13 +54,12 @@ describe('Transaction Routes', () => {
         await StoreInventory.deleteMany({});
         await CustomerModel.deleteMany({});
         await CustomerModel.deleteMany({});
-        productId = new mongoose.Types.ObjectId().toString();
+        productId = new mongoose.Types.ObjectId().toString(); // This will be used in the payload
         const brandId = new mongoose.Types.ObjectId().toString();
 
         await StoreInventory.create({
-            _id: productId,
             storeId: new mongoose.Types.ObjectId(storeId),
-            productId: new mongoose.Types.ObjectId(brandId), // arbitrary ID mapping to a StoreProduct for test
+            productId: new mongoose.Types.ObjectId(productId), // Match the payload
             counts: { full: 10, empty: 5, defected: 0 },
             prices: { retailPriceFull: 1500, wholesalePriceFull: 1400, retailPriceGas: 1200, wholesalePriceGas: 1100 }
         });
@@ -91,7 +90,7 @@ describe('Transaction Routes', () => {
         expect(res.body.totalAmount).toBe(3000); // 2 * 1500
 
         // Verify Inventory Update
-        const inventory = await StoreInventory.findById(productId);
+        const inventory = await StoreInventory.findOne({ productId });
         expect(inventory?.counts.full).toBe(8); // 10 - 2
     });
 
@@ -118,7 +117,7 @@ describe('Transaction Routes', () => {
         expect(res.status).toBe(201);
 
         // Verify Inventory Update
-        const inventory = await StoreInventory.findById(productId);
+        const inventory = await StoreInventory.findOne({ productId });
         expect(inventory?.counts.empty).toBe(8); // 5 + 3
     });
 
@@ -249,7 +248,7 @@ describe('Transaction Routes', () => {
         // So we expect: Full=8, Empty=5.
         // This confirms 'REFILL' sales rely on explicit return items in the cart.
 
-        const inventory = await StoreInventory.findById(productId);
+        const inventory = await StoreInventory.findOne({ productId });
         expect(inventory?.counts.full).toBe(8);
         expect(inventory?.counts.empty).toBe(5);
 
@@ -284,11 +283,57 @@ describe('Transaction Routes', () => {
 
         expect(res2.status).toBe(201);
 
-        const inventory2 = await StoreInventory.findById(productId);
+        const inventory2 = await StoreInventory.findOne({ productId });
         // Previous: Full=8, Empty=5.
         // New: Sell 1 (Full -1), Return 1 (Empty +1).
         // Result: Full=7, Empty=6.
         expect(inventory2?.counts.full).toBe(7);
         expect(inventory2?.counts.empty).toBe(6);
+    });
+
+    it('should reduce due cylinders upon settlement', async () => {
+        // 1. Create a Customer with due cylinders
+        const customer = await CustomerModel.create({
+            storeId: new mongoose.Types.ObjectId(storeId),
+            name: 'Jane Settlement',
+            phone: '01800000000',
+            dueCylinders: [
+                {
+                    productId: productId,
+                    brandName: 'Test Brand',
+                    quantity: 5,
+                    size: '12kg'
+                }
+            ]
+        });
+
+        // 2. Settlement Payload
+        const payload = {
+            items: [
+                {
+                    productId: productId,
+                    type: 'CYLINDER',
+                    quantity: 2,
+                    unitPrice: 0,
+                    isSettled: true,
+                    name: 'Test Brand'
+                }
+            ],
+            type: 'DUE_CYLINDER_SETTLEMENT',
+            customerId: customer._id.toString(),
+            customerType: 'Customer',
+            paymentMethod: 'CASH'
+        };
+
+        const res = await request(app)
+            .post('/transactions')
+            .set('Authorization', `Bearer ${token}`)
+            .send(payload);
+
+        expect(res.status).toBe(201);
+
+        // 3. Verify Customer Due Cylinders Reduced
+        const updatedCustomer = await CustomerModel.findById(customer._id);
+        expect(updatedCustomer?.dueCylinders?.[0].quantity).toBe(3); // 5 - 2
     });
 });

@@ -12,14 +12,8 @@
     "upload:assets": "npx tsx src/scripts/global/upload-assets.ts",
     "db:catalog": "npx tsx src/scripts/global/db-catalog.ts",
     "db:global": "npx tsx src/scripts/global/db-catalog.ts",
-    "seed:users": "npx tsx src/scripts/demo/seed-users.ts",
-    "seed:stores": "npx tsx src/scripts/demo/seed-stores.ts",
-    "seed:customers": "npx tsx src/scripts/demo/seed-customers.ts",
-    "seed:inventory:cylinders": "npx tsx src/scripts/demo/seed-inventory-cylinders.ts",
-    "seed:inventory:stoves": "npx tsx src/scripts/demo/seed-inventory-stoves.ts",
-    "seed:inventory:regulators": "npx tsx src/scripts/demo/seed-inventory-regulators.ts",
-    "seed:expenses": "npx tsx src/scripts/demo/seed-expenses.ts",
-    "db:reset": "pnpm db:drop && pnpm db:catalog && pnpm seed:users && pnpm seed:stores && pnpm seed:customers && pnpm seed:inventory:cylinders && pnpm seed:inventory:stoves && pnpm seed:inventory:regulators && pnpm seed:expenses"
+    "seed:demo": "npx tsx src/scripts/demo/seed-demo.ts",
+    "db:reset": "pnpm db:drop && pnpm db:catalog && pnpm seed:demo"
   },
   "dependencies": {
     "@repo/shared": "workspace:*",
@@ -30,6 +24,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.3.0",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",

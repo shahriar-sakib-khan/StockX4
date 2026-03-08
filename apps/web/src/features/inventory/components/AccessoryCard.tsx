@@ -49,7 +49,7 @@ export const AccessoryCard = ({ item, storeId, onSell, onEdit, onDelete }: Acces
         <>
             <div className="group relative border rounded-xl overflow-hidden bg-card shadow-sm hover:shadow-md transition-all flex flex-col h-full ring-1 ring-border/50">
                 {/* Actions Overlay */}
-                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute top-2 right-2 flex gap-1 z-10">
                     {!isEditingPrice && (
                         <>
                             {onEdit && (

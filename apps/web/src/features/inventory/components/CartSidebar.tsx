@@ -50,7 +50,7 @@ export const CartSidebar = ({ cartItems, onCheckout, onRemoveItem, isCollapsed, 
                         {!isCollapsed && (
                             <button
                                 onClick={() => onRemoveItem(item.id)}
-                                className="absolute -top-2 -right-2 bg-destructive text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
+                                className="absolute -top-2 -right-2 bg-destructive text-white p-1 rounded-full shadow-sm z-10"
                             >
                                 <X className="w-3 h-3" />
                             </button>

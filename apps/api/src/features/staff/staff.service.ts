@@ -87,41 +87,8 @@ export class StaffService {
         (now.getFullYear() - lastProcessed.getFullYear()) * 12 + (now.getMonth() - lastProcessed.getMonth());
       if (monthsDiff > 0) {
         staff.salaryDue = (staff.salaryDue || 0) + staff.salary * monthsDiff;
-        staff.lastSalaryProcessed = now;
         await staff.save();
       }
     }
-  }
-
-  static async login(data: StaffLoginInput) {
-    const isObjectId = /^[0-9a-fA-F]{24}$/.test(data.storeId);
-    const { StoreModel } = await import('../store/store.model');
-    const storeQuery = isObjectId
-      ? { _id: data.storeId }
-      : { $or: [{ slug: data.storeId }, { code: data.storeId }] };
-
-    const store = await StoreModel.findOne(storeQuery);
-    if (!store) throw new Error('Invalid Store ID');
-
-    // Find by contact (phone or email)
-    const staff = await StaffModel.findOne({
-      storeId: store._id,
-      contact: data.contact,
-    }).populate('storeId');
-
-    if (!staff) throw new Error('Invalid credentials');
-    if (!staff.isActive) throw new Error('Account inactive');
-
-    const valid = await argon2.verify(staff.passwordHash, data.password);
-    if (!valid) throw new Error('Invalid credentials');
-
-    const token = jwt.sign(
-      { userId: staff._id, role: staff.role, storeId: (staff.storeId as any)._id, type: 'staff' },
-      JWT_SECRET,
-      { expiresIn: '12h' }
-    );
-
-    const { passwordHash: _, ...safeStaff } = staff.toObject();
-    return { accessToken: token, staff: safeStaff };
   }
 }

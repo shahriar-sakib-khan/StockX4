@@ -35,7 +35,7 @@ export const StaffCard = ({ s, onSave, onRemove }: { s: StaffData, onSave?: (id:
   return (
     <div className={`rounded-xl border-2 ${cfg.border} ${cfg.bg} p-4 flex flex-col gap-2 shadow-sm transition-all group relative`}>
       {onRemove && !isOwner && (
-         <button onClick={() => onRemove(s._id!)} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 text-rose-400 hover:text-rose-600">
+          <button onClick={() => onRemove(s._id!)} className="absolute top-2 right-2 p-1 text-rose-400 hover:text-rose-600">
            <Trash2 className="w-4 h-4" />
          </button>
       )}

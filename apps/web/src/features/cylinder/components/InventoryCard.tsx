@@ -26,6 +26,7 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
     const update = useUpdateInventory();
 
     const counts = {
+        packaged: item.counts?.packaged || 0,
         full: item.counts?.full || 0,
         empty: item.counts?.empty || 0,
         defected: item.counts?.defected || 0
@@ -68,7 +69,7 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
     };
 
     // Inventory Status Logic
-    const totalStock = counts.full;
+    const totalStock = counts.packaged + counts.full;
     let statusConfig = { label: "In Stock", color: "bg-income text-primary-foreground border-income shadow-sm" };
 
     if (totalStock === 0) {

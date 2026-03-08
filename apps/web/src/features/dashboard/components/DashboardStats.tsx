@@ -66,8 +66,8 @@ export const DashboardStats = ({ storeId }: DashboardStatsProps) => {
                         </div>
                     </div>
                     <div>
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">{card.label}</span>
-                        <h4 className={`text-2xl font-bold ${card.color} mt-1`}>
+                        <span className="text-xs sm:text-sm font-medium text-slate-500 uppercase tracking-wide">{card.label}</span>
+                        <h4 className={`text-xl sm:text-2xl font-bold ${card.color} mt-1`}>
                            ৳{card.value.toLocaleString()}
                         </h4>
                     </div>

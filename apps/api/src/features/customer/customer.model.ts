@@ -10,6 +10,9 @@ export interface ICustomer extends CustomerInput, Document {
     productId: string;
     brandName: string;
     quantity: number;
+    size?: string;
+    regulator?: string;
+    image?: string;
   }[];
 }
 
@@ -29,6 +32,9 @@ const customerSchema = new Schema<ICustomer>(
         productId: { type: String, required: true },
         brandName: { type: String, required: true },
         quantity: { type: Number, required: true, min: 0 },
+        size: { type: String },
+        regulator: { type: String },
+        image: { type: String },
         _id: false
       }
     ],

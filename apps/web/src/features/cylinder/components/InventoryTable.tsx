@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { InventoryCard } from "./InventoryCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateInventory } from "@/features/cylinder/hooks/useCylinders";
-import { transactionApi } from "@/features/transaction/api/transaction.api";
-import { HistoryInvoiceModal } from "@/features/transaction/components/HistoryInvoiceModal";
+import { transactionApi } from "@/features/pos/api/transaction.api";
+import { HistoryInvoiceModal } from "@/features/history/components/HistoryInvoiceModal";
 import { toast } from "sonner";
 
 interface InventoryTableProps {
@@ -39,12 +39,14 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
         setIsProcessing(true);
         try {
             // Update counts mapping
-            const currentCounts = item.counts || { full: 0, empty: 0, defected: 0 };
+            const currentCounts = item.counts || { packaged: 0, full: 0, empty: 0, defected: 0 };
             const currentPrices = item.prices || { fullCylinder: 0, gasOnly: 0 };
 
             const newCounts = {
                 ...currentCounts,
-                full: currentCounts.full + quantity
+                packaged: purchaseType === 'package' ? (currentCounts.packaged || 0) + quantity : (currentCounts.packaged || 0),
+                full: purchaseType === 'refill' ? (currentCounts.full || 0) + quantity : (currentCounts.full || 0),
+                empty: purchaseType === 'refill' ? Math.max(0, (currentCounts.empty || 0) - quantity) : (currentCounts.empty || 0)
             };
 
             const newPrices = {
@@ -181,7 +183,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">{brandName}</h3>
                                 <div className="h-px flex-1 bg-slate-200"></div>
                             </div>
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 relative z-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
                                 {items.map((item: any) => {
                                     const isHidden = restockOpen && liveItem?._id === item._id;
                                     return (
@@ -203,7 +205,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                         </div>
                     ))
                 ) : (
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
                         {inventory.map((item: any) => {
                             const isHidden = restockOpen && liveItem?._id === item._id;
                             return (

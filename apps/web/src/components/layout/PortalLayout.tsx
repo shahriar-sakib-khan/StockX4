@@ -26,7 +26,7 @@ export const PortalLayout = ({ children }: LayoutProps) => {
       <header className="h-16 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4 md:px-8 shadow-sm">
         <div className="flex items-center space-x-4">
              <h1 className="text-xl font-bold text-sidebar-foreground">
-               Antigravity
+               StockXBD
              </h1>
              <span className="text-sidebar-foreground/40">/</span>
              <span className="text-sm font-medium text-sidebar-foreground/70">Store Portal</span>

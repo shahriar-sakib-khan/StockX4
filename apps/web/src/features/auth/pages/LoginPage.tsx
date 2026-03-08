@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 export const LoginPage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      <Link to="/" className="absolute top-8 left-8 text-muted-foreground hover:text-primary transition-colors z-50 flex items-center font-medium">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      <Link to="/" className="absolute top-4 left-4 sm:top-8 sm:left-8 text-muted-foreground hover:text-primary transition-colors z-50 flex items-center font-medium text-sm sm:text-base">
           ← Back to Home
       </Link>
         {/* Background Gradients */}
@@ -16,7 +16,7 @@ export const LoginPage = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 transition-all hover:scale-105 duration-300">
         <Link to="/" className="block text-center mb-8">
              <h1 className="text-4xl font-black text-primary tracking-tight">
-                AntiGravity
+                StockXBD
              </h1>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
@@ -31,27 +31,10 @@ export const LoginPage = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-card py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border border-border">
           <LoginForm />
         </div>
-
-        <div className="mt-8 text-center space-y-4">
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">Staff Access</span>
-                </div>
-            </div>
-
-            <Link
-                to="/staff/login"
-                className="inline-flex items-center justify-center space-x-2 px-4 py-2 rounded-full bg-secondary/50 hover:bg-secondary text-sm font-medium transition-colors text-foreground"
-            >
-                <span>Store Terminal Login</span>
-                <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">POS</span>
-            </Link>
-        </div>
+      </div>
     </div>
   );
 };

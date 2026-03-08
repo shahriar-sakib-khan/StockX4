@@ -17,8 +17,8 @@ export class DashboardService {
                 startDate.setDate(now.getDate() - 7);
                 break;
             case 'month':
-                startDate.setDate(1); // Start of current month
-                startDate.setHours(0, 0, 0, 0); // Ensure start of day
+                startDate.setDate(now.getDate() - 30); // 30-day trailing window
+                startDate.setHours(0, 0, 0, 0);
                 break;
             case 'year':
                 startDate.setMonth(0, 1); // Start of year

@@ -23,7 +23,7 @@ export const RegisterForm = () => {
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-foreground">
+        <label htmlFor="name" className="block text-sm sm:text-base font-medium text-foreground">
           Full Name
         </label>
         <div className="mt-1">
@@ -39,7 +39,7 @@ export const RegisterForm = () => {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-foreground">
+        <label htmlFor="email" className="block text-sm sm:text-base font-medium text-foreground">
           Email address
         </label>
         <div className="mt-1">
@@ -55,7 +55,23 @@ export const RegisterForm = () => {
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-foreground">
+        <label htmlFor="phone" className="block text-sm sm:text-base font-medium text-foreground">
+          Phone Number (Optional)
+        </label>
+        <div className="mt-1">
+          <Input
+            id="phone"
+            type="tel"
+            autoComplete="tel"
+            {...register('phone' as any)}
+            placeholder="e.g. 01700000000"
+          />
+          {(errors as any).phone && <p className="mt-2 text-sm text-destructive">{(errors as any).phone.message}</p>}
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="password" className="block text-sm sm:text-base font-medium text-foreground">
           Password
         </label>
         <div className="mt-1 relative">
@@ -86,7 +102,7 @@ export const RegisterForm = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full"
+          className="w-full min-h-12 text-base"
         >
           {isLoading ? 'Creating account...' : 'Create account'}
         </Button>

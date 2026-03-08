@@ -3,6 +3,7 @@ import { StaffRole } from '@repo/shared';
 
 export interface IStaff extends Document {
   storeId: Types.ObjectId;
+  userId?: Types.ObjectId;  // Linked User account (for Owners or Staff with logins)
   name: string;
   contact: string;          // phone OR email — unique key per store
   passwordHash: string;
@@ -20,6 +21,7 @@ export interface IStaff extends Document {
 const staffSchema = new Schema<IStaff>(
   {
     storeId: { type: Schema.Types.ObjectId, ref: 'Store', required: true, index: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     name: { type: String, required: true },
     contact: { type: String, required: true },   // phone number OR email
     passwordHash: { type: String, required: true },

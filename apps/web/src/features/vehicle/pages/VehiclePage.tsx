@@ -37,12 +37,12 @@ export const VehiclePage = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Vehicles</h1>
-                    <p className="text-muted-foreground">Manage logistics and delivery vehicles.</p>
+                    <p className="text-muted-foreground text-sm">Manage logistics and delivery vehicles.</p>
                 </div>
-                <Button onClick={() => setIsCreateOpen(true)}>
+                <Button onClick={() => setIsCreateOpen(true)} className="min-h-12 w-full sm:w-auto">
                     <Plus className="mr-2 h-4 w-4" /> Add Vehicle
                 </Button>
             </div>
@@ -75,7 +75,7 @@ export const VehiclePage = () => {
                                 )}
 
 
-                                <div className="absolute top-2 right-2 flex gap-1 z-20 translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
+                                <div className="absolute top-2 right-2 flex gap-1 z-20">
                                     <Button
                                         variant="secondary"
                                         size="icon"
@@ -101,7 +101,7 @@ export const VehiclePage = () => {
                                 </div>
 
                                 <div className="absolute bottom-2 left-3 right-3 text-slate-900">
-                                    <h3 className="font-black text-3xl leading-none tracking-tight">
+                                    <h3 className="font-black text-2xl sm:text-3xl leading-none tracking-tight">
                                         {vehicle.licensePlate}
                                     </h3>
                                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black opacity-90">{vehicle.vehicleModel || 'Unknown Model'}</p>

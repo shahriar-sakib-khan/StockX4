@@ -26,7 +26,7 @@ export const ProductInventoryCard = ({ item, storeId, onBuy, onSell, onAdjust, t
     const navigate = useNavigate();
     const variantLabel = isStove ? `${item.variant?.burners} Burner` : `${item.variant?.size}`;
     const modelId = `${item.brandName.substring(0, 3).toUpperCase()}-${isStove ? item.variant?.burners + '01' : item.variant?.size?.replace('mm', '')}`;
-    const displayImage = image || item.variant?.cylinderImage;
+    const displayImage = item.originalProduct?.product?.image || item.originalProduct?.image || image || item.variant?.cylinderImage;
 
     // Price Edit Logic
     const [isPriceMode, setIsPriceMode] = useState(false);

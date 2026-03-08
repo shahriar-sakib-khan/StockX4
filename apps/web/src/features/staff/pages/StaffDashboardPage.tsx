@@ -1,12 +1,12 @@
-import { POSAccessories } from '@/features/transaction/components/POSAccessories';
+import { POSAccessories } from '@/features/pos/components/POSAccessories';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { usePosStore } from '@/features/transaction/stores/pos.store';
+import { usePosStore } from '@/features/pos/stores/pos.store';
 import { useStaffStore } from '../stores/staff.store';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
-import { POSLayout } from '@/features/transaction/components/POSLayout';
-import { POSCylinders } from '@/features/transaction/components/POSCylinders';
+import { POSLayout } from '@/features/pos/components/POSLayout';
+import { POSCylinders } from '@/features/pos/components/POSCylinders';
 
 export const StaffDashboardPage = () => {
   const { staff, clearAuth } = useStaffStore();

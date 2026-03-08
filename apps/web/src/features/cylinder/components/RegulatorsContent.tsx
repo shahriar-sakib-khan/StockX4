@@ -46,7 +46,7 @@ export const RegulatorsContent = ({ storeId }: { storeId: string }) => {
         brandLogo: '/placeholder.png', // Or fallback to brand logo if mapped
         variant: {
              size: p.product?.details?.type || '22mm',
-             cylinderImage: '',
+             cylinderImage: p.product?.image || '',
              modelNumber: p.product?.details?.model || ''
         },
         counts: {
@@ -116,7 +116,7 @@ export const RegulatorsContent = ({ storeId }: { storeId: string }) => {
         if (items.length === 0) return null;
 
         const is22mm = size === '22mm';
-        const image = is22mm ? "/regulators/regulator-22.png" : "/regulators/regulator-20.png";
+        const image = items[0]?.variant?.cylinderImage || (is22mm ? "/regulators/regulator-22.png" : "/regulators/regulator-20.png");
 
         return (
             <div className="bg-muted/10 rounded-xl p-6 border mb-8 border-dashed">
@@ -135,7 +135,7 @@ export const RegulatorsContent = ({ storeId }: { storeId: string }) => {
                             key={item._id}
                             item={item}
                             type="regulator"
-                            image={image}
+                            image={item.variant.cylinderImage}
                             storeId={storeId}
                             onBuy={handleBuy}
                             onSell={() => {}}

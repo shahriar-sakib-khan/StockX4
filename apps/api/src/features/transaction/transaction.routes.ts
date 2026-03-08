@@ -2,6 +2,7 @@ import { Request, Response, NextFunction, Router } from 'express';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionSchema } from '@repo/shared';
 import { authenticate } from '../../middleware/auth.middleware';
+import { StaffModel } from '../staff/staff.model';
 import { z } from 'zod';
 
 const router: Router = Router();
@@ -9,40 +10,28 @@ const router: Router = Router();
 export class TransactionController {
   static async create(req: Request, res: Response, next: NextFunction) {
     try {
-      // Extend the schema locally to allow isReturn
-      const ExtendedItemSchema = z.object({
-          productId: z.string(),
-          type: z.enum(['CYLINDER', 'ACCESSORY', 'FUEL', 'REPAIR']),
-          quantity: z.number().min(1),
-          unitPrice: z.number().min(0),
-          variant: z.string().optional(),
-          name: z.string().optional(),
-          size: z.string().optional(),
-          regulator: z.string().optional(),
-          description: z.string().optional(),
-          isReturn: z.boolean().optional(),
-      });
-
-      const ExtendedTransactionSchema = CreateTransactionSchema.extend({
-          items: z.array(ExtendedItemSchema)
-      });
-
-      const data = ExtendedTransactionSchema.parse(req.body);
-      // storeId comes from Auth middleware (Staff or Owner)
-      // If Staff, req.user.storeId. If Owner (testing?), might need param.
-      // Assuming 'requireAuth' populates 'req.user' which has 'storeId' for Staff.
-
+      const data = CreateTransactionSchema.parse(req.body);
       const user = (req as any).user;
-
-      // storeId can come from:
-      // 1. Staff Token (user.storeId)
-      // 2. Request Header 'x-store-id' (for Owners/Admins acting on a store)
       let storeId = user.storeId || req.headers['x-store-id'];
 
-      let staffId = user.role === 'staff' ? user.userId : undefined;
-
       if (!storeId) {
-           return res.status(400).json({ message: "Store Context Missing" });
+          return res.status(400).json({ message: "Store Context Missing" });
+      }
+
+      // Resolve staffId for ANY authenticated user (Owner, Manager, Staff, Driver)
+      let staffId: any;
+      
+      if (user.userId) {
+          const transactor = await StaffModel.findOne({
+              storeId,
+              $or: [
+                  { _id: user.userId },
+                  { userId: user.userId }
+              ]
+          });
+          if (transactor) {
+              staffId = transactor._id;
+          }
       }
 
       const transaction = await TransactionService.create(storeId, staffId, data);

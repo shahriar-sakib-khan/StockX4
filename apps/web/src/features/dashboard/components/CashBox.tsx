@@ -48,7 +48,7 @@ export const CashBox = ({ storeId }: CashBoxProps) => {
                 </div>
 
                 <div className="mt-4">
-                    <span className="text-4xl font-bold tracking-tight">
+                    <span className="text-3xl sm:text-4xl font-bold tracking-tight">
                         ৳{cashInHand.toLocaleString()}
                     </span>
                 </div>

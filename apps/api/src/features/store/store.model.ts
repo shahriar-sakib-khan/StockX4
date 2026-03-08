@@ -24,7 +24,7 @@ const storeSchema = new Schema<IStore>(
     ownerId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    code: { type: String },
+    code: { type: String, required: true, unique: true },
     location: { type: String },
     ownerName: { type: String },
     ownerPhone: { type: String },

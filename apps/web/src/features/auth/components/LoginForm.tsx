@@ -7,39 +7,44 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 
-import { loginSchema, LoginInput } from '@repo/shared';
+import { unifiedLoginSchema, UnifiedLoginInput } from '@repo/shared';
 
 export const LoginForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema as any),
+  const { register, handleSubmit, formState: { errors } } = useForm<UnifiedLoginInput>({
+    resolver: zodResolver(unifiedLoginSchema),
   });
   const { login, isLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (data: LoginInput) => {
-    login(data);
+  const onSubmit = (data: any) => {
+    console.log('Form Submit Data:', data);
+    login({ identifier: data.identifier, password: data.password });
+  };
+
+  const onError = (valErrors: any) => {
+    console.log('Form Validation Errors:', valErrors);
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <form className="space-y-6" onSubmit={handleSubmit(onSubmit, onError)}>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-foreground">
-          Email address
+        <label htmlFor="identifier" className="block text-sm sm:text-base font-medium text-foreground">
+          Phone or Email
         </label>
         <div className="mt-1">
           <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            {...register('email')}
-            placeholder="Enter your email"
+            id="identifier"
+            type="text"
+            autoComplete="username"
+            {...register('identifier')}
+            placeholder="Enter your phone or email"
           />
-          {errors.email && <p className="mt-2 text-sm text-destructive">{errors.email.message}</p>}
+          {(errors as any).identifier && <p className="mt-2 text-sm text-destructive">{(errors as any).identifier.message}</p>}
         </div>
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-foreground">
+        <label htmlFor="password" className="block text-sm sm:text-base font-medium text-foreground">
           Password
         </label>
         <div className="mt-1 relative">
@@ -70,7 +75,7 @@ export const LoginForm = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full"
+          className="w-full min-h-12 text-base"
         >
           {isLoading ? 'Signing in...' : 'Sign in'}
         </Button>

@@ -11,21 +11,39 @@ import { StoreBrand } from '../brand/store-brand.model';
 import mongoose from 'mongoose';
 
 export class StoreService {
+  /**
+   * Generates a unique 4-character code (A-Z, 0-9)
+   */
+  private static async generateUniqueCode(): Promise<string> {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    let isUnique = false;
+
+    while (!isUnique) {
+      code = '';
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const existing = await StoreModel.findOne({ code });
+      if (!existing) {
+        isUnique = true;
+      }
+    }
+    return code;
+  }
+
   static async create(ownerId: string, data: CreateStoreInput) {
-    // Generate unique 6-char ID
+    // Generate unique 6-char ID for slug
     const generateId = () => Math.random().toString(36).substring(2, 8).toUpperCase();
     let slug = data.slug || generateId();
-    let code = data.code || `ST-${generateId()}`;
 
-    // Simple collision check (optional loop)
+    // Simple collision check for slug
     while (await StoreModel.findOne({ slug })) {
         slug = generateId();
     }
 
-    // Also ensure code is unique if we want to be safe, though very low collision probability
-    while (await StoreModel.findOne({ code })) {
-        code = `ST-${generateId()}`;
-    }
+    const code = await this.generateUniqueCode();
 
     const store = await StoreModel.create({
       ...data,
@@ -93,15 +111,17 @@ export class StoreService {
       // Update existing store info
       store.name = name;
       store.location = location;
-      if (code) store.code = code;
+      // If store exists but has no code (legacy), generate one
+      if (!store.code) {
+        store.code = await this.generateUniqueCode();
+      }
       store.isSetupComplete = true;
       (store as any).cylinderSizes = effectiveSizes;
       await store.save();
     } else {
       let slug = generateId();
       while (await StoreModel.findOne({ slug })) slug = generateId();
-      let storeCode = code || `ST-${generateId()}`;
-      while (await StoreModel.findOne({ code: storeCode })) storeCode = `ST-${generateId()}`;
+      const storeCode = await this.generateUniqueCode();
 
       store = await StoreModel.create({
         name, location, slug, code: storeCode, ownerId, isSetupComplete: true, cylinderSizes: effectiveSizes,
@@ -155,7 +175,8 @@ export class StoreService {
 
           return InventoryService.upsertInventory(storeId, (product._id as any).toString(), {
             counts: {
-              full: (cyl.counts.packaged || 0) + (cyl.counts.refill || 0),
+              packaged: cyl.counts.packaged || 0,
+              full: cyl.counts.refill || 0,
               empty: cyl.counts.empty || 0,
               defected: cyl.counts.defected || 0,
             },

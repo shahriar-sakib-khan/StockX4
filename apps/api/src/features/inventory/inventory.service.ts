@@ -1,6 +1,7 @@
 import { StoreInventory } from './inventory.model';
-import { StoreProduct } from '../product/store-product.model';
+import { StoreProduct, IStoreProduct } from '../product/store-product.model';
 import { Transaction } from '../transaction/transaction.model';
+import { GlobalProduct, IGlobalProduct } from '../product/global-product.model';
 
 export class InventoryService {
     /**
@@ -10,7 +11,7 @@ export class InventoryService {
         storeId: string,
         productId: string,
         updates: {
-            counts?: { full?: number, empty?: number, defected?: number },
+            counts?: { packaged?: number, full?: number, empty?: number, defected?: number },
             prices?: {
                 buyingPriceFull?: number,
                 buyingPriceGas?: number,
@@ -24,6 +25,7 @@ export class InventoryService {
         // Build the update query dynamically to only overwrite provided fields
         const $set: any = {};
         if (updates.counts) {
+            if (updates.counts.packaged !== undefined) $set['counts.packaged'] = updates.counts.packaged;
             if (updates.counts.full !== undefined) $set['counts.full'] = updates.counts.full;
             if (updates.counts.empty !== undefined) $set['counts.empty'] = updates.counts.empty;
             if (updates.counts.defected !== undefined) $set['counts.defected'] = updates.counts.defected;
@@ -60,6 +62,9 @@ export class InventoryService {
                 }
             });
 
+        // 1.1 Fetch Global Products for accessory images (fallback for existing data)
+        const globalProducts = await GlobalProduct.find({ isActive: true });
+
         // 2. Fetch all inventory ledgers for the store
         // Guard: skip stale ledger docs that might not have a productId (pre-refactor data)
         const ledgers = await StoreInventory.find({ storeId, productId: { $exists: true, $ne: null } });
@@ -70,16 +75,28 @@ export class InventoryService {
             const pId = (product._id as any).toString();
             const ledger = ledgerMap.get(pId);
 
+            // On-the-fly image population for accessories if missing
+            let image = product.image || '';
+            if (!image) {
+                if (product.category === 'stove') {
+                    const gp = globalProducts.find((g: any) => g.type === 'stove' && String(g.burnerCount) === String(product.details.burners));
+                    image = gp?.image || '';
+                } else if (product.category === 'regulator') {
+                    const gp = globalProducts.find((g: any) => g.type === 'regulator' && g.regulatorType === product.details.type);
+                    image = gp?.image || '';
+                }
+            }
+
             return {
                 _id: ledger?._id || `virtual-${pId}`, // Fake ID for react keys if no ledger yet
                 storeId: product.storeId,
                 productId: pId,
 
                 // Keep `product` attached for clean rendering
-                product: product,
+                product: { ...product.toObject(), image },
 
                 // Use ledger counts/prices or fallback to 0s
-                counts: ledger?.counts || { full: 0, empty: 0, defected: 0 },
+                counts: ledger?.counts || { packaged: 0, full: 0, empty: 0, defected: 0 },
                 prices: ledger?.prices || {
                     buyingPriceFull: 0, buyingPriceGas: 0,
                     retailPriceFull: 0, retailPriceGas: 0,
@@ -113,7 +130,7 @@ export class InventoryService {
         const brandIdsWithData = new Set<string>();
 
         for (const ledger of ledgers) {
-            const hasStock = (ledger.counts?.full || 0) > 0 || (ledger.counts?.empty || 0) > 0 || (ledger.counts?.defected || 0) > 0;
+            const hasStock = (ledger.counts?.packaged || 0) > 0 || (ledger.counts?.full || 0) > 0 || (ledger.counts?.empty || 0) > 0 || (ledger.counts?.defected || 0) > 0;
             const hasPrices = (ledger.prices?.buyingPriceFull || 0) > 0 || (ledger.prices?.retailPriceFull || 0) > 0;
 
             if (hasStock || hasPrices) {

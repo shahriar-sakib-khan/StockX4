@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 export const RegisterPage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      <Link to="/" className="absolute top-8 left-8 text-muted-foreground hover:text-primary transition-colors z-50 flex items-center font-medium">
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+      <Link to="/" className="absolute top-4 left-4 sm:top-8 sm:left-8 text-muted-foreground hover:text-primary transition-colors z-50 flex items-center font-medium text-sm sm:text-base">
           ← Back to Home
       </Link>
       {/* Background Gradients */}
@@ -16,7 +16,7 @@ export const RegisterPage = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 transition-all hover:scale-105 duration-300">
         <Link to="/" className="block text-center mb-8">
              <h1 className="text-4xl font-black text-primary tracking-tight">
-                AntiGravity
+                StockXBD
              </h1>
         </Link>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">

@@ -99,7 +99,7 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             <div className="p-2 bg-primary/10 text-primary rounded-lg"><Box className="w-5 h-5" /></div>
                             <div>
                                 <p className="text-xs text-muted-foreground font-medium uppercase">Total Stock</p>
-                                <p className="text-2xl font-bold">{stats.full + stats.empty}</p>
+                                <p className="text-xl sm:text-2xl font-bold">{stats.full + stats.empty}</p>
                             </div>
                         </div>
                     </div>
@@ -111,7 +111,7 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             <div className="p-2 bg-green-100 text-green-600 rounded-lg"><Package className="w-5 h-5" /></div>
                             <div>
                                 <p className="text-xs text-muted-foreground font-medium uppercase">Package (Full)</p>
-                                <p className="text-2xl font-bold">{stats.full}</p>
+                                <p className="text-xl sm:text-2xl font-bold">{stats.full}</p>
                             </div>
                         </div>
                     </div>
@@ -123,7 +123,7 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><RefreshCw className="w-5 h-5" /></div>
                             <div>
                                 <p className="text-xs text-muted-foreground font-medium uppercase">Refill (Empty)</p>
-                                <p className="text-2xl font-bold">{stats.empty}</p>
+                                <p className="text-xl sm:text-2xl font-bold">{stats.empty}</p>
                             </div>
                         </div>
                     </div>
@@ -135,7 +135,7 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                             <div className="p-2 bg-red-100 text-red-600 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
                             <div>
                                 <p className="text-xs text-muted-foreground font-medium uppercase">Defected</p>
-                                <p className="text-2xl font-bold">{stats.defect}</p>
+                                <p className="text-xl sm:text-2xl font-bold">{stats.defect}</p>
                             </div>
                         </div>
                     </div>

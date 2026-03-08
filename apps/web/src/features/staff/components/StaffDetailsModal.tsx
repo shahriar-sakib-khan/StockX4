@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/Modal';
 import { CardDescription } from '@/components/ui/card';
-import { Phone, User, ReceiptText, Banknote, Calendar } from 'lucide-react';
+import { Phone, User, ReceiptText, Banknote, Calendar, BadgeCheck } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTransactions } from '@/features/transaction/api/transaction.api';
+import { useTransactions } from '@/features/pos/api/transaction.api';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Receipt } from '@/features/transaction/components/Receipt';
+import { Receipt } from '@/features/pos/components/Receipt';
 import { PaySalaryModal } from './PaySalaryModal';
 
 interface StaffDetailsModalProps {
@@ -75,6 +75,10 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                                         <Phone className="w-4 h-4" /> {staff.phone}
                                     </div>
                                 )}
+                                <div className="flex items-center gap-2">
+                                    <BadgeCheck className="w-4 h-4 text-primary" />
+                                    <span className="font-semibold text-foreground">Login Phone/Email:</span> {staff.contact}
+                                </div>
                                 <div className="text-xs text-muted-foreground">
                                     Joined: {format(new Date(staff.createdAt), 'dd MMM yyyy')}
                                 </div>

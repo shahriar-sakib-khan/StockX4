@@ -7,8 +7,8 @@ import { registerSchema, loginSchema } from '@repo/shared';
 export class AuthController {
   static async register(req: Request, res: Response) {
     try {
-      const { email, password, name } = registerSchema.parse(req.body);
-      const user = await AuthService.register(email, password, name);
+      const { email, password, name, phone } = registerSchema.parse(req.body);
+      const user = await AuthService.register(email, password, name, phone);
       res.status(201).json(user);
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -22,27 +22,32 @@ export class AuthController {
   }
 
   static async login(req: Request, res: Response) {
-    try {
-      const { email, password } = loginSchema.parse(req.body);
-      const { accessToken, refreshToken, user } = await AuthService.login(email, password);
+    // ... logic for old login if needed, or redirect to unified
+    return this.unifiedLogin(req, res);
+  }
 
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        path: '/auth/refresh', // Changed from '/api/auth/refresh'
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+  static async unifiedLogin(req: Request, res: Response) {
+      try {
+          const { identifier, password } = req.body; // Using raw body or zod if preferred
+          const result = await AuthService.unifiedLogin(identifier, password) as any;
 
-      res.status(200).json({ accessToken, user });
-    } catch (error: any) {
-      console.error('[LOGIN ERROR]', error); // Debug log
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ error: error.errors });
-      } else if (error.message === 'Invalid credentials') {
-        res.status(401).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+          if (result.refreshToken) {
+              res.cookie('refreshToken', result.refreshToken, {
+                  httpOnly: true,
+                  path: '/auth/refresh',
+                  maxAge: 7 * 24 * 60 * 60 * 1000,
+              });
+          }
+
+          res.status(200).json(result);
+      } catch (error: any) {
+          console.error('[UNIFIED LOGIN ERROR]', error);
+          if (error.message === 'Invalid credentials') {
+              res.status(401).json({ error: error.message });
+          } else {
+              res.status(500).json({ error: 'Internal Server Error', details: error.message });
+          }
       }
-    }
   }
 
   static async refresh(req: Request, res: Response) {

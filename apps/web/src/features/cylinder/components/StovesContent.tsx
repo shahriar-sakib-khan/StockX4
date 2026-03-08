@@ -46,7 +46,7 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
         brandLogo: '/placeholder.png', // Or fallback to brand logo if mapped
         variant: {
              burners: Number(p.product?.details?.burners || 1),
-             cylinderImage: '', // Will add stove images resolution later
+             cylinderImage: p.product?.image || '',
              modelNumber: p.product?.details?.model || ''
         },
         counts: {
@@ -116,7 +116,7 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
         const items = filteredInventory.filter((i: any) => i.variant.burners === burners);
         if (items.length === 0) return null;
 
-        const sectionImage = `/stoves/stove-${burners}.png`;
+        const sectionImage = items[0]?.variant?.cylinderImage || `/stoves/stove-${burners}.png`;
 
         return (
             <div className="bg-muted/10 rounded-xl p-6 border mb-8 border-dashed">
@@ -135,7 +135,7 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                             key={item._id}
                             item={item}
                             type="stove"
-                            image={sectionImage}
+                            image={item.variant.cylinderImage}
                             storeId={storeId}
                             onBuy={handleBuy}
                             onSell={() => {}}

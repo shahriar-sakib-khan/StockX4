@@ -4,6 +4,7 @@ export interface IStoreProduct extends Document {
   storeId: mongoose.Types.ObjectId;
   category: 'cylinder' | 'stove' | 'regulator';
   name: string; // Friendly mapped name
+  image?: string; // Cache imagery from GlobalProduct or Brand
   isActive: boolean;
   isArchived: boolean;
   details: {
@@ -24,6 +25,7 @@ const StoreProductSchema = new Schema<IStoreProduct>({
   storeId: { type: Schema.Types.ObjectId, ref: 'Store', required: true },
   category: { type: String, enum: ['cylinder', 'stove', 'regulator'], required: true },
   name: { type: String, required: true },
+  image: { type: String },
   isActive: { type: Boolean, default: true },
   isArchived: { type: Boolean, default: false },
   details: { type: Schema.Types.Mixed, required: true }

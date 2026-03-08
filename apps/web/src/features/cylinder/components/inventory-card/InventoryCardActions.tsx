@@ -20,14 +20,6 @@ export const InventoryCardActions = ({ item, storeId, onRestock }: InventoryCard
                 <PackagePlus className="w-4 h-4 mr-1.5" />
                 Restock
             </Button>
-            <Button
-                onClick={() => navigate('/pos')}
-                variant="outline"
-                size="sm"
-                className="h-10 px-3 text-sm font-semibold border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-            >
-                Sell
-            </Button>
         </div>
     );
 };

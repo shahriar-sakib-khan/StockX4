@@ -36,7 +36,7 @@ export const storeResponseSchema = z.object({
   ownerId: z.string(),
   name: z.string(),
   slug: z.string(),
-  code: z.string().optional(),
+  code: z.string(),
   location: z.string().optional(),
   ownerName: z.string().optional(),
   ownerPhone: z.string().optional(),

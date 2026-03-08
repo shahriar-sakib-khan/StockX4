@@ -46,7 +46,7 @@ export const LandingTestimonials = () => {
                                   </div>
 
                                   <p className="text-slate-600 italic mb-8 leading-relaxed">
-                                      "With STOCK X's Inventory management and online delivery platform, we reduced reporting time by 80% and increased our sales team's productivity by 35%. The real-time tracking has been a game-changer."
+                                      "With StockXBD's Inventory management and online delivery platform, we reduced reporting time by 80% and increased our sales team's productivity by 35%. The real-time tracking has been a game-changer."
                                   </p>
 
                                   <div className="flex gap-1 text-orange-400">
