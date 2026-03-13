@@ -29,61 +29,62 @@ export const AdminLayout = ({ children }: LayoutProps) => {
 
   const SidebarContent = () => (
     <>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold flex items-center text-foreground">
-          <Shield className="mr-2 text-primary" /> Admin
+      <div className="p-8 pb-6 text-center lg:text-left">
+        <h1 className="text-2xl font-black flex items-center justify-center lg:justify-start text-slate-900 tracking-tighter uppercase ring-offset-4">
+          <Shield className="mr-3 text-red-600 w-8 h-8" /> 
+          <span className="bg-red-50 text-red-600 px-2 rounded-lg">Admin</span>
         </h1>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-4 space-y-3">
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
             onClick={() => setMobileMenuOpen(false)}
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+            className={`flex items-center space-x-4 px-4 h-14 rounded-2xl transition-all active:scale-95 group ${
               location.pathname === item.path
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                ? 'bg-slate-900 text-white shadow-xl shadow-slate-200'
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
-            <item.icon size={20} />
-            <span>{item.label}</span>
+            <item.icon size={22} className={location.pathname === item.path ? 'text-white' : 'text-slate-400 group-hover:text-slate-900 transition-colors'} />
+            <span className="font-black uppercase tracking-widest text-xs">{item.label}</span>
           </Link>
         ))}
       </nav>
 
       {/* Bottom Section: Settings & Profile */}
-      <div className="p-4 border-t border-border space-y-2">
+      <div className="p-4 border-t border-slate-50 space-y-3 pb-8">
           <Link
             to="/admin/settings"
             onClick={() => setMobileMenuOpen(false)}
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
+            className={`flex items-center space-x-4 px-4 h-14 rounded-2xl transition-all active:scale-95 group ${
               location.pathname === '/admin/settings'
-                ? 'bg-accent text-accent-foreground'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                ? 'bg-slate-100 text-slate-900 shadow-sm'
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
-            <Settings size={20} />
-            <span>Settings</span>
+            <Settings size={22} className={location.pathname === '/admin/settings' ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-900'} />
+            <span className="font-black uppercase tracking-widest text-xs">Settings</span>
           </Link>
 
-        <div className="pt-2 flex items-center justify-between px-4 pb-2">
-           <div className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate('/admin/profile')}>
-               <Avatar src={user?.avatar} alt={user?.name} size="sm" />
-               <div className="text-sm overflow-hidden">
-                   <p className="font-medium text-foreground truncate">{user?.name}</p>
-                   <p className="text-xs text-muted-foreground truncate">Administrator</p>
+        <div className="pt-4 flex items-center justify-between px-2 bg-slate-50/50 rounded-2xl py-2">
+           <div className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-all p-2 rounded-xl active:scale-95" onClick={() => navigate('/admin/profile')}>
+               <Avatar src={user?.avatar} alt={user?.name} size="sm" className="border-2 border-white shadow-sm" />
+               <div className="text-left overflow-hidden">
+                   <p className="font-black text-slate-900 text-sm leading-none truncate">{user?.name}</p>
+                   <p className="text-[10px] uppercase font-bold text-red-500 tracking-widest mt-1 truncate">Admin Profile</p>
                </div>
            </div>
            <Button
               onClick={handleLogout}
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="h-12 w-12 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90 shrink-0"
               title="Logout"
            >
-              <LogOut size={18} />
+              <LogOut size={20} />
            </Button>
         </div>
       </div>
@@ -100,18 +101,18 @@ export const AdminLayout = ({ children }: LayoutProps) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0 h-screen">
         {/* Topbar + Mobile Menu Trigger */}
-        <header className="h-16 border-b border-border flex items-center justify-between px-4 lg:px-8 bg-card/50 backdrop-blur-sm sticky top-0 z-10 shrink-0">
+        <header className="h-16 border-b border-slate-100 flex items-center justify-between px-4 lg:px-8 bg-white/80 backdrop-blur-md sticky top-0 z-50 shrink-0">
           <div className="flex items-center">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden mr-4"
+              className="lg:hidden mr-2 h-12 w-12 text-slate-500"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <Menu size={24} />
             </Button>
-            <h2 className="text-lg font-medium text-foreground truncate">
-              {menuItems.find(i => i.path === location.pathname)?.label || 'Admin'}
+            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter truncate">
+              {menuItems.find(i => i.path === location.pathname)?.label || 'Admin Portal'}
             </h2>
           </div>
         </header>
@@ -141,26 +142,35 @@ export const AdminLayout = ({ children }: LayoutProps) => {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around items-center h-16 z-40 px-1 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <nav className="lg:hidden fixed bottom-4 left-4 right-4 bg-white/90 backdrop-blur-xl border border-slate-100 flex justify-around items-center h-20 z-[60] px-2 rounded-3xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] ring-1 ring-slate-900/5">
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`relative flex flex-col items-center justify-center w-full h-16 group transition-all duration-300 ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
             >
-              <item.icon size={20} className={isActive ? 'opacity-100' : 'opacity-70'} />
-              <span className="text-[10px] font-bold truncate w-full text-center px-1 tracking-tight">{item.label}</span>
+               {isActive && (
+                  <span className="absolute -top-1 w-8 h-1 bg-slate-900 rounded-full animate-in fade-in zoom-in duration-300" />
+               )}
+              <div className={`p-2 rounded-2xl transition-all duration-300 ${isActive ? 'bg-slate-900/5 scale-110' : 'group-hover:bg-slate-50'}`}>
+                <item.icon size={22} className={isActive ? 'opacity-100' : 'opacity-70'} />
+              </div>
+              <span className={`text-[10px] font-black uppercase tracking-widest mt-1 transition-all duration-300 ${isActive ? 'opacity-100 scale-100' : 'opacity-60 scale-95'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
         <button
           onClick={() => setMobileMenuOpen(true)}
-          className="flex flex-col items-center justify-center w-full h-full space-y-1 text-muted-foreground hover:text-foreground"
+          className="relative flex flex-col items-center justify-center w-full h-16 text-slate-400 hover:text-slate-600 transition-all duration-300 active:scale-90"
         >
-          <Menu size={20} className="opacity-70" />
-          <span className="text-[10px] font-bold truncate w-full text-center px-1 tracking-tight">More</span>
+          <div className="p-2 rounded-2xl hover:bg-slate-50 transition-all">
+            <Menu size={22} className="opacity-70" />
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">More</span>
         </button>
       </nav>
     </div>

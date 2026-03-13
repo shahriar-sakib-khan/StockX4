@@ -12,6 +12,8 @@ const emptyForm = (): StoveForm => ({
   image: '',
 });
 
+import { InfoTooltip } from './shared/InfoTooltip';
+
 export const Step4StoveSetup = ({ storeId, onItemAdded }: { storeId: string; onItemAdded?: () => void }) => {
   const imgMap = useStoveImages();
   const [form, setForm] = useState<StoveForm>(emptyForm());
@@ -124,7 +126,10 @@ export const Step4StoveSetup = ({ storeId, onItemAdded }: { storeId: string; onI
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Add Gas Stoves <span className="text-base font-normal text-muted-foreground">(Optional)</span></h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Add Gas Stoves <span className="text-base font-normal text-muted-foreground">(Optional)</span>
+          <InfoTooltip content="Add the gas stoves you sell. You can add more later from the inventory page." />
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">Add the stoves your store carries. You can skip and add later.</p>
       </div>
 

@@ -39,12 +39,12 @@ export const AdminUserDetailPage = () => {
         <Button
             variant="ghost"
             onClick={() => navigate('/admin')}
-            className="flex items-center text-muted-foreground hover:text-foreground mb-4 pl-0 hover:bg-transparent"
+            className="flex items-center text-muted-foreground hover:text-foreground mb-4 pl-0 hover:bg-transparent min-h-[48px] sm:min-h-0"
         >
             <ArrowLeft size={20} className="mr-2" /> Back to Users
         </Button>
 
-        <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-8 shadow-sm">
             <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-6">
                     <Avatar src={user.avatar} alt={user.name} size="xl" />
@@ -71,13 +71,13 @@ export const AdminUserDetailPage = () => {
         </div>
 
         {/* Reset Password Zone */}
-        <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-bold text-foreground mb-4 flex items-center">
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-8 shadow-sm">
+            <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4 flex items-center">
                 <Shield className="mr-3 text-destructive" /> Admin Danger Zone
             </h3>
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
-                <h4 className="text-lg font-medium text-destructive mb-2">Force Password Reset</h4>
-                <p className="text-sm text-destructive/80 mb-6">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-5 sm:p-6">
+                <h4 className="text-base sm:text-lg font-medium text-destructive mb-2">Force Password Reset</h4>
+                <p className="text-xs sm:text-sm text-destructive/80 mb-6">
                     This will immediately override the users current password. They will need to use this new password to login.
                 </p>
 
@@ -94,17 +94,17 @@ export const AdminUserDetailPage = () => {
                     } catch {
                         toast.error("Failed to reset password");
                     }
-                }} className="flex items-end gap-4">
+                }} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4">
                     <div className="flex-1">
                         <label className="block text-xs font-medium text-destructive mb-1.5 uppercase tracking-wide">New Permanent Password</label>
                         <input
                             name="newPassword"
                             type="text"
                             placeholder="Enter new password..."
-                            className="w-full bg-background border border-destructive/30 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-destructive placeholder-destructive/40 font-mono"
+                            className="w-full h-12 sm:h-auto bg-background border border-destructive/30 rounded-lg px-4 py-2 text-foreground focus:outline-none focus:border-destructive placeholder-destructive/40 font-mono"
                         />
                     </div>
-                    <Button type="submit" variant="destructive" className="shrink-0">
+                    <Button type="submit" variant="destructive" className="shrink-0 min-h-[48px] sm:min-h-0 w-full sm:w-auto">
                         Reset Password
                     </Button>
                 </form>

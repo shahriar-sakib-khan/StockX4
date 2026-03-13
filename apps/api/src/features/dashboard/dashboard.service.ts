@@ -1,6 +1,7 @@
+import { TransactionService } from '../transaction/transaction.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { Transaction } from '../transaction/transaction.model';
 import { CustomerModel } from '../customer/customer.model';
-import { StoreInventory } from '../inventory/inventory.model';
 import { ProductModel } from '../product/product.model';
 import mongoose from 'mongoose';
 
@@ -10,95 +11,33 @@ export class DashboardService {
         let startDate = new Date();
 
         switch (period) {
-            case 'day':
-                startDate.setHours(0, 0, 0, 0); // Start of today
-                break;
-            case 'week':
-                startDate.setDate(now.getDate() - 7);
-                break;
-            case 'month':
-                startDate.setDate(now.getDate() - 30); // 30-day trailing window
-                startDate.setHours(0, 0, 0, 0);
-                break;
-            case 'year':
-                startDate.setMonth(0, 1); // Start of year
-                startDate.setHours(0, 0, 0, 0);
-                break;
+            case 'day': startDate.setHours(0, 0, 0, 0); break;
+            case 'week': startDate.setDate(now.getDate() - 7); break;
+            case 'month': startDate.setDate(now.getDate() - 30); break;
+            case 'year': startDate.setMonth(0, 1); break;
         }
 
-        const dateQuery = {
-            storeId,
-            createdAt: { $gte: startDate }
-        };
+        const filters = { startDate: startDate.toISOString(), endDate: now.toISOString() };
+        const summary = await TransactionService.getSummary(storeId, filters);
 
-        // 1. Total Sales (Revenue)
-        const salesAgg = await Transaction.aggregate([
-            { $match: { ...dateQuery, type: 'SALE' } },
-            { $group: { _id: null, total: { $sum: '$finalAmount' } } }
-        ]);
-        const totalSales = salesAgg[0]?.total || 0;
+        // All-time Cash in Hand (not affected by period)
+        const allTimeSummary = await TransactionService.getSummary(storeId, {});
 
-        // 2. Total Expenses
-        const expensesAgg = await Transaction.aggregate([
-            { $match: { ...dateQuery, type: 'EXPENSE' } },
-            { $group: { _id: null, total: { $sum: '$finalAmount' } } }
-        ]);
-        const totalExpenses = expensesAgg[0]?.total || 0;
-
-        // 3. Profit (Sales - Expenses)
-        // Note: This is simplified. Real profit needs COGS.
-        // For now, let's use Sales - Expenses as "Net Cash Flow" or "Operating Profit" proxy?
-        // Actually, user likely wants Revenue - Cost.
-        // But COGS calculation is complex without strict cost tracking per transaction item.
-        // Let's stick to Cash Flow: Revenue - Expenses.
-        const netProfit = totalSales - totalExpenses;
-
-
-        // 4. Total Due (Receivable) - Snapshot (Not affected by date range, it's current state)
-        // We can optionally filter by creation date if needed, but Due is usually cumulative.
-        // Let's just return Current Total Due.
+        // Total Due (current snapshot)
         const customerDueAgg = await CustomerModel.aggregate([
             { $match: { storeId: new mongoose.Types.ObjectId(storeId) } },
             { $group: { _id: null, total: { $sum: '$totalDue' } } }
         ]);
-        const totalDue = customerDueAgg[0]?.total || 0;
-
-        // 5. Cash In Hand (Cash Box)
-        // Cash In: Sales (Cash) + Due Payments (Cash)
-        // Cash Out: Expenses (Cash)
-        // This should probably be ALL TIME or explicitly tracked.
-        // "Cash Box" usually implies current physical cash. So it should be ALL TIME.
-        const cashInAgg = await Transaction.aggregate([
-            {
-                $match: {
-                    storeId: new mongoose.Types.ObjectId(storeId),
-                    paymentMethod: 'CASH',
-                    type: { $in: ['SALE', 'DUE_PAYMENT'] }
-                }
-            },
-            { $group: { _id: null, total: { $sum: '$paidAmount' } } }
-        ]);
-
-        const cashOutAgg = await Transaction.aggregate([
-            {
-                $match: {
-                    storeId: new mongoose.Types.ObjectId(storeId),
-                    paymentMethod: 'CASH',
-                    type: { $in: ['EXPENSE'] } // Add 'RETURN' if cash refund?
-                }
-            },
-            { $group: { _id: null, total: { $sum: '$paidAmount' } } } // Expenses usually have paidAmount = finalAmount
-        ]);
-
-        const cashInHand = (cashInAgg[0]?.total || 0) - (cashOutAgg[0]?.total || 0);
 
         return {
             period,
-            totalSales,
-            totalExpenses,
-            netProfit,
-            totalDue,
-            cashInHand
+            totalSales: summary.totalSales,
+            totalExpenses: summary.totalExpenses,
+            netProfit: summary.totalSales - summary.totalExpenses,
+            totalDue: customerDueAgg[0]?.total || 0,
+            cashInHand: allTimeSummary.netCashFlow,
+            cashInPeriod: summary.cashIncome + summary.digitalIncome,
+            cashOutPeriod: summary.totalExpenses
         };
     }
 
@@ -142,13 +81,18 @@ export class DashboardService {
     }
 
     static async getInventorySummary(storeId: string) {
-        // 1. Low Stock Cylinders (Full < 5)
-        const lowStockCylinders = await StoreInventory.find({
-            storeId,
-            'counts.full': { $lt: 5 }
-        }).limit(5).populate('productId');
+        // 1. Get Cylinder Snapshot using InventoryService (robust naming)
+        const inventory = await InventoryService.getStoreInventory(storeId);
+        const lowStockCylinders = inventory
+            .filter(item => item.product?.category === 'cylinder' && (item.counts?.full || 0) < 5)
+            .slice(0, 5)
+            .map(item => ({
+                name: item.product?.name || 'Unknown Cylinder',
+                stock: item.counts?.full,
+                type: 'Cylinder'
+            }));
 
-        // 2. Low Stock Products (Stock < 5)
+        // 2. Low Stock Products (Stoves/Regulators - basic search is fine)
         const lowStockProducts = await ProductModel.find({
             storeId,
             stock: { $lt: 5 }
@@ -156,14 +100,7 @@ export class DashboardService {
 
         return {
             lowStock: [
-                ...lowStockCylinders.map(c => {
-                    const product = c.productId as any;
-                    return {
-                        name: product?.name || 'Unknown Item',
-                        stock: c.counts?.full,
-                        type: 'Cylinder'
-                    };
-                }),
+                ...lowStockCylinders,
                 ...lowStockProducts.map(p => ({
                     name: p.name,
                     stock: p.stock,

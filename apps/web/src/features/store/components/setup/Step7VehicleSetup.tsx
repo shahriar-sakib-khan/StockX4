@@ -8,6 +8,8 @@ import { Field, inputCls } from './shared/SetupFormFields';
 
 
 
+import { InfoTooltip } from './shared/InfoTooltip';
+
 export const Step7VehicleSetup = ({ storeId, onItemAdded }: { storeId: string; onItemAdded?: () => void }) => {
   const [form, setForm] = useState<VehicleData>(emptyForm);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
@@ -91,7 +93,10 @@ export const Step7VehicleSetup = ({ storeId, onItemAdded }: { storeId: string; o
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Add Delivery Vehicles <span className="text-base font-normal text-muted-foreground">(Optional)</span></h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Add Delivery Vehicles <span className="text-base font-normal text-muted-foreground">(Optional)</span>
+          <InfoTooltip content="Add bikes or trucks used for cylinder delivery to customers." />
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">Register your delivery fleet. You can add more vehicles later from the Vehicles page.</p>
       </div>
 
@@ -122,7 +127,7 @@ export const Step7VehicleSetup = ({ storeId, onItemAdded }: { storeId: string; o
         <button
           onClick={handleAdd}
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 w-full sm:w-auto min-h-[48px] rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50"
         >
           {loading ? '…' : '+ Add Vehicle'}
         </button>

@@ -11,7 +11,7 @@ export class InventoryController {
             const inventory = await InventoryService.getStoreInventory(targetStoreId);
             return res.status(200).json({ inventory });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Inventory operation failed' });
         }
     }
 
@@ -26,7 +26,7 @@ export class InventoryController {
             const stats = await InventoryService.getSizeStats(targetStoreId, size);
             return res.status(200).json({ stats });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Inventory operation failed' });
         }
     }
 
@@ -41,7 +41,8 @@ export class InventoryController {
             const inventory = await InventoryService.upsertInventory(targetStoreId, productId, { counts, prices });
             return res.status(200).json({ inventory });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            console.error('[InventoryController] upsertInventory error:', error);
+            return res.status(500).json({ error: error.message || 'Inventory operation failed' });
         }
     }
 
@@ -61,7 +62,7 @@ export class InventoryController {
 
             return res.status(200).json({ success: true });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Inventory operation failed' });
         }
     }
 
@@ -83,7 +84,7 @@ export class InventoryController {
 
             return res.status(200).json({ product });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Inventory operation failed' });
         }
     }
 }

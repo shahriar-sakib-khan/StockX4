@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { DashboardService } from './dashboard.service';
+import { logger } from '../../config/logger';
 
 export class DashboardController {
     static async getStats(req: Request, res: Response) {
@@ -10,7 +11,7 @@ export class DashboardController {
             const stats = await DashboardService.getStats(storeId, period);
             res.json(stats);
         } catch (error) {
-            console.error('Error getting dashboard stats:', error);
+            logger.error('Error getting dashboard stats: ' + (error as Error).message);
             res.status(500).json({ message: 'Failed to fetch dashboard stats' });
         }
     }
@@ -23,7 +24,7 @@ export class DashboardController {
             const data = await DashboardService.getChartData(storeId, days);
             res.json(data);
         } catch (error) {
-            console.error('Error getting chart data:', error);
+            logger.error('Error getting chart data: ' + (error as Error).message);
             res.status(500).json({ message: 'Failed to fetch chart data' });
         }
     }
@@ -35,7 +36,7 @@ export class DashboardController {
             const summary = await DashboardService.getInventorySummary(storeId);
             res.json(summary);
         } catch (error) {
-            console.error('Error getting inventory summary:', error);
+            logger.error('Error getting inventory summary: ' + (error as Error).message);
             res.status(500).json({ message: 'Failed to fetch inventory summary' });
         }
     }

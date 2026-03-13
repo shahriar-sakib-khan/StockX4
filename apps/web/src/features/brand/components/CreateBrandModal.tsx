@@ -134,30 +134,28 @@ export const CreateBrandModal = ({ open: controlledOpen, onClose, initialData, s
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                             {customBrands.map((brand: any) => (
-                                                <div key={brand._id} className="flex h-20 border rounded-lg overflow-hidden bg-card shadow-sm">
-                                                    <div className="w-14 flex-shrink-0 flex items-center justify-center"
+                                                <div key={brand._id} className="flex h-14 border rounded-lg overflow-hidden bg-card shadow-sm hover:shadow-md transition-shadow relative group">
+                                                    <div className="w-10 flex-shrink-0 flex items-center justify-center"
                                                          style={{ backgroundColor: brand.color + '22' }}>
                                                         {brand.logo ? (
-                                                            <img src={brand.logo} alt={brand.name} className="w-10 h-10 object-contain" />
+                                                            <img src={brand.logo} alt={brand.name} className="w-7 h-7 object-contain" />
                                                         ) : (
-                                                            <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm"
+                                                            <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-white text-[10px]"
                                                                  style={{ backgroundColor: brand.color }}>
                                                                 {brand.name?.substring(0, 2).toUpperCase()}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="flex-1 flex items-center px-3 gap-2 min-w-0">
-                                                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: brand.color }} />
-                                                        <span className="font-semibold text-sm truncate">{brand.name}</span>
-                                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-bold border border-purple-200 flex-shrink-0">Custom</span>
+                                                    <div className="flex-1 flex items-center px-1.5 gap-1 min-w-0">
+                                                        <span className="font-black text-[11px] sm:text-sm truncate">{brand.name}</span>
                                                     </div>
                                                     <button
                                                         onClick={() => handleDeleteCustomBrand(brand._id)}
-                                                        className="w-10 flex-shrink-0 bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors"
+                                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity z-10"
                                                     >
-                                                        <X className="w-4 h-4" />
+                                                        <X className="w-3 h-3" />
                                                     </button>
                                                 </div>
                                             ))}

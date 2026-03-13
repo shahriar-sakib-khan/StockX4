@@ -43,8 +43,9 @@ ignored-public/
 # Covers all workspaces: apps/api, apps/web, etc.
 **/scripts/
 
+docs/
+
 # Generated data files by scripts — local only
 uploads.json
 upload-results.json
 cloudinary-urls.json
-*.log.txt

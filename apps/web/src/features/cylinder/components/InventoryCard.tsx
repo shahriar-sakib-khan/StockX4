@@ -17,10 +17,11 @@ interface InventoryCardProps {
     fallbackImage?: string;
     highlightStats?: boolean;
     pendingQuantity?: number;
+    pendingType?: 'refill' | 'package';
     isLivePreview?: boolean;
 }
 
-export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlightStats, pendingQuantity, isLivePreview }: InventoryCardProps) => {
+export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlightStats, pendingQuantity, pendingType, isLivePreview }: InventoryCardProps) => {
     const [defectModalOpen, setDefectModalOpen] = useState(false);
     const [isPriceMode, setIsPriceMode] = useState(false);
     const update = useUpdateInventory();
@@ -86,13 +87,15 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                     {/* 1. Top Section: Brand & Status */}
                     <InventoryCardHeader item={item} statusConfig={statusConfig} />
 
-                    {/* 2. Main Content: Image Left, Stats Right */}
-                    <div className="flex gap-4 h-full flex-1">
+                    {/* 2. Main Content: Image Top or Left, Stats Below or Right */}
+                    <div className="flex flex-col sm:flex-row gap-4 h-full flex-1">
 
-                        {/* LEFT: Cylinder Image */}
-                        <InventoryCardImage item={item} fallbackImage={fallbackImage} />
+                        {/* LEFT/TOP: Cylinder Image */}
+                        <div className="w-full sm:w-40 shrink-0 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-slate-100 p-2 min-h-[120px] sm:min-h-[180px] aspect-[4/3] sm:aspect-auto">
+                            <InventoryCardImage item={item} fallbackImage={fallbackImage} />
+                        </div>
 
-                        {/* RIGHT: Stats & Prices */}
+                        {/* RIGHT/BOTTOM: Stats & Prices */}
                         <div className="flex-1 flex flex-col min-w-0 h-full relative">
 
                             {isPriceMode ? (
@@ -113,6 +116,7 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                                         onDefectClick={() => setDefectModalOpen(true)}
                                         highlight={highlightStats}
                                         pendingQuantity={pendingQuantity}
+                                        pendingType={pendingType}
                                     />
 
                                     {/* Prices & Edit Button */}

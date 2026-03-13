@@ -12,7 +12,7 @@ export class StoreProductService {
         const store = await StoreModel.findById(storeId);
         if (!store) throw new Error('Store not found');
 
-        const activeBrands = await StoreBrand.find({ storeId, isActive: true }).populate('globalBrandId');
+        const activeBrands = await StoreBrand.find({ storeId, isActive: true, type: 'cylinder' }).populate('globalBrandId');
         const activeSizes = store.cylinderSizes && store.cylinderSizes.length > 0 ? store.cylinderSizes : ['12kg'];
         const regulatorTypes = ['20mm', '22mm'];
 

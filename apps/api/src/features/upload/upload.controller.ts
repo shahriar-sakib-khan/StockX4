@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import cloudinary from '../../config/cloudinary';
 import { Readable } from 'stream';
+import { logger } from '../../config/logger';
 
 export const UploadController = {
   uploadFile: async (req: Request, res: Response) => {
@@ -15,7 +16,7 @@ export const UploadController = {
         },
         (error, result) => {
           if (error) {
-            console.error('Cloudinary upload error:', error);
+            logger.error('Cloudinary upload error: ' + JSON.stringify(error));
             return res.status(500).json({ message: 'Upload failed' });
           }
           res.status(200).json({ url: result?.secure_url });
@@ -24,7 +25,7 @@ export const UploadController = {
 
       Readable.from(req.file.buffer).pipe(stream);
     } catch (error) {
-      console.error('Upload error:', error);
+      logger.error('Upload error: ' + (error as Error).message);
       res.status(500).json({ message: 'Internal server error' });
     }
   },

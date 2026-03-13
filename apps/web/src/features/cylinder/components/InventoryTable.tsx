@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { InventoryCard } from "./InventoryCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUpdateInventory } from "@/features/cylinder/hooks/useCylinders";
-import { transactionApi } from "@/features/pos/api/transaction.api";
+import { transactionApi, useCreateTransaction } from "@/features/pos/api/transaction.api";
 import { HistoryInvoiceModal } from "@/features/history/components/HistoryInvoiceModal";
 import { toast } from "sonner";
 
@@ -22,69 +22,48 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
     const [liveItem, setLiveItem] = useState<any>(null); // tracks variant changes from sidebar
     const [highlightRestocked, setHighlightRestocked] = useState(false);
     const [pendingQuantity, setPendingQuantity] = useState(0); // tracks live stats badge from sidebar input
+    const [pendingType, setPendingType] = useState<'refill' | 'package'>('package');
 
     const updateInventory = useUpdateInventory();
+    const createTransaction = useCreateTransaction();
     const [invoiceTx, setInvoiceTx] = useState<any>(null);
-    const [isProcessing, setIsProcessing] = useState(false);
+    const isProcessing = createTransaction.isPending;
 
     const handleRestock = (item: any) => {
         setSelectedItem(item);
         setLiveItem(item);
         setPendingQuantity(0);
+        setPendingType('refill');
         setRestockOpen(true);
         onRestockStateChange?.(true);
     };
 
-    const handleConfirmRestock = async (item: any, quantity: number, purchaseType: 'refill' | 'package', totalAmount: number, unitPrice: number) => {
-        setIsProcessing(true);
+    const handleConfirmRestock = async (item: any, quantity: number, purchaseType: 'refill' | 'package', totalAmount: number, unitPrice: number, wholesalePrice?: number, retailPrice?: number) => {
         try {
-            // Update counts mapping
-            const currentCounts = item.counts || { packaged: 0, full: 0, empty: 0, defected: 0 };
-            const currentPrices = item.prices || { fullCylinder: 0, gasOnly: 0 };
-
-            const newCounts = {
-                ...currentCounts,
-                packaged: purchaseType === 'package' ? (currentCounts.packaged || 0) + quantity : (currentCounts.packaged || 0),
-                full: purchaseType === 'refill' ? (currentCounts.full || 0) + quantity : (currentCounts.full || 0),
-                empty: purchaseType === 'refill' ? Math.max(0, (currentCounts.empty || 0) - quantity) : (currentCounts.empty || 0)
-            };
-
-            const newPrices = {
-                ...currentPrices,
-                ...(purchaseType === 'refill'
-                    ? { buyingPriceGas: unitPrice }
-                    : { buyingPriceFull: unitPrice }
-                )
-            };
-
-            // 1. Update Inventory Stock
-            await updateInventory.mutateAsync({
-                storeId,
-                data: {
-                    productId: item.productId,
-                    counts: newCounts,
-                    prices: newPrices
-                }
-            });
-
-            // 2. Generate Transaction
+            // 1. Generate Transaction (Backend now handles inventory & price updates automatically for Restock type)
             const transactionItem = {
                  productId: item.productId,
-                 type: 'CYLINDER' as const, // For schema matching
+                 type: 'CYLINDER' as const,
                  quantity: quantity,
                  unitPrice: unitPrice,
+                 wholesalePrice,
+                 retailPrice,
                  variant: purchaseType,
                  name: item.brandName || "Cylinder",
                  size: item.variant?.size,
-                 regulator: item.variant?.regulator
+                 regulator: item.variant?.regulator,
+                 category: 'Restock Inventory'
             };
 
-            const txResult = await transactionApi.create(storeId, {
-                type: 'EXPENSE',
-                paymentMethod: 'CASH', // default simple tracking
-                items: [transactionItem as any],
-                finalAmount: totalAmount,
-                paidAmount: totalAmount
+            const txResult = await createTransaction.mutateAsync({
+                storeId,
+                data: {
+                    type: 'EXPENSE',
+                    paymentMethod: 'CASH', 
+                    items: [transactionItem as any],
+                    finalAmount: totalAmount,
+                    paidAmount: totalAmount
+                }
             });
 
             if (txResult?.data) {
@@ -95,9 +74,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
             setRestockOpen(false);
             toast.success("Stock Added & Transaction Recorded.");
         } catch (error: any) {
-            toast.error(error.message || "Failed to process restock.");
-        } finally {
-            setIsProcessing(false);
+            // Error is already handled by toast in useCreateTransaction, but we can catch it here if needed
         }
     };
 
@@ -155,6 +132,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                                 fallbackImage={liveItem?.variant?.cylinderImage}
                                 highlightStats={highlightRestocked}
                                 pendingQuantity={pendingQuantity}
+                                pendingType={pendingType}
                                 isLivePreview={true}
                             />
                         </div>
@@ -169,9 +147,13 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                 item={selectedItem}
                 storeId={storeId}
                 category="cylinder"
+                inventory={inventory}
                 onConfirm={handleConfirmRestock}
                 onVariantChange={(updated) => setLiveItem(updated)}
-                onQuantityChange={(qty) => setPendingQuantity(qty)}
+                onQuantityChange={(qty: number, type: 'refill' | 'package') => {
+                    setPendingQuantity(qty);
+                    if (type) setPendingType(type);
+                }}
             />
 
             {/* Main Grid Content - Conditional Grouping */}

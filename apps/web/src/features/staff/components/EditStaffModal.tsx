@@ -8,6 +8,7 @@ import { updateStaffSchema, UpdateStaffInput } from '@repo/shared';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/ui/ImageUpload';
+import { cn } from '@/lib/utils';
 
 interface EditStaffModalProps {
   storeId: string;
@@ -60,55 +61,62 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
 
   return (
     <Modal isOpen={true} onClose={onClose} title="Edit Staff Member">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Name</label>
-            <Input
-              {...register('name')}
-              placeholder="e.g. John Doe"
-            />
-            {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Full Name</label>
+                <Input
+                  {...register('name')}
+                  placeholder="e.g. John Doe"
+                  className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
+                />
+                {errors.name && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.name.message}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Phone / Email</label>
+                 <Input
+                   {...register('contact')}
+                   placeholder="e.g. 01711111111"
+                   className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
+                 />
+                 {errors.contact && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.contact.message}</p>}
+              </div>
           </div>
 
-          <div className="space-y-2">
-             <label className="text-sm font-medium text-foreground">Phone / Email</label>
-             <Input
-               {...register('contact')}
-               placeholder="e.g. 01711111111 or john@store.com"
-             />
-             {errors.contact && <p className="text-destructive text-xs">{errors.contact.message}</p>}
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Role</label>
+                <select
+                  {...register('role')}
+                  className="w-full h-12 sm:h-14 bg-white border-2 border-slate-100 rounded-2xl px-5 py-2 text-slate-700 font-bold focus:outline-none focus:border-indigo-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:20px_20px] bg-[right_1rem_center] bg-no-repeat transition-all"
+                >
+                    <option value="staff">Staff</option>
+                    <option value="manager">Manager</option>
+                    <option value="driver">Driver</option>
+                    <option value="owner">Owner</option>
+                </select>
+                 {errors.role && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.role.message}</p>}
+              </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Role</label>
-            <select
-              {...register('role')}
-              className="w-full bg-background border border-border rounded-md p-2 text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-                <option value="staff">Staff</option>
-                <option value="manager">Manager</option>
-                <option value="driver">Driver</option>
-                <option value="owner">Owner</option>
-            </select>
-             {errors.role && <p className="text-destructive text-xs">{errors.role.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-             <label className="text-sm font-medium text-foreground">Monthly Salary</label>
-             <Input
-               {...register('salary')}
-               type="number"
-               placeholder="0.00"
-               min="0"
-             />
-             {errors.salary && <p className="text-destructive text-xs">{errors.salary.message}</p>}
+              <div className="space-y-1.5">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Monthly Salary (৳)</label>
+                 <Input
+                   {...register('salary')}
+                   type="number"
+                   placeholder="0"
+                   min="0"
+                   className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
+                 />
+                 {errors.salary && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.salary.message}</p>}
+              </div>
           </div>
 
           {staff.role === 'owner' && (
-              <div className="flex items-center justify-between p-3 border border-border rounded-md bg-muted/20">
-                  <div>
-                      <label className="text-sm font-medium text-foreground">Salary Visibility</label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Show or hide your salary amount across the store.</p>
+              <div className="flex items-center justify-between p-4 sm:p-5 border-2 border-indigo-50 rounded-2xl bg-indigo-50/50">
+                  <div className="space-y-1">
+                      <label className="text-xs font-black text-indigo-900 uppercase tracking-tight">Salary Visibility</label>
+                      <p className="text-[10px] text-indigo-600 font-bold mt-0.5">Show or hide your salary across the store.</p>
                   </div>
                   <Controller
                       control={control}
@@ -119,7 +127,10 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                               onClick={() => field.onChange(field.value === false)}
                               variant={field.value !== false ? "outline" : "default"}
                               size="sm"
-                              className={field.value === false ? "bg-primary text-primary-foreground font-bold" : "font-semibold"}
+                              className={cn(
+                                "h-12 px-6 rounded-xl font-black uppercase tracking-tighter text-[10px]",
+                                field.value === false ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "bg-white text-indigo-600 border-2 border-indigo-100"
+                              )}
                           >
                               {field.value !== false ? 'Hide Salary' : 'Show Salary'}
                           </Button>
@@ -128,8 +139,8 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
               </div>
           )}
 
-          <div className="space-y-2">
-             <label className="text-sm font-medium text-foreground">Profile Image (Optional)</label>
+          <div className="space-y-1.5">
+             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Profile Image</label>
              <Controller
                 control={control}
                 name="image"
@@ -141,17 +152,20 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                     />
                 )}
              />
-             {errors.image && <p className="text-destructive text-xs">{errors.image.message}</p>}
+             {errors.image && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.image.message}</p>}
           </div>
 
-          <div className="space-y-2 border-t border-border pt-4 mt-4">
-             <div className="flex justify-between items-center">
-                 <label className="text-sm font-medium text-foreground">Password</label>
+          <div className="space-y-2 border-t-2 border-slate-100 pt-5 mt-2">
+             <div className="flex justify-between items-center mb-1">
+                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Security</label>
                  <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-8 text-xs bg-muted/50 hover:bg-muted"
+                    className={cn(
+                        "h-10 px-4 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all",
+                        showPasswordInput ? "bg-rose-50 text-rose-600 hover:bg-rose-100" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    )}
                     onClick={() => setShowPasswordInput(!showPasswordInput)}
                  >
                     {showPasswordInput ? 'Cancel Reset' : 'Reset Password'}
@@ -159,34 +173,35 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
              </div>
 
              {showPasswordInput && (
-                 <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 pt-2">
                      <Input
                         {...register('password')}
-                        placeholder="Enter new password"
+                        placeholder="Enter new 6-digit password"
                         type="password"
+                        className="h-12 rounded-2xl border-2 border-rose-100 focus:border-rose-300 font-bold text-slate-700 px-5"
                      />
-                     <p className="text-xs text-muted-foreground mt-1">Enter a new password to update it.</p>
-                     {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
+                     <p className="text-[10px] text-slate-500 font-bold mt-1.5 ml-1">Security Note: Passwords must be at least 6 characters.</p>
+                     {errors.password && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.password.message}</p>}
                  </div>
              )}
           </div>
 
-           <div className="flex items-center space-x-2 mt-4">
+           <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mt-2">
                 <input
                     type="checkbox"
                     id="isActive"
                     {...register('isActive')}
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                    className="h-5 w-5 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-foreground">Active Account</label>
+                <label htmlFor="isActive" className="text-sm font-black text-slate-700 cursor-pointer uppercase tracking-tight">Account Active</label>
            </div>
 
           <Button
             type="submit"
-            className="w-full mt-4"
+            className="w-full h-14 bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 rounded-2xl font-black uppercase tracking-widest text-xs mt-4 active:scale-[0.98]"
             disabled={updateStaff.isPending}
           >
-            {updateStaff.isPending ? 'Updating...' : 'Save Changes'}
+            {updateStaff.isPending ? 'Saving Changes...' : 'Update Staff Profile'}
           </Button>
         </form>
     </Modal>

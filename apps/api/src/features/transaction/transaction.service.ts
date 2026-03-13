@@ -7,6 +7,7 @@ import { CustomerModel } from '../customer/customer.model';
 import { StaffModel } from '../staff/staff.model';
 import { ProductModel } from '../product/product.model';
 import mongoose from 'mongoose';
+import { logger } from '../../config/logger';
 
 
 import { StoreModel } from '../store/store.model';
@@ -77,6 +78,8 @@ export class TransactionService {
           category: (item as any).category,
           isReturn: (item as any).isReturn || false,
           isSettled: (item as any).isSettled || false,
+          wholesalePrice: (item as any).wholesalePrice,
+          retailPrice: (item as any).retailPrice,
         };
       });
 
@@ -146,7 +149,7 @@ export class TransactionService {
           if (['retail', 'wholesale', 'Customer'].includes(data.customerType)) {
               const customerUpdates: mongoose.UpdateQuery<any> = {};
 
-              if (dueAmount > 0) {
+              if (dueAmount !== 0) {
                   customerUpdates.$inc = { totalDue: dueAmount };
               }
 
@@ -207,59 +210,100 @@ export class TransactionService {
 
       if (data.type !== 'DUE_PAYMENT') {
           for (const item of itemsWithSubtotal) {
-          const query = {
-            productId: new mongoose.Types.ObjectId(item.productId as any),
-            storeId: new mongoose.Types.ObjectId(storeId)
-          };
+              const query = {
+                  productId: new mongoose.Types.ObjectId(item.productId as any),
+                  storeId: new mongoose.Types.ObjectId(storeId)
+              };
 
               const itemType = item.type?.toUpperCase();
               const category = item.category?.toLowerCase();
+              const isRestock = item.category === 'Restock Inventory';
 
-              if (itemType === 'CYLINDER') {
-                  // Cylinder logic: differentiates between Full and Empty
-                  if (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') {
-                      // Incoming Empty
-                      await StoreInventory.updateOne(
-                          query as any,
-                          { $inc: { 'counts.empty': item.quantity } },
-                          { upsert: true } // Ensure record exists
-                      ).session(session);
-                  } else if (data.type === 'SALE') {
-                      // Outgoing Full / Packaged
-                      const saleType = (item as any).saleType;
+              logger.info(`Processing Transaction Item: ${item.name}, Type: ${itemType}, Category: ${item.category}, IsRestock: ${isRestock}`);
 
+              if (isRestock) {
+                  // EXCLUSIVE RESTOCK LOGIC
+                  if (itemType === 'CYLINDER') {
+                      const purchaseType = item.variant; // 'package' or 'refill'
                       const incQuery: any = {};
+                      const setQuery: any = {};
 
-                      if (saleType === 'PACKAGED') {
-                          // Selling a completely new, packaged cylinder
-                          incQuery['counts.packaged'] = -item.quantity;
-                      } else {
-                          // Standard REFILL: Give full, no automatic empty increment (empties are handled by explicit isReturn items)
-                          incQuery['counts.full'] = -item.quantity;
+                      if (purchaseType === 'package') {
+                          incQuery['counts.packaged'] = item.quantity;
+                          setQuery['prices.buyingPriceFull'] = item.unitPrice;
+                          if (item.wholesalePrice) setQuery['prices.wholesalePriceFull'] = item.wholesalePrice;
+                          if (item.retailPrice) setQuery['prices.retailPriceFull'] = item.retailPrice;
+                      } else if (purchaseType === 'refill') {
+                          incQuery['counts.full'] = item.quantity;
+                          incQuery['counts.empty'] = -item.quantity;
+                          setQuery['prices.buyingPriceGas'] = item.unitPrice;
+                          if (item.wholesalePrice) setQuery['prices.wholesalePriceGas'] = item.wholesalePrice;
+                          if (item.retailPrice) setQuery['prices.retailPriceGas'] = item.retailPrice;
                       }
 
+                      logger.info(`Restocking Cylinder: ${item.name}, Variant: ${purchaseType}, Qty: ${item.quantity}`);
                       await StoreInventory.updateOne(
                           query as any,
-                          { $inc: incQuery },
+                          { $inc: incQuery, $set: setQuery },
+                          { upsert: true }
+                      ).session(session);
+                  } else {
+                      // Accessories/Stoves/Regulators
+                      logger.info(`Restocking Accessory: ${item.name}, Qty: ${item.quantity}`);
+                      await StoreInventory.updateOne(
+                          query as any,
+                          { 
+                              $inc: { 'counts.full': item.quantity },
+                              $set: { 
+                                  'prices.buyingPriceFull': item.unitPrice,
+                                  ...(item.wholesalePrice ? { 'prices.wholesalePriceFull': item.wholesalePrice } : {}),
+                                  ...(item.retailPrice ? { 'prices.retailPriceFull': item.retailPrice } : {})
+                              }
+                          },
                           { upsert: true }
                       ).session(session);
                   }
-              } else if (itemType === 'ACCESSORY' || category === 'stove' || category === 'regulator' || category === 'pipe' || category === 'accessory') {
-                  // Accessories/Stoves/Regulators: Only track "full" (available stock) in StoreInventory
-                  const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
-                  await StoreInventory.updateOne(
-                      query as any,
-                      { $inc: { 'counts.full': increment } },
-                      { upsert: true }
-                  ).session(session);
               } else {
-                  // Default fallback for any other types
-                  const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
-                  await StoreInventory.updateOne(
-                      query as any,
-                      { $inc: { 'counts.full': increment } },
-                      { upsert: true }
-                  ).session(session);
+                  // STANDARD TRANSACTION LOGIC (Non-restock)
+                  if (itemType === 'CYLINDER') {
+                      if (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') {
+                          // Incoming Empty
+                          await StoreInventory.updateOne(
+                              query as any,
+                              { $inc: { 'counts.empty': item.quantity } },
+                              { upsert: true }
+                          ).session(session);
+                      } else if (data.type === 'SALE') {
+                          // Outgoing Full / Packaged
+                          const saleType = (item as any).saleType;
+                          const incQuery: any = {};
+                          if (saleType === 'PACKAGED') {
+                              incQuery['counts.packaged'] = -item.quantity;
+                          } else {
+                              incQuery['counts.full'] = -item.quantity;
+                          }
+                          await StoreInventory.updateOne(
+                              query as any,
+                              { $inc: incQuery },
+                              { upsert: true }
+                          ).session(session);
+                      }
+                  } else if (itemType === 'ACCESSORY' || category === 'stove' || category === 'regulator' || category === 'pipe' || category === 'accessory') {
+                      const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
+                      await StoreInventory.updateOne(
+                          query as any,
+                          { $inc: { 'counts.full': increment } },
+                          { upsert: true }
+                      ).session(session);
+                  } else {
+                      // Default fallback
+                      const increment = (item.isReturn === true || item.isSettled === true || data.type === 'RETURN' || data.type === 'DUE_CYLINDER_SETTLEMENT') ? item.quantity : -item.quantity;
+                      await StoreInventory.updateOne(
+                          query as any,
+                          { $inc: { 'counts.full': increment } },
+                          { upsert: true }
+                      ).session(session);
+                  }
               }
           }
       }
@@ -270,7 +314,7 @@ export class TransactionService {
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      console.error('Transaction Create Error:', error);
+      logger.error('Transaction Create Error: ' + (error as Error).message);
       throw error;
     }
   }

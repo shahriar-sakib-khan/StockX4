@@ -12,7 +12,7 @@ export class StoreProductController {
             await StoreProductService.syncCylinderMatrix(targetStoreId);
             return res.status(200).json({ success: true, message: 'Matrix synchronized' });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Store product operation failed' });
         }
     }
 
@@ -28,7 +28,7 @@ export class StoreProductController {
 
             return res.status(200).json({ success: true, message: 'Size archived' });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Store product operation failed' });
         }
     }
 
@@ -40,7 +40,8 @@ export class StoreProductController {
             const product = await StoreProductService.upsertStoveProduct(targetStoreId, req.body);
             return res.status(200).json({ product });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            console.error('[StoreProductController] addStove error:', error);
+            return res.status(500).json({ error: error.message || 'Store product operation failed' });
         }
     }
 
@@ -52,7 +53,8 @@ export class StoreProductController {
             const product = await StoreProductService.upsertRegulatorProduct(targetStoreId, req.body);
             return res.status(200).json({ product });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            console.error('[StoreProductController] addRegulator error:', error);
+            return res.status(500).json({ error: error.message || 'Store product operation failed' });
         }
     }
 }

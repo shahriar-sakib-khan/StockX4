@@ -54,7 +54,7 @@ export const SetupWizardPage = () => {
         </div>
 
         {/* Step Tracker */}
-        <div className="flex items-center justify-center gap-1 overflow-x-auto pb-2 px-2">
+        <div className="flex items-center justify-start sm:justify-center gap-1 overflow-x-auto pb-4 px-2 no-scrollbar snap-x">
           {STEPS.map((step, i) => {
             const isActive = currentStep === step.id;
             const isDone   = isStepDone(step.id);
@@ -95,36 +95,45 @@ export const SetupWizardPage = () => {
         </div>
 
         {/* Navigation */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-          <Button variant="outline" onClick={prevStep} disabled={currentStep === 1 || submitting}>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
+          <Button 
+            variant="outline" 
+            onClick={prevStep} 
+            disabled={currentStep === 1 || submitting} 
+            className="w-full sm:w-auto h-14 sm:h-10 order-2 sm:order-1 font-bold shadow-sm"
+          >
             ← Back
           </Button>
 
-          <div className="flex gap-3">
-            {currentStep > 3 && (
-              <>
-                {currentStep < 7 && (
-                  <Button variant="ghost" onClick={nextStep}>
-                    {stepHasItem[currentStep] ? 'Next →' : 'Skip'}
-                  </Button>
-                )}
-                <Button variant="outline" onClick={goToDashboard}>Go to Dashboard</Button>
-              </>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto order-1 sm:order-2">
+            {currentStep > 3 && currentStep < 7 && (
+              <Button 
+                variant="ghost" 
+                onClick={nextStep} 
+                className="w-full sm:w-auto h-14 sm:h-10 text-muted-foreground font-bold hover:text-foreground hover:bg-slate-100 rounded-xl"
+              >
+                {stepHasItem[currentStep] ? 'Next Step →' : 'Skip Step'}
+              </Button>
             )}
 
-            {currentStep <= 3 && (
+            {currentStep <= 6 && (
               <Button
                 onClick={nextStep}
                 disabled={!isStepValid() || submitting}
-                className={currentStep === 3 ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+                className={`w-full sm:w-auto h-14 sm:h-10 font-bold rounded-xl shadow-md transition-all active:scale-95 ${
+                  currentStep === 3 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg' : ''
+                }`}
               >
                 {submitting && <Loader2 size={16} className="mr-2 animate-spin" />}
-                {currentStep === 3 ? step3Label : 'Next →'}
+                {currentStep === 3 ? step3Label : 'Next Step →'}
               </Button>
             )}
 
             {currentStep === 7 && (
-              <Button onClick={goToDashboard} className="bg-green-600 hover:bg-green-700 text-white">
+              <Button 
+                onClick={goToDashboard} 
+                className="w-full sm:w-auto h-14 sm:h-10 bg-green-600 hover:bg-green-700 text-white font-black uppercase tracking-widest shadow-lg rounded-xl transition-all active:scale-95"
+              >
                 All Done — Go to Dashboard 🎉
               </Button>
             )}

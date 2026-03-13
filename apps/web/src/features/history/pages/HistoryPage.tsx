@@ -30,6 +30,7 @@ import { StatsView } from '../components/StatsView';
 import { AddExpenseModal } from '@/features/pos/components/AddExpenseModal';
 import { SummaryCard } from '../components/SummaryCard';
 import { cn } from '@/lib/utils';
+import { InfoTooltip } from '@/features/store/components/setup/shared/InfoTooltip';
 
 export const HistoryPage = () => {
     const { id: storeId } = useParams<{ id: string }>();
@@ -145,10 +146,16 @@ export const HistoryPage = () => {
     return (
         <div className="space-y-4 h-full flex flex-col p-4 md:p-6 bg-slate-50/30">
             {/* Professional Header */}
+            <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+                    Business Diary
+                    <InfoTooltip content="Browse all past transactions — sales, purchases, expenses, and adjustments." />
+                </h1>
+            </div>
 
-            {/* 6-Card Summary Row */}
+            {/* 5-Card Summary Row */}
             {viewMode === 'daily' && summary && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-4">
                     <SummaryCard 
                         title="TOTAL SALES" 
                         value={summary.totalSales} 
@@ -164,25 +171,18 @@ export const HistoryPage = () => {
                         icon={<TrendingDown size={16} />}
                     />
                     <SummaryCard 
-                        title={diaryMode === 'PROFIT' ? "EST. PROFIT" : "NET FLOW"}
-                        value={diaryMode === 'PROFIT' ? (summary.totalSales - summary.totalExpenses) : summary.netCashFlow} 
-                        subtext={diaryMode === 'PROFIT' ? "Sales - Expenses" : "Settled total"}
-                        color={diaryMode === 'PROFIT' ? "orange" : "slate"}
+                        title="NET PROFIT"
+                        value={summary.totalSales - summary.totalExpenses} 
+                        subtext="Sales - Expenses"
+                        color="slate"
                         icon={<Wallet size={16} />}
                     />
                     <SummaryCard 
                         title="PAID" 
-                        value={stats.paidAmount} 
-                        subtext={`${stats.paidCount} sales`}
+                        value={stats.paidAmount + stats.partialAmount} 
+                        subtext={`${stats.paidCount + stats.partialCount} sales`}
                         color="cyan"
                         icon={<CheckCircle2 size={16} />}
-                    />
-                    <SummaryCard 
-                        title="PARTIAL" 
-                        value={stats.partialAmount} 
-                        subtext={`Due: ৳${summary.totalDuePending}`}
-                        color="amber"
-                        icon={<Clock size={16} />}
                     />
                     <SummaryCard 
                         title="DUE" 
@@ -195,102 +195,87 @@ export const HistoryPage = () => {
             )}
 
             {/* Control Bar: Filters (Left) and Search (Right) */}
-            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
-                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <div className="hidden md:flex bg-slate-100 p-1 rounded-xl mr-1">
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setDiaryMode('CASH_FLOW')}
-                            className={cn(
-                                "px-4 font-black text-[10px] uppercase tracking-tighter transition-all h-8",
-                                diaryMode === 'CASH_FLOW' ? "bg-white text-slate-900 shadow-sm" : "opacity-50"
-                            )}
+            <div className="flex flex-col gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div className="flex flex-col md:flex-row justify-end items-stretch md:items-center gap-4">
+
+                    <div className="flex items-center gap-2">
+                         <Button 
+                            onClick={() => setIsAddExpenseOpen(true)}
+                            size="lg"
+                            className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white font-black px-6 rounded-xl shadow-lg h-12 uppercase text-sm active:scale-95"
                         >
-                            Cash Flow
+                            <PlusCircle size={20} className="mr-2" /> Add Expense
                         </Button>
+
                         <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setDiaryMode('PROFIT')}
-                            className={cn(
-                                "px-4 font-black text-[10px] uppercase tracking-tighter transition-all h-8",
-                                diaryMode === 'PROFIT' ? "bg-white text-slate-900 shadow-sm" : "opacity-50"
-                            )}
+                            variant="outline" 
+                            size="icon" 
+                            onClick={handleReset}
+                            className="rounded-xl border-slate-200 h-12 w-12 hover:bg-orange-50 hover:border-orange-200 transition-colors active:scale-95 shrink-0"
+                            title="Reset to Today"
                         >
-                            Profit
+                            <RefreshCcw size={20} className="text-slate-500" />
                         </Button>
                     </div>
-
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
-                        {dateToggles.map((item) => (
-                            <button
-                                key={item.value}
-                                onClick={() => setDateRange(item.value)}
-                                className={cn(
-                                    "px-3 py-1 rounded-lg text-[10px] font-black transition-all uppercase whitespace-nowrap",
-                                    dateRange === item.value 
-                                        ? "bg-orange-500 text-white shadow-sm" 
-                                        : "text-slate-500 hover:text-slate-700"
-                                )}
-                            >
-                                {item.label}
-                            </button>
-                        ))}
-                    </div>
-
-                    {dateRange === 'custom' && (
-                        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
-                             <input 
-                                type="date" 
-                                value={customRange.start}
-                                onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
-                                className="bg-transparent text-[9px] font-black border-none focus:ring-0 w-20 px-1"
-                             />
-                             <span className="text-slate-400 font-bold text-[8px]">TO</span>
-                             <input 
-                                type="date" 
-                                value={customRange.end}
-                                onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
-                                className="bg-transparent text-[9px] font-black border-none focus:ring-0 w-20 px-1"
-                             />
-                        </div>
-                    )}
-
-                    <Button 
-                        onClick={() => setIsAddExpenseOpen(true)}
-                        size="sm"
-                        className="bg-slate-900 hover:bg-slate-800 text-white font-black px-4 rounded-xl shadow-md h-8 uppercase text-[10px]"
-                    >
-                        <PlusCircle size={14} className="mr-1.5" /> Add
-                    </Button>
-
-                    <Button 
-                        variant="outline" 
-                        size="icon" 
-                        onClick={handleReset}
-                        className="rounded-xl border-slate-200 h-8 w-8 hover:bg-orange-50 hover:border-orange-200 transition-colors"
-                        title="Reset to Today"
-                    >
-                        <RefreshCcw size={14} className="text-slate-500" />
-                    </Button>
                 </div>
 
-                <div className="relative group w-full lg:w-72">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                        <Search className="h-4 w-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                <div className="h-px bg-slate-100 w-full" />
+
+                <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        {/* Date Toggles - Scrollable on Mobile */}
+                        <div className="flex bg-slate-100 p-0.5 sm:p-1 rounded-lg sm:rounded-xl overflow-x-auto no-scrollbar touch-pan-x">
+                            {dateToggles.map((item) => (
+                                <button
+                                    key={item.value}
+                                    onClick={() => setDateRange(item.value)}
+                                    className={cn(
+                                        "px-3 sm:px-5 py-2 sm:py-3 rounded-md sm:rounded-lg text-[10px] sm:text-xs font-black transition-all uppercase whitespace-nowrap min-h-[36px] sm:min-h-[44px] flex items-center justify-center",
+                                        dateRange === item.value 
+                                            ? "bg-orange-500 text-white shadow-md scale-105 z-10" 
+                                            : "text-slate-500 hover:text-slate-700"
+                                    )}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {dateRange === 'custom' && (
+                            <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl overflow-hidden min-h-12">
+                                 <input 
+                                    type="date" 
+                                    value={customRange.start}
+                                    onChange={(e) => setCustomRange(prev => ({ ...prev, start: e.target.value }))}
+                                    className="bg-transparent text-xs font-black border-none focus:ring-0 w-32 px-2 h-full"
+                                 />
+                                 <span className="text-slate-400 font-bold text-[10px] shrink-0">TO</span>
+                                 <input 
+                                    type="date" 
+                                    value={customRange.end}
+                                    onChange={(e) => setCustomRange(prev => ({ ...prev, end: e.target.value }))}
+                                    className="bg-transparent text-xs font-black border-none focus:ring-0 w-32 px-2 h-full"
+                                 />
+                            </div>
+                        )}
                     </div>
-                    <Input
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="h-10 pl-10 pr-4 bg-slate-50 border-transparent rounded-xl focus-visible:ring-2 focus-visible:ring-slate-900 font-bold text-sm placeholder:text-slate-400 transition-all hover:bg-slate-100"
-                    />
+
+                    <div className="relative group w-full lg:w-80">
+                        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
+                        </div>
+                        <Input
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="h-10 sm:h-12 pl-10 sm:pl-12 pr-4 bg-slate-50 border-2 border-transparent rounded-lg sm:rounded-xl focus-visible:ring-2 focus-visible:ring-slate-900 font-extrabold text-[11px] sm:text-sm placeholder:text-slate-400 transition-all hover:bg-slate-100"
+                        />
+                    </div>
                 </div>
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 pb-20 md:pb-0">
                 {viewMode === 'daily' ? (
                     <DiaryView
                         transactions={dailyTransactions}

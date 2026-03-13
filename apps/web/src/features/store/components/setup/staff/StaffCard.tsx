@@ -35,7 +35,7 @@ export const StaffCard = ({ s, onSave, onRemove }: { s: StaffData, onSave?: (id:
   return (
     <div className={`rounded-xl border-2 ${cfg.border} ${cfg.bg} p-4 flex flex-col gap-2 shadow-sm transition-all group relative`}>
       {onRemove && !isOwner && (
-          <button onClick={() => onRemove(s._id!)} className="absolute top-2 right-2 p-1 text-rose-400 hover:text-rose-600">
+          <button onClick={() => onRemove(s._id!)} className="absolute top-2 right-2 text-rose-400 hover:text-rose-600 min-w-[48px] min-h-[48px] flex items-center justify-center">
            <Trash2 className="w-4 h-4" />
          </button>
       )}
@@ -47,7 +47,7 @@ export const StaffCard = ({ s, onSave, onRemove }: { s: StaffData, onSave?: (id:
             onChange={e => setLocal({...local, name: e.target.value})}
             onBlur={handleBlur}
             readOnly={isOwner}
-            className={`font-extrabold text-base text-slate-800 leading-tight truncate bg-transparent border-b border-transparent ${isOwner ? 'outline-none cursor-default' : 'hover:border-slate-300 focus:border-primary outline-none transition-colors'} w-full p-0 m-0`}
+            className={`font-black text-lg text-slate-800 leading-tight truncate bg-transparent border-b border-transparent ${isOwner ? 'outline-none cursor-default' : 'hover:border-slate-300 focus:border-primary outline-none transition-colors'} w-full p-0 m-0 min-h-[48px]`}
           />
           <div className="flex">
             <span className={`text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
@@ -60,7 +60,7 @@ export const StaffCard = ({ s, onSave, onRemove }: { s: StaffData, onSave?: (id:
             onChange={e => setLocal({...local, contact: e.target.value})}
             onBlur={handleBlur}
             readOnly={isOwner}
-            className={`text-xs text-muted-foreground font-mono bg-transparent border-b border-transparent ${isOwner ? 'outline-none cursor-default' : 'hover:border-slate-300 focus:border-primary outline-none transition-colors'} w-full p-0 m-0`}
+            className={`text-sm text-muted-foreground font-black bg-transparent border-b border-transparent ${isOwner ? 'outline-none cursor-default' : 'hover:border-slate-300 focus:border-primary outline-none transition-colors'} w-full p-0 m-0 min-h-[48px] flex items-center`}
         />
         {!isOwner && (
           <div className="flex items-end gap-0.5">
@@ -71,7 +71,7 @@ export const StaffCard = ({ s, onSave, onRemove }: { s: StaffData, onSave?: (id:
               placeholder="0"
               onChange={e => setLocal({...local, salary: Math.max(0, Number(e.target.value) || 0)})}
               onBlur={handleBlur}
-              className="text-base font-black text-emerald-600 bg-transparent border-none outline-none border-b border-dashed border-slate-400 hover:border-slate-500 focus:border-emerald-600 w-20 p-0 m-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-right"
+              className="text-lg font-black text-emerald-600 bg-transparent border-none outline-none border-b border-dashed border-slate-400 hover:border-slate-500 focus:border-emerald-600 w-24 p-0 m-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-right min-h-[48px]"
             />
             <span className="text-xs font-semibold text-muted-foreground mb-0.5 whitespace-nowrap">/mo</span>
           </div>

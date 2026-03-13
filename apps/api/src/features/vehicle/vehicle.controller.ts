@@ -20,7 +20,7 @@ export class VehicleController {
       if (error.code === 11000) {
         return res.status(409).json({ error: 'Vehicle with this license plate already exists in this store' });
       }
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Vehicle operation failed' });
     }
   }
 
@@ -32,7 +32,7 @@ export class VehicleController {
       const vehicles = await VehicleService.findByStore(targetStoreId);
       return res.status(200).json({ vehicles });
     } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Vehicle operation failed' });
     }
   }
 
@@ -45,7 +45,7 @@ export class VehicleController {
       return res.status(200).json({ vehicle });
     } catch (error: any) {
       if (error.message === 'Vehicle not found') return res.status(404).json({ error: 'Vehicle not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Vehicle operation failed' });
     }
   }
 
@@ -63,7 +63,7 @@ export class VehicleController {
       return res.status(200).json({ vehicle });
     } catch (error: any) {
       if (error.message === 'Vehicle not found') return res.status(404).json({ error: 'Vehicle not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Vehicle operation failed' });
     }
   }
 
@@ -76,7 +76,7 @@ export class VehicleController {
       return res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.message === 'Vehicle not found') return res.status(404).json({ error: 'Vehicle not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Vehicle operation failed' });
     }
   }
 }

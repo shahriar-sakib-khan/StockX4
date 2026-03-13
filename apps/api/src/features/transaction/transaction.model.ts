@@ -39,12 +39,14 @@ export interface ITransaction extends Document {
 }
 
 const MongoTransactionItemSchema = new Schema({
-    productId: { type: Schema.Types.ObjectId, required: true, refPath: 'items.type' },
+    productId: { type: Schema.Types.ObjectId, required: true, ref: 'StoreProduct' },
     name: { type: String, required: true },
     type: { type: String, enum: ['CYLINDER', 'ACCESSORY', 'EXPENSE', 'REFILL', 'EMPTY', 'PACKAGED', 'SERVICE', 'FUEL', 'REPAIR', 'REFUND'], required: true },
     category: { type: String },
     quantity: { type: Number, required: true, min: 1 },
     unitPrice: { type: Number, required: true, min: 0 },
+    wholesalePrice: { type: Number, min: 0 },
+    retailPrice: { type: Number, min: 0 },
     subtotal: { type: Number, required: true, min: 0 },
     variant: { type: String },
     size: { type: String },

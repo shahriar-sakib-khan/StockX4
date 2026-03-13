@@ -26,8 +26,12 @@ export const app: express.Application = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://127.0.0.1:4001",
   "http://localhost:4001",
+  "http://127.0.0.1:4001",
+  "http://localhost:3001", // Added for redundancy
+  "http://127.0.0.1:3001", // Added for redundancy
+  "http://localhost:4002",
+  "http://127.0.0.1:4002",
   "http://127.0.0.1:4000",
   "https://stock-x4-web.vercel.app",
   "https://www.stockxbd.com",
@@ -83,6 +87,10 @@ app.use('/upload', UploadRoutes);
 app.use('/transactions', transactionRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/system', systemRoutes);
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "UP", timestamp: new Date().toISOString() });
+});
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello from API" });

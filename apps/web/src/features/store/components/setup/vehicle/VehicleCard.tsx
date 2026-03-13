@@ -32,14 +32,14 @@ export const VehicleCard = ({ v, onSave, onRemove }: { v: VehicleData; onSave: (
           onChange={e => setLocal({...local, licensePlate: e.target.value})}
           onBlur={handleBlur}
           placeholder="License Plate"
-          className="font-black text-lg text-slate-800 font-mono tracking-wide leading-none bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-colors w-full p-0 m-0"
+          className="font-black text-lg text-slate-800 font-mono tracking-wide leading-none bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-all w-full p-0 m-0 min-h-[48px]"
         />
         <input
           value={local.vehicleModel}
           onChange={e => setLocal({...local, vehicleModel: e.target.value})}
           onBlur={handleBlur}
           placeholder="Vehicle Model"
-          className="text-sm text-muted-foreground font-semibold mt-0.5 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-colors w-full p-0 m-0"
+          className="text-base text-muted-foreground font-black bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-all w-full p-0 m-0 min-h-[48px]"
         />
         <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-1">
           <div className="flex items-center gap-1.5">
@@ -49,7 +49,7 @@ export const VehicleCard = ({ v, onSave, onRemove }: { v: VehicleData; onSave: (
               onChange={e => setLocal({...local, driverName: e.target.value})}
               onBlur={handleBlur}
               placeholder="Driver Name"
-              className="text-xs font-black text-slate-700 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-colors w-full p-0 m-0"
+              className="text-sm font-black text-slate-700 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-all w-full p-0 m-0 min-h-[48px]"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -59,14 +59,14 @@ export const VehicleCard = ({ v, onSave, onRemove }: { v: VehicleData; onSave: (
               onChange={e => setLocal({...local, driverPhone: e.target.value.replace(/\D/g, '')})}
               onBlur={handleBlur}
               placeholder="Driver Phone"
-              className="text-xs font-semibold text-muted-foreground bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-colors w-full p-0 m-0"
+              className="text-sm font-black text-muted-foreground bg-transparent border-b border-transparent hover:border-slate-300 focus:border-primary outline-none transition-all w-full p-0 m-0 min-h-[48px]"
             />
           </div>
         </div>
       </div>
       <button
         onClick={() => onRemove(v._id!)}
-        className="absolute top-2 right-2 text-rose-400 hover:text-rose-600 p-1"
+        className="absolute top-2 right-2 text-rose-400 hover:text-rose-600 min-w-[48px] min-h-[48px] flex items-center justify-center"
       >
         <Trash2 className="w-4 h-4" />
       </button>

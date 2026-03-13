@@ -73,12 +73,12 @@ export const RegulatorCard = ({
 
         <div className="border border-slate-100 rounded-xl py-2 px-1 bg-slate-50 flex flex-col gap-1">
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider text-center border-b border-slate-200 pb-1 mb-0.5">Price Tiers</span>
-          <EditablePriceField label="BUY" value={local.costPrice} color="text-rose-500" onChange={v => setField('costPrice', v)} onBlur={handleBlur} />
-          <EditablePriceField label="WSL" value={local.wholesalePrice} color="text-blue-600" onChange={v => setField('wholesalePrice', v)} onBlur={handleBlur} />
-          <EditablePriceField label="RTL" value={local.sellingPrice} color="text-emerald-600" onChange={v => setField('sellingPrice', v)} onBlur={handleBlur} />
+          <EditablePriceField label="Buy" value={local.costPrice} color="text-rose-500" onChange={v => setField('costPrice', v)} onBlur={handleBlur} />
+          <EditablePriceField label="Whsle" value={local.wholesalePrice} color="text-blue-600" onChange={v => setField('wholesalePrice', v)} onBlur={handleBlur} />
+          <EditablePriceField label="Retail" value={local.sellingPrice} color="text-emerald-600" onChange={v => setField('sellingPrice', v)} onBlur={handleBlur} />
         </div>
 
-        <button onClick={() => onRemove(item._id)} className="text-xs font-semibold text-rose-400 hover:text-rose-600 transition-colors text-center mt-auto">
+        <button onClick={() => onRemove(item._id)} className="text-xs font-semibold text-rose-400 hover:text-rose-600 transition-colors text-center mt-auto min-h-[44px] flex items-center justify-center w-full">
           🗑 Remove
         </button>
       </div>

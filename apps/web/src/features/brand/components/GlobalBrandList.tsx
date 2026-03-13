@@ -38,7 +38,7 @@ export const GlobalBrandList = () => {
     return (
         <>
             <div className="flex justify-end mb-4">
-                 <Button onClick={() => setIsModalOpen(true)}>
+                 <Button onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto min-h-[48px] sm:min-h-0">
                     <Plus className="w-4 h-4 mr-2" /> Add Global Brand
                 </Button>
             </div>
@@ -51,7 +51,7 @@ export const GlobalBrandList = () => {
                             <Button
                                 variant="secondary"
                                 size="icon"
-                                className="h-7 w-7 bg-white/90 hover:bg-white shadow-sm"
+                                className="h-11 w-11 sm:h-7 sm:w-7 bg-white/90 hover:bg-white shadow-sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setEditingBrand(brand);
@@ -59,19 +59,19 @@ export const GlobalBrandList = () => {
                                 }}
                                 title="Edit"
                             >
-                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                                <Pencil className="w-5 h-5 sm:w-3.5 sm:h-3.5 text-muted-foreground" />
                             </Button>
                             <Button
                                 variant="destructive"
                                 size="icon"
-                                className="h-7 w-7 shadow-sm"
+                                className="h-11 w-11 sm:h-7 sm:w-7 shadow-sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setDeleteId(brand._id);
                                 }}
                                 title="Delete"
                             >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                             </Button>
                         </div>
 
@@ -125,9 +125,9 @@ export const GlobalBrandList = () => {
                     <p className="text-muted-foreground text-sm">
                         Are you sure you want to delete this global brand? This might affect stores that have added this brand to their catalog.
                     </p>
-                    <div className="flex justify-end gap-3 pt-2">
-                        <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-                        <Button variant="destructive" onClick={handleDelete} disabled={deleteBrand.isPending}>
+                    <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                        <Button variant="outline" onClick={() => setDeleteId(null)} className="min-h-[48px] sm:min-h-0 w-full sm:w-auto">Cancel</Button>
+                        <Button variant="destructive" onClick={handleDelete} disabled={deleteBrand.isPending} className="min-h-[48px] sm:min-h-0 w-full sm:w-auto">
                             {deleteBrand.isPending ? "Deleting..." : "Delete Brand"}
                         </Button>
                     </div>

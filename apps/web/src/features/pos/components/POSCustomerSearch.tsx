@@ -24,32 +24,32 @@ export const POSCustomerSearch = ({
     onClear
 }: POSCustomerSearchProps) => {
     return (
-        <div className="space-y-1 relative" ref={wrapperRef}>
-            <label className="text-sm font-bold text-slate-600 uppercase">Mobile Number (Primary)</label>
+        <div className="space-y-0.5 sm:space-y-1 relative" ref={wrapperRef}>
+            <label className="text-[10px] sm:text-sm font-bold text-slate-600 uppercase">Mobile Number (Primary)</label>
             <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                <Search className="absolute left-3 sm:left-4 top-2.5 sm:top-3.5 h-4 w-4 sm:h-5 sm:w-5 text-slate-400" />
                 <Input
                     placeholder="017..."
                     value={phone}
                     onChange={onPhoneChange}
-                    className="pl-9 pr-9 h-11 border-2 font-bold text-lg"
+                    className="pl-9 sm:pl-11 pr-9 sm:pr-11 h-12 border border-slate-200 sm:border-2 font-black text-base sm:text-xl rounded-lg sm:rounded-xl bg-slate-50/50"
                     onFocus={() => setShowDropdown(true)}
                 />
-                {phone && (
+               {phone && (
                     <Button
                         type="button"
                         variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1 h-9 w-9 text-slate-400 hover:text-slate-600 rounded-lg"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onClear();
-                        }}
-                    >
-                        <X size={18} />
-                    </Button>
-                )}
+                         size="icon"
+                         className="absolute right-1 sm:right-1.5 top-1 sm:top-1.5 h-8 w-8 sm:h-9 sm:w-9 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md sm:rounded-lg active:scale-90 transition-all"
+                         onClick={(e) => {
+                             e.preventDefault();
+                             e.stopPropagation();
+                             onClear();
+                         }}
+                     >
+                         <X size={16} className="sm:w-5 sm:h-5" />
+                     </Button>
+               )}
             </div>
 
             {/* Dropdown */}
@@ -58,15 +58,15 @@ export const POSCustomerSearch = ({
                     {filteredCustomers.map(c => {
                         const cylinderCount = c.dueCylinders?.reduce((sum: number, d: any) => sum + d.quantity, 0) || 0;
                         return (
-                            <div
-                                key={c._id}
-                                className="p-3 border-b last:border-0 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
-                                onClick={() => onSelectExisting(c)}
-                            >
-                                <div className="flex-1 min-w-0 pr-2">
-                                    <div className="font-bold text-slate-800 truncate">{c.phone}</div>
-                                    <div className="text-xs text-slate-500 truncate">{c.name}</div>
-                                </div>
+                             <div
+                                 key={c._id}
+                                 className="p-2 sm:p-3 border-b last:border-0 hover:bg-slate-50 cursor-pointer flex justify-between items-center transition-colors"
+                                 onClick={() => onSelectExisting(c)}
+                             >
+                                 <div className="flex-1 min-w-0 pr-2">
+                                     <div className="font-bold text-sm sm:text-base text-slate-800 truncate">{c.phone}</div>
+                                     <div className="text-[10px] sm:text-xs text-slate-500 truncate">{c.name}</div>
+                                 </div>
 
                                 <div className="flex items-center gap-2 shrink-0 mr-3">
                                     {c.totalDue > 0 && (

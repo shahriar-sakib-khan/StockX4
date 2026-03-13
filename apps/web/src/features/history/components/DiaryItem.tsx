@@ -30,7 +30,7 @@ export const DiaryItem = ({ transaction, isIncome, onClick }: DiaryItemProps) =>
         subEntity = customer?.phone || customer?.driverPhone || (customer?.type ? `${customer.type} customer` : '');
     }
 
-    const staffName = transaction.staffId?.name || transaction.transactorName || 'System';
+    const staffName = transaction.staffId?.name || transaction.transactorName || (transaction.staffId ? 'Unknown Staff' : 'System');
     const staffRole = transaction.staffId?.role || transaction.transactorRole || (transaction.staffId ? 'staff' : 'system');
 
     // Role colors
@@ -53,121 +53,116 @@ export const DiaryItem = ({ transaction, isIncome, onClick }: DiaryItemProps) =>
         <div
             onClick={onClick}
             className={cn(
-                "p-3 rounded-2xl border transition-all group hover:shadow-lg cursor-pointer active:scale-[0.99] select-none",
+                "p-2 sm:p-3 rounded-xl sm:rounded-2xl border transition-all group hover:shadow-md cursor-pointer active:scale-[0.99] select-none",
                 getBgColor()
             )}
         >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-2 min-w-0 flex-1">
                     <div className={cn(
-                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110",
+                        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-105 mt-1",
                         isIncome 
                             ? (isFullDue ? "bg-orange-500 text-white" : hasDue ? "bg-amber-500 text-white" : "bg-emerald-500 text-white")
                             : "bg-rose-500 text-white"
                     )}>
                         {isIncome ? (
-                            isFullDue ? <Clock size={20} /> : <ArrowDownLeft size={20} />
+                            isFullDue ? <Clock size={12} /> : <ArrowDownLeft size={12} />
                         ) : (
-                            <ArrowUpRight size={20} />
+                            <ArrowUpRight size={12} />
                         )}
                     </div>
                     
-                    <div className="min-w-0 flex-1 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                                {format(new Date(transaction.createdAt), 'MMM dd, hh:mm a')}
-                            </span>
-                        </div>
-
-                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1.5">
-                            <span className="text-[10px] opacity-50 uppercase font-black tracking-tighter shrink-0">To:</span>
-                            <h4 className="text-lg font-black text-slate-900 leading-tight">
+                    <div className="min-w-0 flex-1">
+                        {/* Line 1: Entity Name & Type Badge */}
+                        <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
                                 {entityName}
                             </h4>
+                            {transaction.customerType && (
+                                <Badge variant="secondary" className="text-[7px] sm:text-[8px] font-black uppercase px-1.5 h-4 bg-slate-200 text-slate-600 border-none">
+                                    {transaction.customerType}
+                                </Badge>
+                            )}
+                        </div>
+
+                        {/* Line 2: Transactor (By: ...) */}
+                        <div className="flex items-center gap-1.5 mb-1 opacity-90">
+                            <span className="text-[10px] sm:text-xs font-black text-slate-600">By: {staffName}</span>
+                            <Badge variant="outline" className={cn("text-[7px] sm:text-[8px] font-bold uppercase px-1 h-3.5 sm:h-4 tracking-tighter border-none shadow-none rounded opacity-80", roleColors[staffRole] || "bg-slate-100")}>
+                                {staffRole}
+                            </Badge>
+                        </div>
+
+                        {/* Line 3: Timestamp & Sub-details */}
+                        <div className="flex items-center gap-2 opacity-60">
+                             <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-tight">
+                                {format(new Date(transaction.createdAt), 'MMM dd, hh:mm a')}
+                            </span>
                             {subEntity && (
-                                <span className="text-[9px] font-bold text-slate-500 opacity-60 uppercase bg-slate-200/50 px-1.5 py-0.5 rounded-md leading-none">
+                                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 border-l border-slate-300 pl-2 leading-none truncate">
                                     {subEntity}
                                 </span>
                             )}
                         </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                             <div className="flex items-center gap-1.5">
-                                <span className="opacity-50 uppercase text-[9px] font-black tracking-tighter shrink-0">By:</span>
-                                <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{staffName}</span>
-                             </div>
-                             <Badge variant="outline" className={cn("text-[9px] font-black uppercase px-1.5 h-4 tracking-tighter border-2 shadow-sm rounded-md leading-none", roleColors[staffRole] || "bg-slate-100")}>
-                                {staffRole}
-                             </Badge>
-                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 w-full sm:w-auto shrink-0 mt-2 sm:mt-0">
-                    <div className="flex flex-col items-end gap-1.5">
-                         <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1.5 bg-white/60 px-2.5 py-1.5 rounded-xl border border-slate-200/50 shadow-sm">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Paid</span>
-                                <span className="text-sm font-black text-slate-900">৳{transaction.paidAmount.toLocaleString()}</span>
-                            </div>
-                            {hasDue && (
-                                <div className="flex items-center gap-1.5 bg-orange-100/30 px-2.5 py-1.5 rounded-xl border border-orange-200/50 shadow-sm">
-                                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">Due</span>
-                                    <span className="text-sm font-black text-orange-600">৳{transaction.dueAmount.toLocaleString()}</span>
-                                </div>
-                            )}
-                         </div>
-                        
-                        <div className="text-right">
-                            <div className={cn(
-                                "text-3xl font-black leading-none tracking-tighter",
-                                isIncome 
-                                    ? (isFullDue ? "text-orange-600" : hasDue ? "text-amber-600" : "text-emerald-600")
-                                    : "text-rose-600"
-                            )}>
-                                ৳{transaction.finalAmount.toLocaleString()}
-                            </div>
-                            <div className="text-[11px] font-black text-slate-400 uppercase mt-1 tracking-wider opacity-80">
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex flex-col items-end">
+                        <div className={cn(
+                            "text-xl sm:text-3xl font-black leading-none tracking-tighter",
+                            isIncome 
+                                ? (isFullDue ? "text-orange-600" : hasDue ? "text-amber-600" : "text-emerald-600")
+                                : "text-rose-600"
+                        )}>
+                            ৳{transaction.finalAmount.toLocaleString()}
+                        </div>
+                        <div className="flex items-center gap-1 mt-1">
+                            <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-wider">
                                 {transaction.type === 'SALE' ? (isFullDue ? 'Full Due' : hasDue ? 'Partial' : 'Paid') : 
                                  transaction.type === 'EXPENSE' ? 'Expense' : transaction.type}
-                            </div>
+                            </span>
                         </div>
+                        {(!isIncome || transaction.type === 'EXPENSE') && (transaction.dueAmount !== undefined) && (
+                            <div className="flex gap-2 mt-0.5 justify-end w-full">
+                                {(transaction.paidAmount > 0 || transaction.dueAmount === 0) && <span className="text-[8px] sm:text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1 rounded">Paid: ৳{transaction.paidAmount.toLocaleString()}</span>}
+                                {transaction.dueAmount > 0 && <span className="text-[8px] sm:text-[9px] text-amber-600 font-bold bg-amber-50 px-1 rounded">Due: ৳{transaction.dueAmount.toLocaleString()}</span>}
+                            </div>
+                        )}
                     </div>
 
-                    <Button 
-                        onClick={onClick}
-                        variant="outline" 
-                        size="sm"
-                        className="h-12 px-4 rounded-2xl border-slate-200 hover:bg-slate-900 hover:text-white transition-all flex flex-col items-center justify-center gap-0.5 group/btn"
-                    >
-                        <FileText size={16} className="group-hover/btn:scale-110 transition-transform" />
-                        <span className="text-[8px] font-black opacity-60">{transaction.invoiceNumber}</span>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                         <Button 
+                            onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+                            variant="outline" 
+                            size="sm"
+                            className="h-10 px-2 rounded-xl border-slate-200 hover:bg-slate-900 hover:text-white transition-all group/btn active:scale-90 flex flex-col items-center justify-center"
+                        >
+                            <FileText size={12} />
+                            <span className="text-[8px] font-black opacity-50">{transaction.invoiceNumber?.slice(-6) || 'INV'}</span>
+                        </Button>
 
-                    {transaction.receiptUrl && (
-                        <div className="flex flex-col gap-1">
+                        {transaction.receiptUrl && (
                             <Button 
                                 variant="outline"
-                                className="h-12 w-12 rounded-2xl border border-rose-200 bg-rose-50 flex flex-col items-center justify-center gap-0.5 hover:bg-rose-100 transition-all group/receipt"
-                                title="View Receipt"
+                                className="h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 flex items-center justify-center hover:bg-rose-100 transition-all"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIsReceiptOpen(true);
                                 }}
                             >
-                                <Eye size={16} className="text-rose-600 group-hover/receipt:scale-110 transition-transform" />
-                                <span className="text-[8px] font-black text-rose-500 opacity-60 uppercase">Doc</span>
+                                <Eye size={16} className="text-rose-600" />
                             </Button>
-                            
-                            <ReceiptPreviewModal 
-                                isOpen={isReceiptOpen}
-                                onClose={() => setIsReceiptOpen(false)}
-                                imageUrl={transaction.receiptUrl}
-                                title={`Receipt: ${transaction.invoiceNumber}`}
-                            />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
+
+                <ReceiptPreviewModal 
+                    isOpen={isReceiptOpen}
+                    onClose={() => setIsReceiptOpen(false)}
+                    imageUrl={transaction.receiptUrl}
+                    title={`Receipt: ${transaction.invoiceNumber}`}
+                />
             </div>
         </div>
     );

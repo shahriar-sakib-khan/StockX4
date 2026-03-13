@@ -112,9 +112,9 @@ export const POSAccessoryCard = ({ product }: POSAccessoryCardProps) => {
         <div className="flex-1"></div>
 
         {/* Stepper */}
-        <div className="flex items-center justify-between border-2 border-slate-100 rounded-lg mb-2 px-2 py-1 h-9 w-full" onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); setQty(Math.max(1, qty - 1)); }}>
-                <Minus className="w-3 h-3" />
+        <div className="flex items-center justify-between border-2 border-slate-100 rounded-xl mb-4 px-2 py-1 h-12 w-full bg-slate-50/50" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-slate-200 active:scale-90 transition-all" onClick={(e) => { e.stopPropagation(); setQty(Math.max(1, qty - 1)); }}>
+                <Minus className="w-5 h-5 text-slate-600" />
             </Button>
             <input
                 type="number"
@@ -124,16 +124,16 @@ export const POSAccessoryCard = ({ product }: POSAccessoryCardProps) => {
                     const val = parseInt(e.target.value, 10);
                     if (!isNaN(val) && val > 0) setQty(val);
                 }}
-                className="font-bold text-sm w-12 text-center border-none focus:outline-none focus:ring-1 focus:ring-slate-300 rounded"
+                className="font-black text-lg w-16 text-center border-none bg-transparent focus:outline-none focus:ring-0 rounded"
             />
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); setQty(qty + 1); }}>
-                <Plus className="w-3 h-3" />
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-slate-200 active:scale-90 transition-all" onClick={(e) => { e.stopPropagation(); setQty(qty + 1); }}>
+                <Plus className="w-5 h-5 text-slate-600" />
             </Button>
         </div>
-
+ 
         {/* Add Button */}
         <Button
-            className="w-full font-bold h-10 uppercase tracking-wider shadow-sm text-xs bg-slate-800 hover:bg-slate-900 text-white"
+            className="w-full font-black h-12 uppercase tracking-widest shadow-lg transition-all active:scale-95 text-xs sm:text-sm rounded-xl bg-slate-800 hover:bg-slate-900 text-white"
             onClick={(e) => { e.stopPropagation(); handleAdd(); }}
         >
             Add To Cart

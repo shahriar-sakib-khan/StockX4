@@ -19,7 +19,6 @@ export const CustomBrandForm = ({ onSuccess, initialData, storeId }: { onSuccess
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submitting Custom Brand Form", { name, color, initialData });
         try {
             if (initialData) {
                 await update.mutateAsync({

@@ -41,7 +41,7 @@ export const ProfilePage = () => {
 
              <div className="flex space-x-3 items-center">
                 <div className="relative">
-                    <Button disabled={isUploading} variant="outline" className="relative cursor-pointer text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300">
+                    <Button disabled={isUploading} variant="outline" className="relative cursor-pointer text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 min-h-[48px] sm:min-h-[40px] px-3 sm:px-4 text-xs sm:text-sm">
                         {isUploading ? 'Uploading...' : 'Upload Photo'}
                         <input
                           type="file"
@@ -59,7 +59,7 @@ export const ProfilePage = () => {
                    <Button
                       onClick={deleteAvatar}
                       variant="ghost"
-                      className="text-destructive hover:bg-destructive/10 hover:text-destructive border border-destructive/20"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive border border-destructive/20 min-h-[48px] sm:min-h-[40px] px-3 sm:px-4 text-xs sm:text-sm"
                    >
                       Remove Photo
                    </Button>
@@ -85,13 +85,13 @@ export const ProfilePage = () => {
               }} className="space-y-4">
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">Name</label>
-                      <Input name="name" defaultValue={user?.name} required />
+                      <Input name="name" defaultValue={user?.name} required className="min-h-[48px] sm:min-h-[40px]" />
                   </div>
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">Email</label>
-                      <Input name="email" defaultValue={user?.email} required type="email" />
+                      <Input name="email" defaultValue={user?.email} required type="email" className="min-h-[48px] sm:min-h-[40px]" />
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full min-h-[48px] sm:min-h-[40px]">
                       Save Changes
                   </Button>
               </form>
@@ -118,17 +118,17 @@ export const ProfilePage = () => {
               }} className="space-y-4">
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">Current Password</label>
-                      <Input type="password" name="oldPassword" required />
+                      <Input type="password" name="oldPassword" required className="min-h-[48px] sm:min-h-[40px] font-mono text-base sm:text-sm" />
                   </div>
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">New Password</label>
-                      <Input type="password" name="newPassword" required />
+                      <Input type="password" name="newPassword" required className="min-h-[48px] sm:min-h-[40px] font-mono text-base sm:text-sm" />
                   </div>
                   <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground">Confirm New Password</label>
-                      <Input type="password" name="confirmPassword" required />
+                      <Input type="password" name="confirmPassword" required className="min-h-[48px] sm:min-h-[40px] font-mono text-base sm:text-sm" />
                   </div>
-                  <Button type="submit" variant="secondary" className="w-full">
+                  <Button type="submit" variant="secondary" className="w-full min-h-[48px] sm:min-h-[40px]">
                       Update Password
                   </Button>
               </form>

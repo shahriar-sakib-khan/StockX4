@@ -7,7 +7,7 @@ const port = process.env.PORT || 3001;
 
 // Database and Seeding
 connectDB().then(() => {
-  app.listen(port, () => {
-    logger.info(`Server running on http://localhost:${port}`);
+  app.listen(port as number, "0.0.0.0", () => {
+    logger.info(`Server running on http://0.0.0.0:${port}`);
   });
 });

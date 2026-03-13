@@ -63,51 +63,50 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
 
   return (
     <Card
-      className={`w-full h-auto min-h-full hover:shadow-lg transition-all border rounded-xl cursor-pointer ${
+      className={`w-full h-auto min-h-full hover:shadow-lg transition-all border rounded-xl sm:rounded-2xl cursor-pointer ${
         isPackaged ? 'hover:border-blue-400 bg-white' :
         isEmpty ? 'hover:border-slate-400 bg-slate-50' :
         'hover:border-orange-400 bg-white'
-      }`}
+      } active:scale-[0.98]`}
       onClick={handleAdd}
     >
-      <div className="p-3 flex flex-col h-full bg-transparent relative">
+      <div className="p-2 sm:p-3 flex flex-col h-full bg-transparent relative">
 
         {/* Top Row: Brand Info (Left) vs Specs (Right) */}
         <div className="flex justify-between items-start mb-2">
             {/* Left: Brand Name & Logo */}
-            <div className="flex flex-col gap-1">
-                <div className="font-bold text-sm leading-tight max-w-[120px] text-foreground">{product.brandId?.name || product.brandName}</div>
-                <div className="w-16 h-8 border rounded flex items-center justify-center bg-gray-50 text-[10px] text-muted-foreground font-semibold">
-                    {product.brandId?.logo ? <img src={product.brandId.logo} alt="Logo" className="max-h-full max-w-full" /> : 'Logo'}
+            <div className="flex flex-col gap-0.5 sm:gap-1">
+                <div className="font-black text-[10px] sm:text-sm leading-tight max-w-[100px] sm:max-w-[120px] text-slate-800 uppercase tracking-tight">{product.brandId?.name || product.brandName}</div>
+                <div className="w-12 h-6 sm:w-16 sm:h-8 border border-slate-100 rounded flex items-center justify-center bg-slate-50 text-[8px] sm:text-[10px] text-slate-400 font-extrabold uppercase overflow-hidden">
+                    {product.brandId?.logo ? <img src={product.brandId.logo} alt="Logo" className="max-h-full max-w-full object-contain" /> : 'Logo'}
                 </div>
             </div>
 
             {/* Right: Size & Regulator */}
             <div className="flex flex-col gap-1 items-end">
-                <Badge variant="outline" className="h-7 min-w-[60px] justify-center bg-slate-50">{product.variant?.size}</Badge>
-                <Badge variant="outline" className={`h-7 min-w-[60px] justify-center border-0 font-bold ${product.variant?.regulator === '22mm' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.variant?.regulator}</Badge>
+                <Badge variant="outline" className="h-6 sm:h-7 min-w-[50px] sm:min-w-[60px] justify-center bg-slate-50 text-[8px] sm:text-[10px] font-black">{product.variant?.size}</Badge>
+                <Badge variant="outline" className={`h-6 sm:h-7 min-w-[50px] sm:min-w-[60px] justify-center border-0 font-black text-[8px] sm:text-[10px] ${product.variant?.regulator === '22mm' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800'}`}>{product.variant?.regulator}</Badge>
             </div>
         </div>
 
         {/* Middle Row: Image (Center) & Price (Right) */}
-        <div className="flex justify-between items-center mb-2 relative min-h-[100px]">
+        <div className="flex justify-between items-center mb-1.5 sm:mb-2 relative min-h-[80px] sm:min-h-[100px]">
             {/* Image (Centered relative to container width mostly, but we use flex spacer) */}
             <div className="flex-1 flex justify-center">
-                 <div className="w-20 h-28 relative">
+                 <div className="w-14 h-20 sm:w-20 sm:h-28 relative">
                      <div
-                        className="absolute w-16 h-24 rounded opacity-20 blur-xl top-2 left-2"
+                        className="absolute w-12 h-16 sm:w-16 sm:h-24 rounded opacity-20 blur-xl top-1 sm:top-2 left-1 sm:left-2"
                         style={{ backgroundColor: product.brandId?.color || product.variant?.cylinderColor || '#ccc' }}
                      ></div>
                      {(product.brandId?.cylinderImage || product.variant?.cylinderImage) && (
                         <img
                             src={product.brandId?.cylinderImage || product.variant?.cylinderImage}
                             alt="Cylinder"
-                            className="h-full object-contain relative z-10 drop-shadow-sm"
+                            className="h-full object-contain relative z-10 drop-shadow-sm transition-transform group-hover:scale-110"
                         />
                      )}
                  </div>
-            </div>
-
+        </div>
             {/* Price (Right aligned, vertically centered in this row) */}
             {!isEmpty && (
                 <div className="border border-slate-200 rounded px-2 py-3 shadow-sm bg-slate-50 min-w-[60px] flex flex-col items-center justify-center h-14 absolute right-0 top-1/2 -translate-y-1/2">
@@ -137,9 +136,9 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
         <div className="flex-1"></div>
 
         {/* Stepper Row */}
-        <div className="flex items-center justify-between border-2 border-slate-100 rounded-lg mb-2 px-2 py-1 h-9 w-full" onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); setQty(Math.max(1, qty - 1)); }}>
-                <Minus className="w-3 h-3" />
+        <div className="flex items-center justify-between border border-slate-200 rounded-lg sm:rounded-xl mb-3 sm:mb-4 px-1.5 sm:px-2 py-0.5 sm:py-1 h-12 w-full bg-slate-50/50" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" className="h-10 w-10 sm:h-12 sm:w-12 rounded-full hover:bg-slate-200 active:scale-90 transition-all" onClick={(e) => { e.stopPropagation(); setQty(Math.max(1, qty - 1)); }}>
+                <Minus className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600" />
             </Button>
             <input
                 type="number"
@@ -149,18 +148,18 @@ export const POSCylinderCard = ({ product }: POSCylinderCardProps) => {
                     const val = parseInt(e.target.value, 10);
                     if (!isNaN(val) && val > 0) setQty(val);
                 }}
-                className="font-bold text-sm w-12 text-center border-none focus:outline-none focus:ring-1 focus:ring-slate-300 rounded"
+                className="font-black text-base sm:text-xl w-12 sm:w-16 text-center border-none bg-transparent focus:outline-none focus:ring-0 rounded"
             />
-            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); setQty(qty + 1); }}>
-                <Plus className="w-3 h-3" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-12 sm:w-12 rounded-full hover:bg-slate-200 active:scale-90 transition-all" onClick={(e) => { e.stopPropagation(); setQty(qty + 1); }}>
+                <Plus className="w-4 h-4 sm:w-6 sm:h-6 text-slate-600" />
             </Button>
         </div>
-
+ 
         {/* Add Button */}
         <Button
-            className={`w-full font-bold h-10 uppercase tracking-wider shadow-sm text-xs ${
+            className={`w-full font-black h-12 uppercase tracking-widest shadow-lg transition-all active:scale-95 text-[11px] sm:text-sm rounded-lg sm:rounded-xl ${
                 isPackaged ? 'bg-blue-600 hover:bg-blue-700 text-white' :
-                isEmpty ? 'bg-slate-500 hover:bg-slate-600 text-white' :
+                isEmpty ? 'bg-slate-600 hover:bg-slate-700 text-white' :
                 'bg-orange-600 hover:bg-orange-700 text-white'
             }`}
             onClick={(e) => { e.stopPropagation(); handleAdd(); }}

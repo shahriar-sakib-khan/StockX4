@@ -62,7 +62,7 @@ export const StoveAddForm = ({ form, set, loading, imgMap, onAdd }: StoveAddForm
         </Field>
       </div>
       <button onClick={onAdd} disabled={loading}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50">
+        className="flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 w-full sm:w-auto min-h-[48px] rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50">
         {loading ? '…' : '+ Add Stove'}
       </button>
     </div>

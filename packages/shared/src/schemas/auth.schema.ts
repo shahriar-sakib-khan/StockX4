@@ -7,7 +7,7 @@ export const loginSchema = z.object({
 });
 
 export const unifiedLoginSchema = z.object({
-  identifier: z.string().min(4, 'Email or Phone is required'),
+  identifier: z.string().min(4, 'Email or Phone is required').trim().toLowerCase(),
   password: z.string().min(1, 'Password is required'),
 });
 

@@ -15,52 +15,49 @@ interface InventoryCardPricesProps {
 
 export const InventoryCardPrices = ({ prices, onEditClick }: InventoryCardPricesProps) => {
     return (
-        <div className="flex items-stretch gap-2 flex-1">
-            <div className="grid grid-cols-2 gap-2 flex-1 relative group">
+        <div className="flex flex-col gap-1.5">
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-1 items-stretch">
                 {/* Packaged Prices */}
-                <div className="text-center px-1 py-1 bg-white border border-emerald-100 rounded-lg shadow-sm flex flex-col justify-center h-full relative overflow-hidden">
-                    <span className="text-[10px] font-black text-emerald-600 uppercase block tracking-wider mb-1 border-b border-emerald-100 pb-0.5">Packaged</span>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">BUY</span>
-                        <span className="text-base font-black text-rose-500">৳{prices.buyingPriceFull}</span>
-                    </div>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">RTL</span>
-                        <span className="text-base font-black text-emerald-600">৳{prices.retailPriceFull}</span>
-                    </div>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">WSL</span>
-                        <span className="text-base font-black text-blue-600">৳{prices.wholesalePriceFull}</span>
-                    </div>
+                <div className="text-center px-1.5 py-1.5 bg-white border border-emerald-100 rounded-lg shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] font-black text-emerald-600 uppercase block tracking-wider mb-1 border-b border-emerald-100 pb-0.5">Pkg</span>
+                    <PriceRow label="Buy" value={prices.buyingPriceFull} color="rose" />
+                    <PriceRow label="Whsle" value={prices.wholesalePriceFull} color="blue" />
+                    <PriceRow label="Retail" value={prices.retailPriceFull} color="emerald" />
                 </div>
 
                 {/* Refill Prices */}
-                <div className="text-center px-1 py-1 bg-white border border-cyan-100 rounded-lg shadow-sm flex flex-col justify-center h-full relative overflow-hidden">
-                    <span className="text-[10px] font-black text-cyan-600 uppercase block tracking-wider mb-1 border-b border-cyan-100 pb-0.5">Refill</span>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">BUY</span>
-                        <span className="text-base font-black text-rose-500">৳{prices.buyingPriceGas}</span>
-                    </div>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">RTL</span>
-                        <span className="text-base font-black text-emerald-600">৳{prices.retailPriceGas}</span>
-                    </div>
-                    <div className="flex justify-between items-center w-full px-1">
-                        <span className="text-[10px] font-bold text-slate-400">WSL</span>
-                        <span className="text-base font-black text-blue-600">৳{prices.wholesalePriceGas}</span>
-                    </div>
+                <div className="text-center px-1.5 py-1.5 bg-white border border-cyan-100 rounded-lg shadow-sm flex flex-col justify-center">
+                    <span className="text-[10px] font-black text-cyan-600 uppercase block tracking-wider mb-1 border-b border-cyan-100 pb-0.5">Ref</span>
+                    <PriceRow label="Buy" value={prices.buyingPriceGas} color="rose" />
+                    <PriceRow label="Whsle" value={prices.wholesalePriceGas} color="blue" />
+                    <PriceRow label="Retail" value={prices.retailPriceGas} color="emerald" />
                 </div>
+
+                {/* Edit Button - compact on mobile */}
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-auto w-8 sm:w-10 flex flex-col items-center justify-center gap-0.5 border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shadow-sm active:scale-95 self-stretch"
+                    onClick={onEditClick}
+                    title="Edit Prices"
+                >
+                    <PenLine className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-[7px] sm:text-[8px] font-black uppercase leading-none">Edit</span>
+                </Button>
             </div>
-            <Button
-                variant="outline"
-                size="sm"
-                className="h-full px-3 flex flex-col items-center justify-center gap-0.5 border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shadow-sm group/edit shrink-0"
-                onClick={onEditClick}
-                title="Edit Prices"
-            >
-                <PenLine className="w-4 h-4 group-hover/edit:scale-110 transition-transform" />
-                <span className="text-[9px] font-black uppercase">Edit</span>
-            </Button>
         </div>
     );
 };
+
+const colorMap: Record<string, string> = {
+    rose: 'text-rose-500',
+    blue: 'text-blue-600',
+    emerald: 'text-emerald-600',
+};
+
+const PriceRow = ({ label, value, color }: { label: string; value: number; color: string }) => (
+    <div className="flex justify-between items-center w-full gap-1">
+        <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 shrink-0">{label}</span>
+        <span className={`text-xs sm:text-sm font-black ${colorMap[color]} whitespace-nowrap`}>৳{value}</span>
+    </div>
+);

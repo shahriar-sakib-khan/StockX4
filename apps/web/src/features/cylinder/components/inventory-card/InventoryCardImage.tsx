@@ -9,7 +9,7 @@ export const InventoryCardImage = ({ item, fallbackImage }: InventoryCardImagePr
     const imageToUse = fallbackImage || "https://placehold.co/150x300?text=Cylinder";
 
     return (
-        <div className="w-40 shrink-0 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-slate-100 p-2 min-h-[180px]">
+        <div className="w-full sm:w-40 shrink-0 flex flex-col items-center justify-center bg-slate-50/50 rounded-xl border border-slate-100 p-2 min-h-[120px] sm:min-h-[180px] aspect-[4/3] sm:aspect-auto">
             <img
                 src={imageToUse}
                 alt={item.brandName}

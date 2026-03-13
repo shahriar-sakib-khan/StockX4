@@ -23,7 +23,7 @@ const staffSchema = new Schema<IStaff>(
     storeId: { type: Schema.Types.ObjectId, ref: 'Store', required: true, index: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
     name: { type: String, required: true },
-    contact: { type: String, required: true },   // phone number OR email
+    contact: { type: String, required: true, lowercase: true, trim: true },   // phone number OR email
     passwordHash: { type: String, required: true },
     role: { type: String, enum: StaffRole.options, default: 'staff' },
     image: { type: String },

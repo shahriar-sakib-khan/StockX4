@@ -6,6 +6,8 @@ export const TransactionItemSchema = z.object({
   category: z.string().optional(),
   quantity: z.number().int().positive("Quantity must be positive"),
   unitPrice: z.number().nonnegative(),
+  wholesalePrice: z.number().nonnegative().optional(),
+  retailPrice: z.number().nonnegative().optional(),
   variant: z.string().optional(),
   name: z.string().optional(),
   size: z.string().optional(),

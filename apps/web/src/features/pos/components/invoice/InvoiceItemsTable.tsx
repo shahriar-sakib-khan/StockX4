@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 
 export interface InvoiceItem {
     productId: string;
@@ -53,39 +54,64 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense =
                         const displayRegOrBurner = isStove ? burnerDisplay : (item.regulator && item.regulator !== '?' ? item.regulator : '-');
 
                         return (
-                            <div key={item.productId || idx} className={`flex items-center py-1 sm:py-2 border-b border-dotted last:border-0 ${isReturnSection ? 'text-slate-500' : ''} ${isDueSection ? 'text-orange-900 bg-orange-50/20' : ''}`}>
-                                {/* Item Name */}
-                                <div className="flex-[2] pr-1">
-                                    <div className="flex items-baseline gap-1 flex-wrap">
-                                        <span className="text-xs sm:text-xl font-black leading-tight tracking-tight">{item.name}</span>
-                                        {isReturnSection && !item.isSettled && <span className="text-[7px] sm:text-xs italic font-bold opacity-70">(Return)</span>}
-                                        {isDueSection && <span className="text-[7px] sm:text-xs font-black italic text-orange-600">(DUE)</span>}
-                                        {item.isSettled && <span className="text-[7px] sm:text-xs font-black italic text-green-600">(Settled)</span>}
+                            <div key={item.productId || idx} className={`py-3 sm:py-4 md:py-2 border-b border-dotted border-slate-200 md:flex md:items-center last:border-0 ${isReturnSection ? 'text-slate-500' : ''} ${isDueSection ? 'text-orange-900 bg-orange-50/10' : ''}`}>
+                                {/* Mobile-only: Item Name and Status - Full width */}
+                                <div className="md:hidden flex justify-between items-start mb-1.5">
+                                    <div className="flex flex-col flex-1 truncate pr-2">
+                                        <span className="text-sm sm:text-lg font-black leading-tight tracking-tight truncate">{item.name}</span>
+                                        <div className="flex gap-1 mt-0.5">
+                                            {isReturnSection && !item.isSettled && <Badge variant="secondary" className="text-[7px] sm:text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 py-0 h-4">RET</Badge>}
+                                            {isDueSection && <Badge className="text-[7px] sm:text-[10px] font-black uppercase tracking-widest bg-orange-100 text-orange-600 border-orange-200 py-0 h-4">DUE</Badge>}
+                                            {item.isSettled && <Badge className="text-[7px] sm:text-[10px] font-black uppercase tracking-widest bg-green-100 text-green-600 border-green-200 py-0 h-4">SET</Badge>}
+                                        </div>
                                     </div>
-                                    {/* Description fallback if size/regulator empty, or extra info */}
-                                    {item.description && !item.isSettled && !item.size && !item.regulator && <div className="text-[8px] sm:text-xs text-muted-foreground mt-0.5">{item.description}</div>}
+                                    <div className="text-right shrink-0">
+                                        <div className="text-lg sm:text-2xl font-black text-slate-900 leading-none">৳{(item.subtotal || 0).toLocaleString()}</div>
+                                        {!isReturnSection && !isDueSection && (
+                                            <div className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase mt-0.5">
+                                                {item.quantity} × {item.unitPrice}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/* Size & Regulator - Hiden for Expenses */}
-                                {!isExpense && (
-                                    <>
-                                        <div className="w-14 sm:w-20 text-center text-xs sm:text-base font-bold text-slate-700">
-                                            {displaySize}
+                                {/* Desktop Item Name */}
+                                <div className="hidden md:flex md:flex-[2] md:pr-1 md:items-baseline md:gap-1 md:flex-wrap">
+                                    <span className="text-xl font-black leading-tight tracking-tight">{item.name}</span>
+                                    {isReturnSection && !item.isSettled && <span className="text-xs italic font-bold opacity-70">(Return)</span>}
+                                    {isDueSection && <span className="text-xs font-black italic text-orange-600">(DUE)</span>}
+                                    {item.isSettled && <span className="text-xs font-black italic text-green-600">(Settled)</span>}
+                                    {item.description && !item.isSettled && !item.size && !item.regulator && (
+                                        <div className="text-xs text-muted-foreground ml-2">{item.description}</div>
+                                    )}
+                                </div>
+
+                                 {/* Grid/Grid-like Details for Mobile & Table for Desktop */}
+                                 <div className="flex items-center justify-between md:contents">
+                                     {!isExpense && (
+                                         <div className="grid grid-cols-2 gap-2 sm:gap-4 md:contents md:flex-none">
+                                             <div className="md:w-20 text-left md:text-center text-[10px] sm:text-xs md:text-base font-black bg-slate-50 md:bg-transparent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded md:p-0 border md:border-0 border-slate-100">
+                                                 <span className="md:hidden text-[6px] sm:text-[8px] uppercase block opacity-40 font-black">Size</span>
+                                                 {displaySize}
+                                             </div>
+                                             <div className="md:w-24 text-left md:text-center text-[10px] sm:text-xs md:text-base font-black bg-slate-50 md:bg-transparent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded md:p-0 border md:border-0 border-slate-100">
+                                                 <span className="md:hidden text-[6px] sm:text-[8px] uppercase block opacity-40 font-black">R/B</span>
+                                                 {displayRegOrBurner}
+                                             </div>
+                                         </div>
+                                     )}
+                                    {/* These are hidden on mobile as they are in the header card above */}
+                                    <div className="hidden md:block w-16 text-center text-2xl font-black text-slate-900">{item.quantity}</div>
+                                    <div className="hidden md:block w-20 text-right text-xl font-bold text-slate-700">{!isReturnSection && !isDueSection && item.unitPrice}</div>
+                                    <div className="hidden md:block w-20 text-right font-black text-xl text-slate-900">{!isReturnSection && !isDueSection && item.subtotal}</div>
+
+                                    {/* Mobile-only secondary info line if description exists */}
+                                    {item.description && !item.isSettled && !item.size && !item.regulator && (
+                                        <div className="md:hidden w-full text-[10px] text-muted-foreground mt-2 border-t pt-2 italic">
+                                            {item.description}
                                         </div>
-                                        <div className="w-16 sm:w-24 text-center text-xs sm:text-base font-bold text-slate-700">
-                                            {displayRegOrBurner}
-                                        </div>
-                                    </>
-                                )}
-
-                                {/* Qty */}
-                                <div className="w-10 sm:w-16 text-center text-lg sm:text-2xl font-black text-slate-900">{item.quantity}</div>
-
-                                {/* Price */}
-                                <div className="w-14 sm:w-20 text-right text-sm sm:text-xl font-bold text-slate-700">{!isReturnSection && !isDueSection && item.unitPrice}</div>
-
-                                {/* Total */}
-                                <div className="w-14 sm:w-20 text-right font-black text-sm sm:text-xl text-slate-900">{!isReturnSection && !isDueSection && item.subtotal}</div>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}
@@ -141,33 +167,28 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense =
 
     return (
         <div className="space-y-4 sm:space-y-6">
-            <div className="overflow-x-auto -mx-1 px-1 pb-1">
-                <div className="min-w-[500px] sm:min-w-0">
-                    {/* Global Header */}
-                    <div className="flex items-center text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground border-b-2 border-dashed pb-1 sm:pb-2 bg-slate-50/50 p-1.5 sm:p-2 rounded-t-lg">
-                        <span className="flex-[2]">Item / Description</span>
-                        {!isExpense && (
-                            <>
-                                <span className="w-12 sm:w-20 text-center">Size</span>
-                                <span className="w-16 sm:w-24 text-center">Burner/Reg</span>
-                            </>
-                        )}
-                        <span className="w-8 sm:w-16 text-center">{isExpense ? 'Qty' : 'Qty'}</span>
-                        <span className="w-12 sm:w-20 text-right">Price</span>
-                        <span className="w-12 sm:w-20 text-right">Total</span>
-                    </div>
+            <div className="md:border-b-2 md:border-dashed md:pb-2 md:bg-slate-50/50 md:rounded-t-lg hidden md:flex items-center text-[11px] font-black uppercase tracking-widest text-muted-foreground p-2">
+                <span className="flex-[2]">Item / Description</span>
+                {!isExpense && (
+                    <>
+                        <span className="w-20 text-center">Size</span>
+                        <span className="w-24 text-center">Burner/Reg</span>
+                    </>
+                )}
+                <span className="w-16 text-center">Qty</span>
+                <span className="w-20 text-right">Price</span>
+                <span className="w-20 text-right">Total</span>
+            </div>
 
-                    <div className="divide-y divide-dashed divide-slate-100">
-                        {renderSection('Packaged Cylinders', packagedItems)}
-                        {renderSection('Refill Cylinders', refillItems)}
-                        {renderSection('Stoves', stoveItems)}
-                        {renderSection('Regulators', regulatorItems)}
-                        {renderSection('Empty Returns', sortedReturns, true)}
-                        {renderSection('Cylinders Kept as DUE', dueItems, false, true)}
-                        {renderSection('General Products / Accessories', productItems)}
-                        {renderSection('Expenses & Services', expenseItems)}
-                    </div>
-                </div>
+            <div className="divide-y divide-dashed divide-slate-200">
+                {renderSection('Packaged Cylinders', packagedItems)}
+                {renderSection('Refill Cylinders', refillItems)}
+                {renderSection('Stoves', stoveItems)}
+                {renderSection('Regulators', regulatorItems)}
+                {renderSection('Empty Returns', sortedReturns, true)}
+                {renderSection('Cylinders Kept as DUE', dueItems, false, true)}
+                {renderSection('General Products / Accessories', productItems)}
+                {renderSection('Expenses & Services', expenseItems)}
             </div>
         </div>
     );

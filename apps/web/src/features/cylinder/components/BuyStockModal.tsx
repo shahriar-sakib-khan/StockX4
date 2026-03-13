@@ -255,7 +255,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                              <div className="space-y-1">
                                 <label className="text-xs font-semibold text-muted-foreground">Brand</label>
                                 <Select value={selectedBrandId} onValueChange={setSelectedBrandId}>
-                                    <SelectTrigger className="h-9 bg-white">
+                                    <SelectTrigger className="h-11 sm:h-9 bg-white text-sm font-semibold">
                                         <SelectValue placeholder="Select Brand" />
                                     </SelectTrigger>
                                     <SelectContent className="z-[10001]">
@@ -272,7 +272,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground">Size</label>
                                         <Select value={selectedSize} onValueChange={setSelectedSize}>
-                                            <SelectTrigger className="h-9 bg-white">
+                                            <SelectTrigger className="h-11 sm:h-9 bg-white text-sm font-semibold">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent className="z-[10001]">
@@ -283,7 +283,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-muted-foreground">Regulator</label>
                                         <Select value={selectedRegulator} onValueChange={setSelectedRegulator}>
-                                            <SelectTrigger className="h-9 bg-white">
+                                            <SelectTrigger className="h-11 sm:h-9 bg-white text-sm font-semibold">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent className="z-[10001]">
@@ -307,7 +307,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-muted-foreground">Burners</label>
                                     <Select value={String(selectedBurners)} onValueChange={(v) => setSelectedBurners(Number(v))}>
-                                        <SelectTrigger className="h-9 bg-white">
+                                        <SelectTrigger className="h-11 sm:h-9 bg-white text-sm font-semibold">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="z-[10001]">
@@ -324,7 +324,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold text-muted-foreground">Type</label>
                                     <Select value={selectedRequlatorSize} onValueChange={setSelectedRegulatorSize}>
-                                        <SelectTrigger className="h-9 bg-white">
+                                        <SelectTrigger className="h-11 sm:h-9 bg-white text-sm font-semibold">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="z-[10001]">
@@ -356,7 +356,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                     <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-10 w-10 shrink-0"
+                                    className="h-12 w-12 shrink-0 rounded-xl"
                                     onClick={() => handleQuantityChange(String(Math.max(0, (Number(quantity) || 0) - 1)))}
                                 >
                                     -
@@ -364,7 +364,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                 <Input
                                     type="number"
                                     placeholder="0"
-                                    className="text-center text-2xl font-bold h-10 ring-primary/20"
+                                    className="text-center text-3xl font-black h-12 ring-primary/20 bg-slate-50 border-2 border-slate-100 rounded-xl"
                                     value={quantity}
                                     onChange={(e) => handleQuantityChange(e.target.value)}
                                     // Removed autoFocus to avoid focus trapping issues
@@ -372,7 +372,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                     <Button
                                     variant="outline"
                                     size="icon"
-                                    className="h-10 w-10 shrink-0"
+                                    className="h-12 w-12 shrink-0 rounded-xl"
                                     onClick={() => handleQuantityChange(String((Number(quantity) || 0) + 1))}
                                 >
                                     +
@@ -390,7 +390,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                             <Input
                                 type="number"
                                 placeholder="Total..."
-                                className="text-lg h-12 font-bold"
+                                className="text-xl h-14 font-black border-2 border-slate-100 rounded-2xl"
                                 value={totalAmount}
                                 onChange={(e) => handleTotalChange(e.target.value)}
                             />
@@ -403,7 +403,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-xs">৳</span>
                                      <Input
                                         type="number"
-                                        className="pl-5 h-9 bg-white font-medium"
+                                        className="pl-5 h-12 bg-white font-black border-2 border-slate-100 rounded-xl"
                                         value={unitPrice}
                                         onChange={(e) => handleUnitChange(e.target.value)}
                                      />
@@ -415,7 +415,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-orange-400 font-medium text-xs">৳</span>
                                      <Input
                                         type="number"
-                                        className="pl-5 h-9 bg-white font-medium border-orange-200 focus-visible:ring-orange-200"
+                                        className="pl-5 h-12 bg-white font-black border-2 border-orange-200 focus-visible:ring-orange-200 rounded-xl"
                                         value={sellingPrice}
                                         onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                                      />
@@ -433,7 +433,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-orange-400 font-medium text-xs">৳</span>
                                  <Input
                                     type="number"
-                                    className="pl-5 h-9 bg-white font-medium border-orange-200 focus-visible:ring-orange-200"
+                                    className="pl-5 h-12 bg-white font-black border-2 border-orange-200 focus-visible:ring-orange-200 rounded-xl"
                                     value={sellingPrice}
                                     onChange={(e) => setSellingPrice(e.target.value === '' ? '' : Number(e.target.value))}
                                  />
@@ -443,7 +443,7 @@ export const BuyStockModal = ({ isOpen, onClose, brandName, variant, logo, onAdd
                  )}
 
                 <Button
-                    className="w-full h-12 text-lg font-bold shadow-lg shadow-primary/20"
+                    className="w-full h-14 text-xl font-black shadow-xl shadow-primary/20 rounded-2xl uppercase tracking-widest mt-2"
                     disabled={!quantity || (transactionType === 'buy' && (!totalAmount || !unitPrice))}
                     onClick={handleAddToCart}
                 >

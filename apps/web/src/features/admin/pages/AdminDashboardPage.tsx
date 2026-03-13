@@ -32,8 +32,8 @@ export const AdminDashboardPage = () => {
 
   return (
       <div className="space-y-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 System Overview
             </h1>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -44,8 +44,8 @@ export const AdminDashboardPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Admin Users List */}
-          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center">
+          <div className="bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4 flex items-center">
                 <Shield className="mr-2 text-primary" /> Admins ({adminUsers.length})
             </h2>
             <div className="space-y-4">
@@ -69,7 +69,7 @@ export const AdminDashboardPage = () => {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => updateUserRole(admin._id, 'user')}
-                                className="h-8 text-xs border-destructive/30 hover:border-destructive hover:text-destructive hover:bg-destructive/5"
+                                className="min-h-[44px] sm:min-h-0 h-auto sm:h-8 text-xs border-destructive/30 hover:border-destructive hover:text-destructive hover:bg-destructive/5"
                              >
                                 <ArrowDownRight className="mr-1 h-3 w-3" />
                                 Demote
@@ -82,8 +82,8 @@ export const AdminDashboardPage = () => {
           </div>
 
           {/* Normal Users List */}
-          <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-foreground mb-4 flex items-center">
+          <div className="bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4 flex items-center">
                 <UserIcon className="mr-2 text-blue-500" /> Users ({normalUsers.length})
             </h2>
             {isLoading && <p className="text-muted-foreground animate-pulse">Loading users...</p>}
@@ -105,7 +105,7 @@ export const AdminDashboardPage = () => {
                                      e.stopPropagation();
                                      updateUserRole(normalUser._id, 'admin');
                                  }}
-                                 className="h-8 text-xs hover:border-primary hover:text-primary"
+                                 className="min-h-[44px] sm:min-h-0 h-auto sm:h-8 text-xs hover:border-primary hover:text-primary"
                              >
                                 <ArrowUpRight className="mr-1 h-3 w-3" />
                                 Promote
@@ -117,7 +117,7 @@ export const AdminDashboardPage = () => {
                                      e.stopPropagation();
                                      setUserToDelete(normalUser._id);
                                  }}
-                                 className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                 className="min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 h-auto sm:h-8 w-auto sm:w-8 p-3 sm:p-0 text-destructive hover:bg-destructive/10 hover:text-destructive flex items-center justify-center"
                                  title="Delete User"
                              >
                                 <Trash2 className="h-4 w-4" />

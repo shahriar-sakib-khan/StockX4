@@ -41,14 +41,8 @@ export const CheckoutPage = () => {
     const dueAmount = finalAmount - paidAmount;
 
     const { id } = useParams<{ id: string }>(); // Store ID from URL (Owner mode)
-    // Use passed storeId or fallback to staff's storeId (safely handled)
     const storeId = id || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
     const { data: storeData } = useStore(storeId || '');
-
-    // Fetch store details to ensure we have the correct name
-    // const { data: storeData } = useStore(storeId || ''); // Already declared above
-
-    // Actually, I can use the existing hook. Let me check imports.
 
     const handleBackToPos = () => {
         if (id) {
@@ -147,15 +141,15 @@ export const CheckoutPage = () => {
 
     if (completedTransaction) {
         return (
-            <div className="min-h-screen flex flex-col items-center pt-8 pb-20 px-4 bg-muted/20 overflow-y-auto">
-                <Card className="w-full max-w-3xl animate-in fade-in zoom-in duration-300">
-                    <CardHeader className="text-center">
-                        <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                        <CardTitle className="text-3xl">Sale Completed!</CardTitle>
+            <div className="min-h-screen flex flex-col items-center pt-4 sm:pt-8 pb-10 sm:pb-20 px-2 sm:px-4 bg-muted/20 overflow-y-auto">
+                <Card className="w-full max-w-3xl animate-in fade-in zoom-in duration-300 shadow-xl border-slate-200">
+                    <CardHeader className="text-center p-4 sm:p-6">
+                        <CheckCircle className="w-10 h-10 sm:w-16 sm:h-16 text-green-500 mx-auto mb-2 sm:mb-4" />
+                        <CardTitle className="text-xl sm:text-3xl font-black uppercase tracking-tight">Sale Completed!</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="flex justify-center gap-4">
-                            <Button onClick={() => window.print()} variant="outline" className="gap-2">
+                    <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+                        <div className="flex justify-center gap-3 sm:gap-4">
+                           <Button onClick={() => window.print()} variant="outline" className="gap-2">
                                 <Printer className="w-4 h-4" /> Print Receipt
                             </Button>
                             <Button onClick={() => {
@@ -180,16 +174,16 @@ export const CheckoutPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-muted/20 p-1 sm:p-4 md:p-8 flex flex-col items-center">
-            <div className="w-full max-w-2xl space-y-3 sm:space-y-6">
-                 <Button variant="ghost" onClick={handleBackToPos} className="gap-2 self-start px-2 h-8 sm:h-10 text-xs sm:text-sm">
+         <div className="min-h-screen bg-muted/20 p-1 sm:p-4 md:p-8 flex flex-col items-center">
+            <div className="w-full max-w-2xl space-y-2 sm:space-y-6">
+                 <Button variant="ghost" onClick={handleBackToPos} className="gap-1.5 sm:gap-2 self-start px-2 h-7 sm:h-10 text-[10px] sm:text-sm font-bold opacity-70 hover:opacity-100">
                     <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" /> Back to POS
                  </Button>
 
-                <div className="w-full max-w-[99%] sm:max-w-2xl mx-auto pb-10">
-                    <Card className="shadow-2xl border-slate-200 overflow-hidden rounded-xl sm:rounded-2xl">
-                        <CardContent className="p-1 sm:p-6">
-                             <div className="font-mono text-sm space-y-3 sm:space-y-4">
+                 <div className="w-full max-w-[99%] sm:max-w-2xl mx-auto pb-6 sm:pb-10">
+                    <Card className="shadow-2xl border-slate-200 overflow-hidden rounded-lg sm:rounded-2xl">
+                        <CardContent className="p-2 sm:p-6">
+                             <div className="font-mono text-[10px] sm:text-sm space-y-2 sm:space-y-4">
                                 <InvoiceHeader
                                     storeName={storeData?.store?.name || (typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store')}
                                     showPreviewLabel
@@ -256,48 +250,48 @@ export const CheckoutPage = () => {
                                     )}
 
                                     {/* Editable Final Price / Net Total */}
-                                    <div className="flex justify-between items-center py-1 sm:py-2 my-1 sm:my-2 border-y-2 border-dashed bg-slate-50 px-2 rounded">
-                                        <span className="font-black text-lg sm:text-xl uppercase tracking-tighter">Net Total</span>
-                                        <div className="w-24 sm:w-32">
+                                    <div className="flex justify-between items-center py-2 sm:py-4 my-2 sm:my-3 border-y border-dashed border-slate-300 bg-slate-50 px-2 sm:px-3 rounded-lg sm:rounded-xl">
+                                        <span className="font-black text-base sm:text-2xl uppercase tracking-tighter">Net Total</span>
+                                        <div className="w-28 sm:w-40">
                                             <Input
                                                 type="number"
                                                 value={finalAmount}
                                                 onChange={(e) => setFinalAmount(Number(e.target.value))}
-                                                className="text-right font-black text-lg sm:text-xl h-9 sm:h-10 border-slate-300 bg-white focus-visible:ring-1"
+                                                className="text-right font-black text-xl sm:text-2xl h-12 border border-slate-300 bg-white focus-visible:ring-1 rounded-lg sm:rounded-xl px-2"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Editable Paid Amount */}
-                                    <div className="flex justify-between items-center pt-1">
-                                        <span className="text-xs sm:text-sm font-bold text-slate-600 uppercase">Paid Amount</span>
-                                        <div className="w-24 sm:w-32">
+                                     <div className="flex justify-between items-center pt-1.5 sm:pt-2">
+                                        <span className="text-xs sm:text-base font-black text-slate-600 uppercase tracking-widest leading-none">Paid Amount</span>
+                                        <div className="w-28 sm:w-40">
                                             <Input
                                                 type="number"
                                                 value={paidAmount}
                                                 onChange={(e) => setPaidAmount(Number(e.target.value))}
-                                                className="text-right font-black text-base sm:text-lg h-8 sm:h-9 bg-green-50/50 border-green-200 focus-visible:ring-green-500"
+                                                className="text-right font-black text-xl sm:text-2xl h-12 bg-green-50/50 border border-green-200 focus-visible:ring-green-600 rounded-lg sm:rounded-xl px-2"
                                             />
                                         </div>
                                     </div>
 
                                     {/* Calculated Change/Due */}
-                                    <div className={`flex justify-between items-center font-black text-[11px] sm:text-sm pt-2 ${dueAmount > 0 ? 'text-red-600' : 'text-green-600'} uppercase tracking-wider`}>
-                                        <span>{dueAmount > 0 ? 'Due Amount' : 'Change'}</span>
-                                        <span className="text-base sm:text-lg">{Math.abs(dueAmount)}</span>
+                                     <div className={`flex justify-between items-center font-black text-xs sm:text-sm pt-2 ${dueAmount > 0 ? 'text-red-600' : 'text-green-600'} uppercase tracking-wider`}>
+                                        <span>{dueAmount > 0 ? 'Due Amount' : 'Repayment'}</span>
+                                        <span className={dueAmount > 0 ? "text-rose-600" : "text-blue-600"}>{Math.abs(dueAmount)}</span>
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="pt-4 sm:pt-6">
-                                        <Button
-                                            onClick={handleConfirm}
-                                            disabled={isProcessing || !customer}
-                                            className={`w-full h-12 text-base font-black uppercase tracking-widest shadow-lg ${!customer ? 'bg-slate-300' : 'bg-orange-600 hover:bg-orange-700'}`}
-                                            title={!customer ? "Please select a customer first" : ""}
-                                        >
-                                            {isProcessing ? 'Processing Transaction...' : (!customer ? 'Select Customer info' : 'Confirm & Generate Invoice')}
-                                        </Button>
-                                    </div>
+                                     <div className="pt-4 sm:pt-8">
+                                         <Button
+                                             onClick={handleConfirm}
+                                             disabled={isProcessing || !customer}
+                                             className={`w-full h-12 sm:h-14 text-sm sm:text-lg font-black uppercase tracking-widest shadow-xl rounded-xl sm:rounded-2xl transition-all active:scale-95 ${!customer ? 'bg-slate-300' : 'bg-orange-600 hover:bg-orange-700'}`}
+                                             title={!customer ? "Please select a customer first" : ""}
+                                         >
+                                             {isProcessing ? 'Processing...' : (!customer ? 'Select Customer info' : 'Confirm Invoice')}
+                                         </Button>
+                                     </div>
                                 </div>
                             </div>
                         </CardContent>

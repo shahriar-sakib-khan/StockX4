@@ -21,7 +21,7 @@ export class ProductController {
       if (error.code === 11000) {
         return res.status(409).json({ error: 'A product with this name already exists for this type in the store' });
       }
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 
@@ -33,7 +33,7 @@ export class ProductController {
       const products = await ProductService.findByStore(targetStoreId);
       return res.status(200).json({ products });
     } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 
@@ -46,7 +46,7 @@ export class ProductController {
       return res.status(200).json({ product });
     } catch (error: any) {
       if (error.message === 'Product not found') return res.status(404).json({ error: 'Product not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 
@@ -64,7 +64,7 @@ export class ProductController {
       return res.status(200).json({ product });
     } catch (error: any) {
       if (error.message === 'Product not found') return res.status(404).json({ error: 'Product not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 
@@ -77,7 +77,7 @@ export class ProductController {
       return res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.message === 'Product not found') return res.status(404).json({ error: 'Product not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 
@@ -87,7 +87,7 @@ export class ProductController {
       const products = await GlobalProduct.find({}).sort({ type: 1, burnerCount: 1, regulatorType: 1 });
       return res.status(200).json({ products });
     } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Product operation failed' });
     }
   }
 }

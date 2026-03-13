@@ -68,7 +68,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                 {!fixedType && (
                     <div>
                         <label className="text-sm font-medium">Product Name</label>
-                        <Input {...form.register('name')} placeholder="Product name" />
+                        <Input {...form.register('name')} placeholder="Product name" className="min-h-[48px]" />
                         {form.formState.errors.name && <p className="text-red-500 text-xs">{form.formState.errors.name.message}</p>}
                     </div>
                 )}
@@ -77,7 +77,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                     <label className="text-sm font-medium">Type</label>
                     <select
                         {...form.register('type')}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {typeOptions.map(t => (
                             <option key={t} value={t}>{t.toUpperCase()}</option>
@@ -91,7 +91,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
             {/* Brand - Logic moved up for Stoves/Regulators */}
             <div>
                  <label className="text-sm font-medium">Brand</label>
-                 <Input {...form.register('brand')} placeholder="Brand Name" />
+                 <Input {...form.register('brand')} placeholder="Brand Name" className="min-h-[48px]" />
             </div>
 
              {/* Type Specific Fields */}
@@ -99,13 +99,13 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                 <div className="grid grid-cols-2 gap-4">
                      <div>
                         <label className="text-sm font-medium">Model</label>
-                        <Input {...form.register('modelNumber')} placeholder="Model Name/Number" />
+                        <Input {...form.register('modelNumber')} placeholder="Model Name/Number" className="min-h-[48px]" />
                      </div>
                      <div>
                         <label className="text-sm font-medium">Burner Type</label>
                         <select
                             {...form.register('burnerCount')}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                         >
                             <option value="1">1 Burner</option>
                             <option value="2">2 Burners</option>
@@ -121,7 +121,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                     <label className="text-sm font-medium">Regulator Type</label>
                     <select
                         {...form.register('size')}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                         <option value="22mm">22mm</option>
                         <option value="20mm">20mm</option>
@@ -136,6 +136,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                       type="number"
                       {...form.register('costPrice', { required: false })}
                       placeholder="0.00"
+                      className="min-h-[48px]"
                    />
                    {form.formState.errors.costPrice && <p className="text-red-500 text-xs">{/* @ts-ignore */ form.formState.errors.costPrice.message}</p>}
                 </div>
@@ -145,6 +146,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                       type="number"
                       {...form.register('sellingPrice', { required: false })}
                       placeholder="0.00"
+                      className="min-h-[48px]"
                    />
                    {form.formState.errors.sellingPrice && <p className="text-red-500 text-xs">{/* @ts-ignore */ form.formState.errors.sellingPrice.message}</p>}
                 </div>
@@ -157,6 +159,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
                       type="number"
                       {...form.register('stock', { valueAsNumber: true })}
                       placeholder="0"
+                      className="min-h-[48px]"
                    />
                 </div>
             </div>
@@ -164,7 +167,7 @@ export const ProductForm = ({ onSuccess, fixedType }: ProductFormProps) => {
 
 
             <div className="flex justify-end">
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending} className="min-h-[48px] w-full sm:w-auto">
                     {isPending ? 'Saving...' : 'Save Product'}
                 </Button>
             </div>

@@ -176,17 +176,8 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                     const newCust = data.customer || data;
                     toast.success("New customer created successfully");
 
-                    // Mark as selected but DON'T navigate yet
-                    // This changes the button to "Go to checkout"
-                    setPhone(newCust.phone);
-                    setSelectedCustomerId(newCust._id);
-                    setCustomer({
-                        id: newCust._id,
-                        name: newCust.name,
-                        type: newCust.type || (transactionMode === 'wholesale' ? 'wholesale' : 'retail'),
-                        phone: newCust.phone,
-                        address: newCust.address
-                    });
+                    // Navigating to checkout directly
+                    proceedToCheckout(newCust);
                 }
             });
         }
@@ -227,23 +218,24 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
         });
     }, [dueCylinders, products, settledDueCylinders]);
 
-    const { getIsBalanced } = usePosStore();
+    const { getIsBalanced, setDueModalOpen, saleItems, returnItems, allocatedDueCylinders: cartDueCylinders } = usePosStore();
     const isBalanced = getIsBalanced();
+    const isCartEmpty = saleItems.length === 0 && returnItems.length === 0 && cartDueCylinders.length === 0;
 
     return (
-        <div id="pos-customer-section" className="mt-6 pt-6 pb-12 border-t-2 border-dashed border-slate-300 w-full shrink-0 relative">
-            <div className="flex items-center justify-between mb-6">
-                 <div className="flex items-center gap-4">
-                    <h2 className="text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                        {transactionMode === 'wholesale' ? <Store className="text-emerald-600" /> : <User className="text-indigo-600" />}
-                        Customer Information
+        <div id="pos-customer-section" className="mt-4 sm:mt-6 pt-4 sm:pt-6 pb-8 sm:pb-12 border-t-2 border-dashed border-slate-300 w-full shrink-0 relative">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+                    <h2 className="text-base sm:text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                        {transactionMode === 'wholesale' ? <Store size={18} className="text-emerald-600 sm:w-6 sm:h-6" /> : <User size={18} className="text-indigo-600 sm:w-6 sm:h-6" />}
+                        <span className="truncate">Customer Info</span>
                     </h2>
 
                     {/* Synced Toggle - Accessible outside restriction */}
-                    <div className="flex items-center border rounded-md overflow-hidden bg-slate-100 p-1 gap-0.5 ml-2">
-                        <button
+                    <div className="flex items-center border border-slate-200 rounded-lg sm:rounded-xl overflow-hidden bg-slate-50 p-0.5 sm:p-1 gap-1 h-9 sm:h-12">
+                       <button
                             type="button"
-                            className={`px-3 py-1 text-[10px] font-black rounded uppercase transition-all ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={`px-5 py-2 text-xs font-black rounded-lg uppercase transition-all whitespace-nowrap active:scale-95 ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
                             onClick={() => {
                                 setTransactionMode('wholesale');
                                 setPhone('');
@@ -258,7 +250,7 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                         </button>
                         <button
                             type="button"
-                            className={`px-3 py-1 text-[10px] font-black rounded uppercase transition-all ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={`px-5 py-2 text-xs font-black rounded-lg uppercase transition-all whitespace-nowrap active:scale-95 ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
                             onClick={() => {
                                 setTransactionMode('retail');
                                 setPhone('');
@@ -273,30 +265,51 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                         </button>
                     </div>
                  </div>
-                 <Button type="button" variant="outline" size="sm" onClick={handleViewCustomers} className="shadow-sm font-bold text-slate-600 flex items-center gap-1">
-                     <FileText size={16} /> Select Existing
+                 <Button type="button" variant="outline" size="lg" onClick={handleViewCustomers} className="h-10 sm:h-12 px-4 sm:px-6 shadow-md font-black text-slate-700 flex items-center gap-2 rounded-lg sm:rounded-xl active:scale-95 border border-slate-200 hover:bg-slate-50 uppercase text-[10px] sm:text-xs tracking-widest">
+                     <FileText size={16} className="sm:w-5 sm:h-5" /> Select Existing
                  </Button>
             </div>
 
             {/* Lock Overlay / Blocker */}
-            {!isBalanced && (
-                <div className="absolute inset-x-0 bottom-0 top-16 z-50 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center">
-                    <div className="bg-white/90 p-6 rounded-2xl shadow-xl border-2 border-red-200 max-w-md animate-in fade-in zoom-in duration-300">
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <PackageMinus className="w-8 h-8 text-red-600" />
+            {isCartEmpty && (
+                <div className="absolute inset-x-0 bottom-0 top-12 sm:top-16 z-[40] bg-slate-50/20 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                    <div className="bg-white/95 p-5 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl border-2 border-slate-200 max-w-[280px] sm:max-w-md animate-in fade-in zoom-in duration-300">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                            <PackagePlus className="w-6 h-6 sm:w-8 sm:h-8 text-slate-500" />
                         </div>
-                        <h3 className="text-xl font-black text-slate-800 mb-2 uppercase">Returns Unbalanced</h3>
-                        <p className="text-slate-600 font-bold text-sm leading-relaxed">
-                            Cylinder Sell count and Return count (Empty + Due) must be exactly equal before you can proceed with customer details.
+                        <h3 className="text-base sm:text-xl font-black text-slate-800 mb-1 sm:mb-2 uppercase leading-snug">Cart is Empty</h3>
+                        <p className="text-slate-600 font-bold text-[10px] sm:text-sm leading-relaxed">
+                            Please add items to your cart before selecting a customer or proceeding to checkout.
                         </p>
                     </div>
                 </div>
             )}
+            
+            {!isCartEmpty && !isBalanced && (
+                <div className="absolute inset-x-0 bottom-0 top-12 sm:top-16 z-50 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                    <div className="bg-white/95 p-5 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl border-2 border-red-200 max-w-[280px] sm:max-w-md animate-in fade-in zoom-in duration-300">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                            <PackageMinus className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
+                        </div>
+                        <h3 className="text-base sm:text-xl font-black text-slate-800 mb-1 sm:mb-2 uppercase leading-snug">Returns Unbalanced</h3>
+                        <p className="text-slate-600 font-bold text-[10px] sm:text-sm leading-relaxed mb-4">
+                            Cylinder Sell count and Return count (Empty + Due) must be exactly equal before you can proceed.
+                        </p>
+                        <Button 
+                            type="button"
+                            onClick={() => setDueModalOpen(true)}
+                            className="w-full bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest text-xs h-10 sm:h-12"
+                        >
+                            Add Due
+                        </Button>
+                    </div>
+                </div>
+            )}
 
-            <div className={`transition-all duration-300 ${!isBalanced ? 'opacity-30 blur-[4px] pointer-events-none select-none' : ''}`}>
+            <div className={`transition-all duration-300 ${(!isBalanced || isCartEmpty) ? 'opacity-30 blur-[4px] pointer-events-none select-none' : ''}`}>
 
-             <div className="bg-white p-6 rounded-xl border-2 border-slate-200 shadow-sm max-w-2xl mx-auto">
-                 <form onSubmit={handleNext} className="space-y-6">
+             <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-slate-200 shadow-sm max-w-2xl mx-auto">
+                 <form onSubmit={handleNext} className="space-y-4 sm:space-y-6">
                     <POSCustomerSearch
                         phone={phone}
                         onPhoneChange={handlePhoneChange}
@@ -329,7 +342,7 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                         disabled={!!selectedCustomerId}
                     />
 
-                    <div className="pt-4 flex justify-between items-center border-t border-slate-100 mt-4">
+                    <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center border-t border-slate-100 mt-3 sm:mt-4 gap-4">
                         <POSCustomerDueInfo
                             selectedCustomer={selectedCustomer}
                             dueAmount={dueAmount}
@@ -340,7 +353,7 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
 
                         <Button
                             type="submit"
-                            className={`w-full md:w-auto h-12 px-8 font-black uppercase tracking-wider text-base shadow-md transition-all duration-300 ${
+                            className={`w-full sm:w-auto h-10 sm:h-12 px-6 sm:px-8 font-black uppercase tracking-wider text-sm sm:text-base shadow-md transition-all duration-300 active:scale-95 ${
                                 isBalanced
                                     ? 'bg-green-600 hover:bg-green-700'
                                     : 'bg-amber-500 hover:bg-amber-600 text-white'
@@ -350,8 +363,8 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                             {createCustomer.isPending || updateCustomer.isPending
                                 ? 'Processing...'
                                 : selectedCustomerId
-                                    ? 'Go to checkout \u2192'
-                                    : 'Create new customer'}
+                                    ? 'Checkout \u2192'
+                                    : 'Create and Checkout \u2192'}
                         </Button>
                     </div>
                  </form>

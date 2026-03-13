@@ -41,7 +41,7 @@ export const POSCustomerModal = ({ open, onClose, customers, onSelect }: POSCust
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search by name or phone..."
-                            className="pl-9"
+                            className="pl-9 h-12 sm:h-10 text-sm font-semibold"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
@@ -60,7 +60,7 @@ export const POSCustomerModal = ({ open, onClose, customers, onSelect }: POSCust
                                 <div
                                     key={c._id}
                                     onClick={() => handleSelect(c)}
-                                    className="flex justify-between items-center p-3 rounded-lg border hover:border-primary hover:bg-primary/5 cursor-pointer transition-colors"
+                                    className="flex justify-between items-center p-4 rounded-xl border-2 border-slate-50 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all active:scale-[0.98]"
                                 >
                                     <div className="flex-1 min-w-0 pr-4">
                                         <div className="font-bold text-slate-800 truncate">{c.name}</div>
@@ -82,7 +82,7 @@ export const POSCustomerModal = ({ open, onClose, customers, onSelect }: POSCust
                                         )}
                                     </div>
 
-                                    <div className="text-xs font-bold px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md hover:bg-primary hover:text-white transition-colors shrink-0">
+                                    <div className="text-sm font-bold px-4 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-primary hover:text-white transition-colors shrink-0 min-h-[48px] flex items-center justify-center">
                                         Select
                                     </div>
                                 </div>

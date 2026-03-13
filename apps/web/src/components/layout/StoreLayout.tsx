@@ -7,6 +7,7 @@ import { LayoutDashboard, Settings, LogOut, ArrowLeft, Package, Users, ShoppingC
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/button';
 import { useStore } from '../../features/store/hooks/useStores';
+import { MobileQuickActions } from './MobileQuickActions';
 
 interface LayoutProps {
   children?: ReactNode;
@@ -25,15 +26,6 @@ export const StoreLayout = ({ children }: LayoutProps) => {
   const isOwner = !!owner;
   const isStaff = !!staff;
   const currentUser = isOwner ? owner : staff;
-
-  console.log('StoreLayout Debug:', {
-      isOwner,
-      isStaff,
-      ownerId: owner?.id,
-      staffId: staff?._id,
-      staffStoreId: staff?.storeId,
-      urlId: id
-  });
 
 
   useEffect(() => {
@@ -166,7 +158,9 @@ export const StoreLayout = ({ children }: LayoutProps) => {
             {!isSidebarCollapsed && (
                 <div className="text-sm">
                     <p className="font-medium text-foreground">{currentUser?.name}</p>
-                    {isStaff && <p className="text-xs capitalize text-primary font-semibold">{staff?.role}</p>}
+                    <p className="text-xs capitalize text-primary font-semibold">
+                        {isOwner ? 'Owner' : staff?.role}
+                    </p>
                 </div>
             )}
         </div>
@@ -254,9 +248,14 @@ export const StoreLayout = ({ children }: LayoutProps) => {
             className="flex flex-col items-center justify-center w-full h-full space-y-1 text-muted-foreground hover:text-foreground"
         >
             <Menu size={20} className="opacity-70" />
-            <span className="text-[10px] font-bold truncate w-full text-center px-1 tracking-tight">More</span>
+            <span className="text-[10px] font-black truncate w-full text-center px-1 tracking-tight">More</span>
         </button>
       </nav>
+
+      {/* Mobile Quick Actions FAB */}
+      <div className="lg:hidden">
+        <MobileQuickActions />
+      </div>
     </div>
   );
 };

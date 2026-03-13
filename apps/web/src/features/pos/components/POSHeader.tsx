@@ -78,94 +78,93 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
     };
 
     return (
-        <div className="flex items-center justify-between border rounded-lg p-2 bg-white shadow-sm shrink-0 min-h-[56px] gap-2 flex-wrap sm:flex-nowrap">
-           <div className="flex items-center gap-4">
-               {staff ? (
-                   <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-10 w-10 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        onClick={() => {
-                            clearCart();
-                            if (onLogout) onLogout();
-                        }}
+        <div className="flex items-center justify-between border rounded-lg p-2 sm:p-3 bg-white shadow-sm shrink-0 min-h-[56px] sm:min-h-[64px] gap-2 sm:gap-4 flex-wrap sm:flex-nowrap">
+           <div className="flex items-center gap-4 flex-1 sm:flex-none">
+                {staff ? (
+                    <Button
+                         variant="outline"
+                         size="icon"
+                         className="h-10 w-10 sm:h-12 sm:w-12 text-red-500 hover:text-red-600 hover:bg-red-50 active:scale-95"
+                         onClick={() => {
+                             clearCart();
+                             if (onLogout) onLogout();
+                         }}
+                     >
+                        <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6" />
+                    </Button>
+                ) : (
+                    <Link
+                        to={effectiveStoreId ? `/stores/${effectiveStoreId}/dashboard` : '/'}
+                        onClick={() => clearCart()}
                     >
-                       <LayoutDashboard className="h-5 w-5" />
-                   </Button>
-               ) : (
-                   <Link
-                       to={effectiveStoreId ? `/stores/${effectiveStoreId}/dashboard` : '/'}
-                       onClick={() => clearCart()}
-                   >
-                       <Button variant="outline" size="icon" className="h-10 w-10">
-                           <LayoutDashboard className="h-5 w-5 text-slate-600" />
-                       </Button>
-                   </Link>
-               )}
-
-               <div className="flex flex-col">
-                   <h1 className="font-bold text-base sm:text-lg leading-none">POS</h1>
-                   {customer && (
-                        <span className="text-xs text-green-600 font-medium flex items-center gap-1">
-                            {customer.name}
-                        </span>
-                   )}
-               </div>
-
+                        <Button variant="outline" size="icon" className="h-10 w-10 sm:h-12 sm:w-12 active:scale-95">
+                            <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6 text-slate-600" />
+                        </Button>
+                    </Link>
+                )}
+ 
+                <div className="flex flex-col">
+                    <h1 className="font-black text-lg sm:text-2xl leading-none tracking-tighter uppercase">POS</h1>
+                    {customer && (
+                         <span className="text-xs sm:text-sm text-green-600 font-bold flex items-center gap-1 uppercase tracking-wider mt-0.5 sm:mt-1 truncate max-w-[120px] sm:max-w-none">
+                             {customer.name}
+                         </span>
+                    )}
+                </div>
                 {/* Transaction Tier */}
-                <div className="hidden sm:flex items-center border rounded-md overflow-hidden bg-slate-100 p-1 gap-1 justify-center ml-2 sm:ml-4">
+                <div className="hidden sm:flex items-center border-2 border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1 gap-1 justify-center ml-4">
                     <button
-                       className={`flex-1 md:flex-none px-4 py-1.5 text-xs font-bold rounded uppercase transition-colors ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                       className={`flex-1 md:flex-none px-5 py-2.5 text-xs font-black rounded-lg uppercase transition-all active:scale-95 ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
                        onClick={() => setTransactionMode('wholesale')}
                     >
                        Wholesale
                     </button>
                     <button
-                       className={`flex-1 md:flex-none px-4 py-1.5 text-xs font-bold rounded uppercase transition-colors ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                       className={`flex-1 md:flex-none px-5 py-2.5 text-xs font-black rounded-lg uppercase transition-all active:scale-95 ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
                        onClick={() => setTransactionMode('retail')}
                     >
                        Retail
                     </button>
                 </div>
-
-                <div className="h-8 w-[1px] bg-slate-100 mx-2 hidden lg:block" />
-
+ 
+                <div className="h-10 w-px bg-slate-100 mx-4 hidden lg:block" />
+ 
                 <div className="hidden lg:flex items-center gap-2">
                     <Button 
                         variant="ghost" 
-                        size="sm" 
+                        size="lg" 
                         asChild
-                        className="h-10 text-slate-500 font-bold px-4 rounded-xl hover:bg-slate-100"
+                        className="h-12 text-slate-500 font-black px-6 rounded-xl hover:bg-slate-100 uppercase text-xs tracking-widest active:scale-95"
                     >
                         <Link to={effectiveStoreId ? `/stores/${effectiveStoreId}/history` : '/history'}>
-                            <History size={18} className="mr-2" /> History
+                            <History size={20} className="mr-2" /> History
                         </Link>
                     </Button>
                 </div>
-           </div>
+            </div>
 
-           <div className="flex items-center gap-4">
+           <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
                 {(userName || userRole) && (
                     <div className="hidden md:block text-right mr-4 border-r pr-4">
-                        <div className="text-sm font-semibold">{userName}</div>
-                        <div className="text-xs text-muted-foreground uppercase">{userRole}</div>
+                        <div className="text-sm font-black uppercase tracking-tight">{userName}</div>
+                        <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{userRole}</div>
                     </div>
                 )}
-
-                <div className="text-right">
-                    <span className="text-xs text-muted-foreground block uppercase">Net Total</span>
-                    <span className="text-xl font-black text-primary">৳{netTotal}</span>
+ 
+                <div className="text-right flex flex-col items-end pr-1 sm:pr-2">
+                    <span className="text-xs sm:text-sm text-muted-foreground uppercase font-black tracking-widest mb-0.5">Total</span>
+                    <span className="text-xl sm:text-3xl font-black text-primary leading-none">৳{netTotal}</span>
                 </div>
                 <Button
                     id="pos-checkout-btn"
                     onClick={handleCheckoutScroll}
-                    className={`h-10 px-4 sm:px-8 rounded font-bold uppercase tracking-wider shadow transition-all duration-300 text-xs sm:text-sm ${
+                    className={`h-12 sm:h-14 px-6 sm:px-10 rounded-lg sm:rounded-xl font-black uppercase tracking-widest shadow-xl transition-all duration-300 text-xs sm:text-base active:scale-95 ${
                         isBalanced
                             ? 'bg-green-600 hover:bg-green-700 text-white'
-                            : 'bg-amber-500 hover:bg-amber-600 text-white'
+                            : 'bg-amber-600 hover:bg-amber-700 text-white'
                     }`}
                 >
-                    {isBalanced ? 'Go to customer' : 'Add Due'} <span className="ml-2 text-[10px] opacity-70">↓</span>
+                    {isBalanced ? 'Checkout' : 'Add Due'} <span className="ml-1 sm:ml-2 text-xs opacity-70">↓</span>
                 </Button>
            </div>
 

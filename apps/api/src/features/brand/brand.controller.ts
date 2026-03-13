@@ -12,7 +12,7 @@ export class BrandController {
             return res.status(201).json({ brand });
         } catch (error: any) {
             if (error.code === 11000) return res.status(409).json({ error: 'Brand name already exists' });
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Brand creation failed' });
         }
     }
 
@@ -21,7 +21,7 @@ export class BrandController {
             const brands = await BrandService.getAllGlobalBrands();
             return res.status(200).json({ brands });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Failed to fetch brands' });
         }
     }
 
@@ -34,7 +34,7 @@ export class BrandController {
             if (!brand) return res.status(404).json({ error: 'Brand not found' });
             return res.status(200).json({ brand });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Brand update failed' });
         }
     }
 
@@ -45,7 +45,7 @@ export class BrandController {
             if (!brand) return res.status(404).json({ error: 'Brand not found' });
             return res.status(200).json({ message: 'Brand deleted' });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Brand deletion failed' });
         }
     }
 
@@ -57,7 +57,7 @@ export class BrandController {
             const brands = await BrandService.getStoreBrands(storeId);
             return res.status(200).json({ brands });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Failed to fetch store brands' });
         }
     }
 
@@ -70,8 +70,8 @@ export class BrandController {
             const brand = await BrandService.addStoreBrand(storeId, globalBrandId);
             return res.status(201).json({ brand });
         } catch (error: any) {
-            if (error.message === 'Global Brand not found') return res.status(404).json({ error: error.message });
-            return res.status(500).json({ error: error.message });
+            if (error.message === 'Global Brand not found') return res.status(404).json({ error: 'Global Brand not found' });
+            return res.status(500).json({ error: 'Failed to add store brand' });
         }
     }
 
@@ -85,7 +85,7 @@ export class BrandController {
             const brand = await BrandService.createCustomBrand(storeId, req.body);
             return res.status(201).json({ brand });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Custom brand creation failed' });
         }
     }
 
@@ -98,7 +98,7 @@ export class BrandController {
             if (!brand) return res.status(404).json({ error: 'Brand not found' });
             return res.status(200).json({ brand });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Store brand update failed' });
         }
     }
 
@@ -110,8 +110,8 @@ export class BrandController {
             const result = await BrandService.deleteStoreBrand(storeId, id);
             return res.status(200).json(result);
         } catch (error: any) {
-            if (error.message === 'StoreBrand not found') return res.status(404).json({ error: error.message });
-            return res.status(500).json({ error: error.message });
+            if (error.message === 'StoreBrand not found') return res.status(404).json({ error: 'StoreBrand not found' });
+            return res.status(500).json({ error: 'Store brand deletion failed' });
         }
     }
 
@@ -124,7 +124,7 @@ export class BrandController {
             const brands = await BrandService.updateStoreBrandsBulk(storeId, globalBrandIds);
             return res.status(200).json({ brands });
         } catch (error: any) {
-            return res.status(500).json({ error: error.message });
+            return res.status(500).json({ error: 'Bulk brand update failed' });
         }
     }
 }

@@ -36,13 +36,14 @@ export const EditStoreModal = ({ store, onClose }: EditStoreModalProps) => {
             <Input
               {...register('name')}
               placeholder="e.g. My Coffee Shop"
+              className="h-12 sm:h-10 text-sm font-semibold"
             />
             {errors.name && <p className="text-destructive text-xs">{errors.name.message}</p>}
           </div>
 
           <Button
             type="submit"
-            className="w-full mt-4"
+            className="w-full mt-4 h-12 sm:h-10 font-bold"
             disabled={updateStore.isPending}
           >
             {updateStore.isPending ? 'Saving...' : 'Save Changes'}

@@ -29,12 +29,9 @@ export const RegulatorAddForm = ({ form, set, loading, imgMap, onAdd }: Regulato
         </div>
         <p className="text-sm font-bold text-slate-600 flex items-center gap-1.5 pt-1">⚙️ New Regulator</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Product Name *">
           <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Generic 22mm Regulator" className={inputCls} />
-        </Field>
-        <Field label="Model Number">
-          <input value={form.modelNumber} onChange={e => set('modelNumber', e.target.value)} placeholder="e.g. GEN-22" className={inputCls} />
         </Field>
         <Field label="Regulator Type">
           <select value={form.size} onChange={e => handleSizeChange(e.target.value)} className={inputCls}>
@@ -63,7 +60,7 @@ export const RegulatorAddForm = ({ form, set, loading, imgMap, onAdd }: Regulato
         </Field>
       </div>
       <button onClick={onAdd} disabled={loading}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50">
+        className="flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 w-full sm:w-auto min-h-[48px] rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50">
         {loading ? '…' : '+ Add Regulator'}
       </button>
     </div>

@@ -11,6 +11,9 @@ import { RestockSidebar } from "@/features/cylinder/components/RestockSidebar";
 import { ProductInventoryCard } from "@/features/cylinder/components/ProductInventoryCard";
 import { AddProductModal } from "@/features/cylinder/components/AddProductModal";
 import { SelectDefectProductModal } from "@/features/cylinder/components/SelectDefectProductModal";
+import { transactionApi, useCreateTransaction } from "@/features/pos/api/transaction.api";
+import { HistoryInvoiceModal } from "@/features/history/components/HistoryInvoiceModal";
+import { toast } from "sonner";
 
 export const StovesContent = ({ storeId }: { storeId: string }) => {
     const { data: inventoryData, isLoading: isInventoryLoading } = useInventory(storeId);
@@ -32,6 +35,9 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
     const [defectModalOpen, setDefectModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
     const [liveItem, setLiveItem] = useState<any>(null);
+    const createTransaction = useCreateTransaction();
+    const [invoiceTx, setInvoiceTx] = useState<any>(null);
+    const isProcessing = createTransaction.isPending;
 
     const products = inventoryData?.inventory || [];
     // Filter for STOVE brands (Used by AddProductModal)
@@ -110,6 +116,41 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                  }
              }
          });
+    };
+
+    const handleConfirmRestock = async (item: any, quantity: number, purchaseType: string, totalAmount: number, unitPrice: number, wholesalePrice?: number, retailPrice?: number) => {
+        try {
+            const transactionItem = {
+                 productId: item.productId,
+                 type: 'ACCESSORY' as const, // For category mapping
+                 quantity: quantity,
+                 unitPrice: unitPrice,
+                 wholesalePrice,
+                 retailPrice,
+                 name: `${item.brandName} ${item.variant.burners} Burner Stove`,
+                 category: 'Restock Inventory'
+            };
+
+            const txResult = await createTransaction.mutateAsync({
+                storeId,
+                data: {
+                    type: 'EXPENSE',
+                    paymentMethod: 'CASH',
+                    items: [transactionItem as any],
+                    finalAmount: totalAmount,
+                    paidAmount: totalAmount
+                }
+            });
+
+            if (txResult?.data) {
+                setInvoiceTx(txResult.data);
+            }
+
+            setRestockOpen(false);
+            toast.success("Stock Added & Transaction Recorded.");
+        } catch (error: any) {
+            // Error is already handled by toast in useCreateTransaction
+        }
     };
 
     const renderSection = (burners: number) => {
@@ -212,7 +253,7 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                         variant={viewMode === 'normal' ? 'default' : 'ghost'}
                         size="sm"
                         onClick={() => setViewMode('normal')}
-                        className={viewMode === 'normal' ? 'shadow-sm' : ''}
+                        className={`min-h-12 ${viewMode === 'normal' ? 'shadow-sm' : ''}`}
                     >
                         <Package className="w-4 h-4 mr-2" />
                         Normal
@@ -221,7 +262,7 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                         variant={viewMode === 'defected' ? 'destructive' : 'ghost'}
                         size="sm"
                         onClick={() => setViewMode('defected')}
-                        className={viewMode === 'defected' ? 'shadow-sm' : ''}
+                        className={`min-h-12 ${viewMode === 'defected' ? 'shadow-sm' : ''}`}
                     >
                         <ShieldAlert className="w-4 h-4 mr-2" />
                         Defected
@@ -229,20 +270,20 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                 </div>
 
                  <div className="relative w-full md:w-[300px] lg:w-[400px]">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-4 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search gas stoves by brand..."
-                        className="pl-9 bg-card"
+                        className="pl-9 bg-card min-h-12"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
                 {viewMode === 'normal' ? (
-                    <Button onClick={() => setIsAddModalOpen(true)} className="bg-orange-600 hover:bg-orange-700 text-white shrink-0">
+                    <Button onClick={() => setIsAddModalOpen(true)} className="bg-orange-600 hover:bg-orange-700 text-white shrink-0 min-h-12">
                          <Plus className="w-4 h-4 mr-2" /> Add Gas Stoves
                     </Button>
                 ) : (
-                    <Button onClick={() => setIsSelectDefectModalOpen(true)} variant="destructive" className="shrink-0">
+                    <Button onClick={() => setIsSelectDefectModalOpen(true)} variant="destructive" className="shrink-0 min-h-12">
                          <Plus className="w-4 h-4 mr-2" /> Add Defect
                     </Button>
                 )}
@@ -297,9 +338,18 @@ export const StovesContent = ({ storeId }: { storeId: string }) => {
                 item={selectedItem}
                 storeId={storeId}
                 category="stove"
-                onConfirm={() => {}}
+                inventory={displayInventory}
+                onConfirm={handleConfirmRestock}
                 onVariantChange={(updated) => setLiveItem(updated)}
             />
+
+            {invoiceTx && (
+                <HistoryInvoiceModal
+                     isOpen={!!invoiceTx}
+                     onClose={() => setInvoiceTx(null)}
+                     transaction={invoiceTx}
+                />
+            )}
 
             <DefectModal
                 isOpen={defectModalOpen}

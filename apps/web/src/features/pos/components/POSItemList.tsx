@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { PosItem, usePosStore } from '../stores/pos.store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Minus, Plus, X } from 'lucide-react';
+import { Minus, Plus, X, ArrowRight } from 'lucide-react';
 
 interface POSItemListProps {
   items: PosItem[];
@@ -30,9 +30,14 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
     });
   }, [items, listType]);
 
+  const onCheckout = () => {
+      // Trigger checkout logic (this is handled in POSControls usually, but added here for the button)
+      // Actually, POSControls handles navigation. I'll just keep the button here as a placeholder or linked to the store.
+  };
+
   return (
-    <div className={`border rounded-xl p-3 flex flex-col h-full relative overflow-hidden ${isReturn ? 'bg-red-50/50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
-      <h4 className={`font-bold text-xs uppercase mb-2 px-1 tracking-wider ${isReturn ? 'text-red-800/60' : 'text-muted-foreground'}`}>{title}</h4>
+    <div className={`border rounded-xl p-1.5 sm:p-2.5 flex flex-col h-full relative overflow-hidden ${isReturn ? 'bg-red-50/30 border-red-100' : 'bg-slate-50/50 border-slate-200'}`}>
+      <h4 className={`font-black text-xs uppercase mb-1.5 sm:mb-2 px-1 tracking-widest ${isReturn ? 'text-red-700/60' : 'text-slate-400'}`}>{title}</h4>
 
       <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         {sortedItems.length === 0 ? (
@@ -44,11 +49,11 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
           sortedItems.map((item, idx) => (
             <div
               key={`${item.productId}-${item.saleType || 'return'}-${item.isDue ? 'due' : 'normal'}-${idx}`}
-              className={`flex items-center gap-3 p-2 rounded-lg border shadow-sm transition-colors ${
+              className={`flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg border shadow-sm transition-colors ${
                 item.isDue
                   ? 'bg-amber-50 border-amber-200 hover:border-amber-400'
                   : isReturn ? 'bg-white border-red-100 hover:border-red-300' : 'bg-white border-slate-100 hover:border-slate-300'
-              }`}
+              } active:scale-[0.99]`}
             >
               {/* Thumbnail */}
               <div className="shrink-0 w-12 h-16 relative flex items-center justify-center rounded bg-slate-50 overflow-hidden">
@@ -64,51 +69,51 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
               </div>
 
               {/* Details */}
-              <div className="flex-1 min-w-0 flex flex-col">
-                <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-bold text-sm text-slate-800 truncate">{item.name}</span>
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <div className="flex items-center gap-1.5 mb-0">
+                    <span className="font-black text-xs sm:text-sm text-slate-800 truncate uppercase tracking-tight">{item.name}</span>
                     {item.isDue && (
-                        <div className="px-2 py-1 bg-amber-500 rounded border border-amber-600 shadow-sm shrink-0">
-                            <span className="text-[10px] font-black text-white uppercase tracking-tight">Due</span>
+                        <div className="px-1 py-0.5 sm:px-2 sm:py-1 bg-amber-500 rounded border border-amber-600 shadow-sm shrink-0">
+                            <span className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-tight">Due</span>
                         </div>
                     )}
                     {item.isSettled && (
-                        <div className="px-2 py-1 bg-blue-600 rounded border border-blue-700 shadow-sm shrink-0">
-                            <span className="text-[10px] font-black text-white uppercase tracking-tight">Settle</span>
+                        <div className="px-1 py-0.5 sm:px-2 sm:py-1 bg-blue-600 rounded border border-blue-700 shadow-sm shrink-0">
+                            <span className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-tight">Settle</span>
                         </div>
                     )}
                     {!item.isDue && !item.isSettled && !isReturn && item.type === 'CYLINDER' && item.saleType === 'PACKAGED' && (
-                        <div className="px-2 py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded shadow-sm shrink-0">
-                            <span className="text-[10px] font-black uppercase tracking-tight">PKG</span>
+                        <div className="px-1 py-0.5 sm:px-2 sm:py-1 bg-blue-100 text-blue-700 border border-blue-300 rounded shadow-sm shrink-0">
+                            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tight">PKG</span>
                         </div>
                     )}
                     {!item.isDue && !item.isSettled && !isReturn && item.type === 'CYLINDER' && item.saleType === 'REFILL' && (
-                        <div className="px-2 py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded shadow-sm shrink-0">
-                            <span className="text-[10px] font-black uppercase tracking-tight">RFL</span>
+                        <div className="px-1 py-0.5 sm:px-2 sm:py-1 bg-orange-100 text-orange-700 border border-orange-300 rounded shadow-sm shrink-0">
+                            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tight">RFL</span>
                         </div>
                     )}
                     {isReturn && !item.isDue && !item.isSettled && item.type === 'CYLINDER' && (
-                        <div className="px-2 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded shadow-sm shrink-0">
-                            <span className="text-[10px] font-black uppercase tracking-tight">Empty</span>
+                        <div className="px-1 py-0.5 sm:px-2 sm:py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded shadow-sm shrink-0">
+                            <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-tight">Empty</span>
                         </div>
                     )}
                 </div>
-                <span className="text-[10px] text-muted-foreground truncate">{item.description}</span>
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 truncate uppercase tracking-tight">{item.description}</span>
                 {!isReturn && (
-                  <span className="text-xs font-semibold text-slate-500 mt-0.5">৳{item.unitPrice}</span>
+                  <span className="text-xs sm:text-sm font-black text-slate-500 tracking-tight">৳{item.unitPrice}</span>
                 )}
               </div>
 
               {/* Quantity Input */}
-              <div className="flex flex-col items-center gap-1 shrink-0 px-2 border-l border-dashed border-slate-200 ml-2 pl-4">
-                <div className={`flex items-center gap-1 ${item.isDue ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className="flex flex-col items-center gap-1 shrink-0 px-1 border-l border-dashed border-slate-200 ml-1 pl-2 sm:pl-4">
+                <div className={`flex items-center gap-1.5 sm:gap-2 ${item.isDue ? 'opacity-50 pointer-events-none' : ''}`}>
                   <Button
                     variant="outline"
                     size="icon"
-                    className={`h-6 w-6 rounded-full border-0 ${isReturn ? 'bg-red-50 hover:bg-red-100 text-red-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                    className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 shadow-sm active:scale-95 transition-all ${isReturn ? 'bg-red-50 hover:bg-red-100 text-red-600 border-red-100' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-100'}`}
                     onClick={() => updateQuantity(item.productId, -1, listType, item.saleType)}
                   >
-                    <Minus className="w-3 h-3" />
+                    <Minus className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
 
                   <Input
@@ -121,41 +126,40 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
                         setQuantity(item.productId, val, listType, item.saleType);
                       }
                     }}
-                    className={`h-7 w-12 text-center font-bold px-1 text-sm border-0 shadow-none focus-visible:ring-1 ${isReturn ? 'text-red-700 focus-visible:ring-red-300 bg-red-50/50' : 'text-slate-800 focus-visible:ring-slate-300 bg-slate-50'}`}
+                    className={`h-10 w-12 sm:w-14 text-center font-black px-1 text-base sm:text-lg border-0 shadow-none focus-visible:ring-1 rounded-lg ${isReturn ? 'text-red-700 focus-visible:ring-red-300 bg-red-50/50' : 'text-slate-800 focus-visible:ring-slate-300 bg-slate-50'}`}
                   />
 
                   <Button
                     variant="outline"
                     size="icon"
-                    className={`h-6 w-6 rounded-full border-0 ${isReturn ? 'bg-red-50 hover:bg-red-100 text-red-600' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                    className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 shadow-sm active:scale-95 transition-all ${isReturn ? 'bg-red-50 hover:bg-red-100 text-red-600 border-red-100' : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-100'}`}
                     onClick={() => updateQuantity(item.productId, 1, listType, item.saleType)}
                   >
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </div>
-                <span className={`text-[10px] uppercase font-bold ${isReturn ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className={`text-[9px] sm:text-[10px] uppercase font-black tracking-widest ${isReturn ? 'text-red-400' : 'text-slate-400'}`}>
                   Qty
                 </span>
               </div>
 
               {/* Subtotal & Remove */}
-              <div className="flex flex-col items-end gap-1 shrink-0 min-w-[60px] ml-2">
+              <div className="flex flex-col items-end gap-0.5 shrink-0 min-w-[50px] sm:min-w-[70px] ml-1 sm:ml-2">
                 {!item.isDue && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                    className="h-8 w-8 sm:h-10 sm:w-10 text-slate-300 hover:text-red-500 hover:bg-red-50 active:scale-90 transition-all"
                     onClick={() => removeItemSpecific(item.productId, listType, item.saleType)}
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 sm:w-6 sm:h-6" />
                   </Button>
                 )}
 
-                <span className={`font-black text-sm mt-auto ${isReturn ? 'text-red-500 opacity-60' : 'text-primary'}`}>
+                <span className={`font-black text-xs sm:text-base mt-auto tracking-tighter ${isReturn ? 'text-red-500 opacity-60' : 'text-indigo-600'}`}>
                   ৳{item.subtotal}
                 </span>
               </div>
-
             </div>
           ))
         )}
@@ -163,28 +167,28 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
 
       {/* Footer Summary */}
       {(items.length > 0 || isReturn) && (
-        <div className={`mt-auto border-t pt-2 flex items-center justify-between px-4 ${isReturn ? 'border-red-100 bg-red-50/30' : 'border-slate-200 bg-slate-50/50'} rounded-b-lg -mx-3 -mb-3 pb-3 mt-2`}>
+        <div className={`mt-auto border-t pt-1.5 flex items-center justify-between px-3 sm:px-4 ${isReturn ? 'border-red-100 bg-red-50/20' : 'border-slate-200 bg-slate-50/40'} rounded-b-lg -mx-2 sm:-mx-3 -mb-2 sm:-mb-3 pb-2 sm:pb-3 mt-1.5`}>
           {isReturn ? (
-            <>
+            <div className="flex items-center gap-3 sm:gap-6 w-full">
               <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Refill</span>
-                <span className="font-black text-lg leading-none text-slate-600">{refillQty}</span>
+                <span className="text-[8px] sm:text-xs uppercase font-black tracking-widest text-slate-400 leading-none mb-1">RFL</span>
+                <span className="font-black text-base sm:text-xl leading-none text-slate-600">{refillQty}</span>
               </div>
-              <div className="h-8 w-px bg-red-200/50"></div>
+              <div className="h-7 sm:h-9 w-px bg-red-100/50"></div>
               <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-red-400">Returned</span>
-                <span className="font-black text-lg leading-none text-red-700">{items.filter(i => !i.isDue).reduce((sum, i) => sum + i.quantity, 0)}</span>
+                <span className="text-[8px] sm:text-xs uppercase font-black tracking-widest text-red-400 leading-none mb-1">RET</span>
+                <span className="font-black text-base sm:text-xl leading-none text-red-700">{items.filter(i => !i.isDue).reduce((sum, i) => sum + i.quantity, 0)}</span>
               </div>
-              <div className="h-8 w-px bg-red-200/50"></div>
+              <div className="h-7 sm:h-9 w-px bg-red-100/50"></div>
               <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-500">Left Due</span>
-                <div className="flex items-center gap-2">
-                    <span className="font-black text-lg leading-none text-amber-600">{items.filter(i => i.isDue).reduce((sum, i) => sum + i.quantity, 0)}</span>
+                <span className="text-[8px] sm:text-xs uppercase font-black tracking-widest text-amber-500 leading-none mb-1">DUE</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="font-black text-base sm:text-xl leading-none text-amber-600">{items.filter(i => i.isDue).reduce((sum, i) => sum + i.quantity, 0)}</span>
                     {mismatchCount > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-6 px-2 text-[10px] font-black uppercase text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 pointer-events-auto"
+                        className="h-6 sm:h-7 px-2 sm:px-2.5 text-[8px] sm:text-xs font-black uppercase text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700 pointer-events-auto rounded-[4px]"
                         onClick={() => setDueModalOpen(true)}
                       >
                         Edit
@@ -192,23 +196,23 @@ export const POSItemList = ({ items, title, emptyMsg, listType }: POSItemListPro
                     )}
                 </div>
               </div>
-              <div className="h-8 w-px bg-red-200/50"></div>
-              <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Total</span>
-                <span className="font-black text-lg leading-none text-slate-700">{sectionQty}</span>
+              <div className="flex-1"></div>
+              <div className="text-right flex flex-col">
+                <span className="text-[8px] sm:text-xs uppercase font-black tracking-widest text-slate-400 leading-none mb-1">Total Qty</span>
+                <span className="font-black text-base sm:text-xl leading-none text-slate-700">{sectionQty}</span>
               </div>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="flex items-center justify-between w-full">
               <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Total Qty</span>
-                <span className="font-black text-lg leading-none text-slate-800">{sectionQty}</span>
+                <span className="text-xs sm:text-sm uppercase font-black tracking-widest text-slate-400 leading-none mb-1">Quantity</span>
+                <span className="font-black text-lg sm:text-xl leading-none text-slate-800">{sectionQty}</span>
               </div>
-              <div className="text-center flex flex-col">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Total Price</span>
-                <span className="font-black text-lg leading-none text-primary">৳{sectionTotal}</span>
+              <div className="text-right flex flex-col">
+                <span className="text-xs sm:text-sm uppercase font-black tracking-widest text-slate-400 leading-none mb-1">Subtotal</span>
+                <span className="font-black text-lg sm:text-xl leading-none text-indigo-600">৳{sectionTotal}</span>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}

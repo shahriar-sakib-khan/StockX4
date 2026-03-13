@@ -38,27 +38,26 @@ const DashboardContent = ({ user }: { user: any }) => {
 
     return (
         <UserLayout>
-            <div className="space-y-6 lg:space-y-8 max-w-7xl mx-auto">
+            <div className="space-y-4 sm:space-y-6 lg:space-y-8 p-3 sm:p-0 max-w-7xl mx-auto">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-                        <p className="text-slate-500 mt-1 text-sm sm:text-base">
-                            Welcome back, <span className="font-semibold text-slate-700">{user?.name}</span>.
-                            Here's what's happening at <span className="text-primary font-bold">{store.name}</span> today.
+                        <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">Dashboard</h1>
+                        <p className="text-slate-500 mt-0.5 text-xs sm:text-base font-medium">
+                            Welcome back, <span className="font-bold text-slate-800">{user?.name}</span>
                         </p>
                     </div>
-                    <div className="flex gap-3 w-full md:w-auto">
-                         <Button asChild variant="outline" className="flex-1 md:flex-none min-h-12">
+                    <div className="flex gap-2 sm:gap-3 w-full md:w-auto">
+                         <Button asChild variant="outline" className="flex-1 md:flex-none min-h-11 sm:min-h-12 text-xs sm:text-sm font-bold uppercase tracking-wider">
                              <Link to={`/stores/${store._id}/pos`}>
                                  <ShoppingCart className="w-4 h-4 mr-2" />
-                                 Go to POS
+                                 POS
                              </Link>
                          </Button>
-                        <Button asChild className="flex-1 md:flex-none min-h-12">
+                        <Button asChild className="flex-1 md:flex-none min-h-11 sm:min-h-12 text-xs sm:text-sm font-bold uppercase tracking-wider">
                             <Link to={`/stores/${store._id}/transactions/new?type=EXPENSE`}>
                                 <PlusCircle className="w-4 h-4 mr-2" />
-                                Record Expense
+                                Expense
                             </Link>
                         </Button>
                     </div>
@@ -68,16 +67,16 @@ const DashboardContent = ({ user }: { user: any }) => {
                 <DashboardStats storeId={store._id} />
 
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                     {/* Left Column (Charts) */}
-                    <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-                        <div className="min-h-[250px] sm:min-h-[350px]">
+                    <div className="lg:col-span-2 space-y-4 sm:space-y-8">
+                        <div className="min-h-[200px] sm:min-h-[350px] bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                              <SalesExpenseChart storeId={store._id} />
                         </div>
                     </div>
 
                     {/* Right Column (Widgets) */}
-                    <div className="space-y-6 lg:space-y-8">
+                    <div className="space-y-4 sm:space-y-8">
                         <CashBox storeId={store._id} />
                         <InventorySnapshot storeId={store._id} />
                     </div>

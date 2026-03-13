@@ -162,3 +162,93 @@ When testing, navigate to these URLs (replace `{storeId}` with a real store ID):
 
 ### The "Would Grandpa Use This?" Test
 Before signing off on any UI, ask yourself: **"Could a 65-year-old LPG dealer in rural Bangladesh use this on a $100 Android phone without any instructions?"** If the answer is no, the UI is not done.
+
+## 12. Google Stitch MCP (UI Design Enhancement)
+
+The **Stitch MCP** is a connected design tool powered by Google that can generate, iterate, and refine UI screen designs. Use it to enhance UI quality before or during implementation.
+
+### When to Use Stitch
+| Scenario | Action |
+|---|---|
+| **Building a new page from scratch** | Generate a screen design first, then implement |
+| **Redesigning a complex layout** | Generate 2-3 variants, compare, pick the best |
+| **Unsure about mobile layout** | Generate a mobile variant to see how the layout should adapt |
+| **Polishing an existing design** | Edit an existing screen with prompts like "make it more modern" or "optimize for mobile" |
+
+### Workflow
+1. **Create a project** (`create_project`) to organize your screens.
+2. **Generate a screen** (`generate_screen_from_text`) with a detailed prompt describing the page purpose, user, and device:
+   > "Dashboard page for an LPG gas distribution business. Show sales total, expenses, cash in hand, and inventory snapshot. Target: elderly users, mobile-first, large bold numbers, high contrast. Use emerald for income, rose for expenses."
+3. **Generate variants** (`generate_variants`) to explore layout alternatives — especially for mobile vs desktop comparisons.
+4. **Edit screens** (`edit_screens`) to refine: "make the buttons bigger", "add a bottom navigation bar", "use card layout instead of table for mobile".
+5. **Implement** the winning design in code, following the responsive patterns from Section 8.
+
+### Key Prompting Tips
+*   Always specify the **device type** (MOBILE, DESKTOP, TABLET) when generating.
+*   Always mention the **target audience** (elderly, low-literacy, large touch targets).
+*   Reference the project's **color system** (emerald=income, rose=expense, amber=due, slate=neutral).
+
+## 13. Mobile Layout Strategy (Industry-Standard Patterns)
+
+Desktop and mobile layouts MUST be **fundamentally different**, not just "squeezed" versions of each other. Use these patterns to make smart use of limited mobile screen space:
+
+### Pattern 1: Side-by-Side → Stacked
+Desktop shows multi-column grids; mobile stacks them vertically.
+```
+Desktop: [Card] [Card] [Card] [Card]     → grid-cols-4
+Mobile:  [Card]                           → grid-cols-1 or grid-cols-2
+         [Card]
+```
+Tailwind: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`
+
+### Pattern 2: Table → Card List
+Tables are unreadable on mobile. Convert them to card lists.
+```
+Desktop: | Name | Phone | Due | Actions |   → <table> with overflow-x-auto
+Mobile:  ┌─────────────────────┐              → Card with stacked info
+         │ Name        ৳1,200  │
+         │ 01XX-XXXXXX   [Edit]│
+         └─────────────────────┘
+```
+Tailwind: `hidden md:table` for table, `md:hidden` for card list
+
+### Pattern 3: Sidebar → Bottom Sheet / Overlay
+Desktop sidebars become full-screen overlays or bottom sheets on mobile.
+```
+Desktop: [Sidebar 280px] [Main Content]
+Mobile:  [Full-screen overlay with backdrop blur]
+```
+Tailwind: `hidden lg:flex` for sidebar, `fixed inset-0 z-50 lg:hidden` for overlay
+
+### Pattern 4: Horizontal Toolbar → Vertical / Wrapped
+Desktop toolbars with many buttons become wrapped or stacked on mobile.
+```
+Desktop: [Filter] [Search] [Date] [Export] [Add]
+Mobile:  [Search ────────────────────]
+         [Filter] [Date] [Add]
+```
+Tailwind: `flex flex-col sm:flex-row gap-2`, search: `w-full sm:w-auto`
+
+### Pattern 5: Dense Info → Progressive Disclosure
+Mobile hides secondary info behind expandable sections or "See more" links.
+```
+Desktop: All 6 stats visible at once
+Mobile:  Top 2 stats visible, "See all →" link
+```
+
+### Pattern 6: Hover Actions → Visible Actions
+Desktop can rely on hover-to-reveal actions. Mobile CANNOT — all actions must be visible or accessible via swipe/long-press.
+
+### Space Optimization Rules
+*   **Padding:** `p-2 sm:p-4 md:p-6 lg:p-8` — tighten on mobile, breathe on desktop
+*   **Gaps:** `gap-2 sm:gap-4 md:gap-6` — compact on mobile
+*   **Font sizes:** `text-sm sm:text-base` for body, `text-xl sm:text-2xl md:text-3xl` for headings
+*   **Margins:** Minimize vertical margins on mobile to reduce scrolling
+
+## 14. Testing & Verification Credentials
+
+**Rule:** For all browser-based testing, UI verification, and end-to-end flows, you MUST use the credentials and environment details provided in `docs/access_credentials.md`.
+
+*   **URL:** Use the specific URL mentioned in the doc (usually `http://127.0.0.1:4001/`).
+*   **Credentials:** Use the verified email and password from the doc to log in and perform actions.
+*   **Verification:** Ensure all UI changes are verified using these credentials before marking a task as complete.

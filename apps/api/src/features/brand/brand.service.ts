@@ -8,6 +8,7 @@ interface CustomBrandInput {
     customLogo?: string;
     customColor: string;
     customCylinderImage?: string;
+    type?: 'cylinder' | 'stove' | 'regulator';
 }
 
 /** Merges a StoreBrand with its populated GlobalBrand into a flat display object. */
@@ -24,6 +25,7 @@ const resolveBrandDisplay = (sb: any) => {
         logo: sb.isCustom ? sb.customLogo : gb?.logo,
         color: sb.isCustom ? sb.customColor : gb?.color,
         cylinderImage: sb.isCustom ? sb.customCylinderImage : gb?.cylinderImage,
+        type: sb.type || 'cylinder',
         createdAt: sb.createdAt,
         updatedAt: sb.updatedAt,
     };
@@ -83,6 +85,7 @@ export class BrandService {
             customLogo: data.customLogo,
             customColor: data.customColor,
             customCylinderImage: data.customCylinderImage,
+            type: data.type || 'cylinder',
         });
         await StoreProductService.syncCylinderMatrix(storeId);
         return brand;

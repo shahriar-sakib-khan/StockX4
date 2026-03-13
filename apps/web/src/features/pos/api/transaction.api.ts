@@ -62,6 +62,7 @@ export const useCreateTransaction = () => {
             queryClient.invalidateQueries({ queryKey: ['transaction-summary', storeId] });
             queryClient.invalidateQueries({ queryKey: ['customers', storeId] }); // Important for due counts
             queryClient.invalidateQueries({ queryKey: ['products', storeId] }); // Important for inventory UI matching backend
+            queryClient.invalidateQueries({ queryKey: ['inventory', storeId] }); // Added for auto-refresh
         },
         onError: (error: any) => {
             toast.error(error.message || 'Transaction failed');

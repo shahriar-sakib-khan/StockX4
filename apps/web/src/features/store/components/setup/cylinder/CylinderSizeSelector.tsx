@@ -39,7 +39,7 @@ export const CylinderSizeSelector = ({
                 )}
                 <button
                   onClick={() => toggleSize(size)}
-                  className={`px-4 py-1.5 text-sm font-bold transition-all border-y border-l ${
+                  className={`px-4 py-2 sm:py-1.5 min-h-[48px] sm:min-h-0 text-sm font-bold transition-all border-y border-l ${
                     active
                       ? 'bg-orange-500 text-white border-orange-500'
                       : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
@@ -50,7 +50,7 @@ export const CylinderSizeSelector = ({
                 <button
                   onClick={() => requestDeleteSize(size)}
                   disabled={activeSizes.length === 1}
-                  className={`px-2 flex items-center justify-center transition-all border-y border-r ${
+                  className={`px-2 flex items-center justify-center min-h-[48px] sm:min-h-0 transition-all border-y border-r ${
                     active
                       ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700 disabled:opacity-50'
                       : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200 hover:text-slate-600 disabled:opacity-50'
@@ -64,7 +64,7 @@ export const CylinderSizeSelector = ({
           })}
 
           {/* Custom size input */}
-          <div className="flex items-stretch h-[34px] ml-2">
+          <div className="flex items-stretch min-h-[48px] sm:h-[34px] ml-0 sm:ml-2 mt-2 sm:mt-0 w-full sm:w-auto">
             <input
               type="text"
               inputMode="decimal"
@@ -77,11 +77,11 @@ export const CylinderSizeSelector = ({
               }}
               onKeyDown={e => e.key === 'Enter' && addCustomSize()}
               placeholder="e.g. 22.5"
-              className="w-28 rounded-l-lg border border-slate-200 bg-white px-3 text-sm font-bold focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="flex-1 sm:w-28 rounded-l-lg border border-slate-200 bg-white px-3 text-sm font-bold focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
             <button
               onClick={addCustomSize}
-              className="px-3 rounded-r-lg bg-orange-500 text-white border-y border-r border-orange-500 text-sm font-bold hover:bg-orange-600 transition"
+              className="px-6 sm:px-3 rounded-r-lg bg-orange-500 text-white border-y border-r border-orange-500 text-sm font-black uppercase tracking-widest hover:bg-orange-600 transition"
             >
               + Add
             </button>

@@ -25,13 +25,11 @@ interface AddExpenseModalProps {
 }
 
 const EXPENSE_CATEGORIES = [
-    { label: 'Restock cylinders', value: 'restock' },
     { label: 'Staff Salary', value: 'salary' },
     { label: 'Vehicle Fuel', value: 'vehicle_fuel' },
     { label: 'Vehicle Repair', value: 'vehicle_repair' },
     { label: 'Shop Rent', value: 'shop_rent' },
     { label: 'Utility Bill', value: 'utility' },
-    { label: 'Snacks / Tea', value: 'snacks' },
     { label: 'Other', value: 'other' },
 ];
 
@@ -159,7 +157,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                         setCategory(val);
                         setSelectedEntityId(''); // Reset entity when category changes
                     }}>
-                        <SelectTrigger className="font-bold h-11">
+                        <SelectTrigger className="font-black h-12 text-slate-700">
                             <SelectValue placeholder="Select Category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -177,7 +175,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                     <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                         <label className="text-sm font-bold uppercase text-slate-500">Select Staff</label>
                         <Select value={selectedEntityId} onValueChange={setSelectedEntityId}>
-                            <SelectTrigger className="font-bold h-11 border-blue-200 bg-blue-50/30">
+                            <SelectTrigger className="font-black h-12 border-blue-200 bg-blue-50/10">
                                 <SelectValue placeholder="Select Staff Member" />
                             </SelectTrigger>
                             <SelectContent>
@@ -196,7 +194,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                     <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                         <label className="text-sm font-bold uppercase text-slate-500">Select Vehicle</label>
                         <Select value={selectedEntityId} onValueChange={setSelectedEntityId}>
-                            <SelectTrigger className="font-bold h-11 border-orange-200 bg-orange-50/30">
+                            <SelectTrigger className="font-black h-12 border-orange-200 bg-orange-50/10">
                                 <SelectValue placeholder="Select Vehicle" />
                             </SelectTrigger>
                             <SelectContent>
@@ -218,7 +216,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                             value={customTitle}
                             onChange={(e) => setCustomTitle(e.target.value)}
                             placeholder="Enter expense title..."
-                            className="font-bold h-11"
+                            className="font-black h-12 border-2 border-slate-100"
                         />
                     </div>
                 )}
@@ -229,8 +227,8 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                         type="number"
                         value={expenseAmount}
                         onChange={(e) => setExpenseAmount(e.target.value)}
-                        placeholder="Enter amount..."
-                        className="font-black text-xl h-12 text-rose-600 bg-rose-50/30 border-rose-100"
+                        placeholder="0.00"
+                        className="font-black text-2xl h-14 text-rose-600 bg-rose-50/20 border-rose-100 rounded-xl"
                     />
                 </div>
 
@@ -240,7 +238,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                         value={expenseDescription}
                         onChange={(e) => setExpenseDescription(e.target.value)}
                         placeholder="Additional details..."
-                        className="font-medium"
+                        className="font-bold h-12 text-slate-600"
                     />
                 </div>
 
@@ -259,7 +257,7 @@ export const AddExpenseModal = ({ isOpen, onClose }: AddExpenseModalProps) => {
                 <Button
                     onClick={handleAddExpense}
                     disabled={addExpenseMutation.isPending}
-                    className="bg-rose-600 hover:bg-rose-700 text-white font-black px-8 py-6 h-auto text-lg transition-all active:scale-95 shadow-lg shadow-rose-200"
+                    className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-black h-14 text-lg transition-all active:scale-95 shadow-xl shadow-rose-200 rounded-2xl uppercase tracking-widest"
                 >
                     {addExpenseMutation.isPending ? 'Saving...' : 'Save Expense'}
                 </Button>

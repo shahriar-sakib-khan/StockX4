@@ -89,98 +89,98 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
     return (
         <div className="space-y-6 animate-in fade-in duration-300">
             <div className={`transition-all duration-500 ease-in-out overflow-hidden space-y-6 ${isRestockActive ? 'opacity-0 max-h-0 m-0 !mt-0' : 'opacity-100 max-h-[1000px]'}`}>
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Stats Cards - Squeezed into one row on mobile */}
+                <div className="flex sm:grid sm:grid-cols-4 gap-3 overflow-x-auto pb-2 sm:pb-0 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
                     <div
-                        className={`border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === null ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'bg-card'}`}
+                        className={`flex-shrink-0 w-[140px] sm:w-auto border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === null ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'bg-card'}`}
                         onClick={() => setStatusFilter(null)}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 text-primary rounded-lg"><Box className="w-5 h-5" /></div>
-                            <div>
-                                <p className="text-xs text-muted-foreground font-medium uppercase">Total Stock</p>
-                                <p className="text-xl sm:text-2xl font-bold">{stats.full + stats.empty}</p>
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-primary/10 text-primary rounded-lg flex-shrink-0"><Box className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-[10px] text-muted-foreground font-black uppercase truncate">Total Stock</p>
+                                <p className="text-lg font-black leading-none mt-0.5">{stats.full + stats.empty}</p>
                             </div>
                         </div>
                     </div>
                     <div
-                        className={`border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'full' ? 'bg-green-50 border-green-500 ring-1 ring-green-500' : 'bg-card'}`}
+                        className={`flex-shrink-0 w-[140px] sm:w-auto border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'full' ? 'bg-green-50 border-green-500 ring-1 ring-green-500' : 'bg-card'}`}
                         onClick={() => setStatusFilter(statusFilter === 'full' ? null : 'full')}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 text-green-600 rounded-lg"><Package className="w-5 h-5" /></div>
-                            <div>
-                                <p className="text-xs text-muted-foreground font-medium uppercase">Package (Full)</p>
-                                <p className="text-xl sm:text-2xl font-bold">{stats.full}</p>
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-green-100 text-green-600 rounded-lg flex-shrink-0"><Package className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-[10px] text-muted-foreground font-black uppercase truncate">Package (Full)</p>
+                                <p className="text-lg font-black leading-none mt-0.5">{stats.full}</p>
                             </div>
                         </div>
                     </div>
                     <div
-                        className={`border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'refill' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-card'}`}
+                        className={`flex-shrink-0 w-[140px] sm:w-auto border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'refill' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-card'}`}
                         onClick={() => setStatusFilter(statusFilter === 'refill' ? null : 'refill')}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><RefreshCw className="w-5 h-5" /></div>
-                            <div>
-                                <p className="text-xs text-muted-foreground font-medium uppercase">Refill (Empty)</p>
-                                <p className="text-xl sm:text-2xl font-bold">{stats.empty}</p>
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-blue-100 text-blue-600 rounded-lg flex-shrink-0"><RefreshCw className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-[10px] text-muted-foreground font-black uppercase truncate">Refill (Empty)</p>
+                                <p className="text-lg font-black leading-none mt-0.5">{stats.empty}</p>
                             </div>
                         </div>
                     </div>
                     <div
-                        className={`border rounded-xl p-4 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'defected' ? 'bg-red-50 border-red-500 ring-1 ring-red-500' : 'bg-card'}`}
+                        className={`flex-shrink-0 w-[140px] sm:w-auto border rounded-xl p-3 cursor-pointer transition-all hover:shadow-md ${statusFilter === 'defected' ? 'bg-red-50 border-red-500 ring-1 ring-red-500' : 'bg-card'}`}
                         onClick={() => setStatusFilter(statusFilter === 'defected' ? null : 'defected')}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-100 text-red-600 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
-                            <div>
-                                <p className="text-xs text-muted-foreground font-medium uppercase">Defected</p>
-                                <p className="text-xl sm:text-2xl font-bold">{stats.defect}</p>
+                        <div className="flex items-center gap-2">
+                            <div className="p-1.5 bg-red-100 text-red-600 rounded-lg flex-shrink-0"><AlertTriangle className="w-4 h-4" /></div>
+                            <div className="min-w-0">
+                                <p className="text-[10px] text-muted-foreground font-black uppercase truncate">Defected</p>
+                                <p className="text-lg font-black leading-none mt-0.5">{stats.defect}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-card p-4 rounded-xl border">
-                    <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-                        <div className="flex bg-muted rounded-lg p-1 gap-1">
-                            <button
-                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${regulator === null ? 'bg-white text-zinc-950 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                                onClick={() => setRegulator(null)}
-                            >All</button>
-                            <button
-                                onClick={() => setRegulator('22mm')}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${regulator === '22mm' ? 'bg-orange-500 text-white border-orange-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200'}`}
-                            >22mm</button>
-                            <button
-                                onClick={() => setRegulator('20mm')}
-                                className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${regulator === '20mm' ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-yellow-50 hover:text-yellow-600 hover:border-yellow-200'}`}
-                            >20mm</button>
-                        </div>
-                        <InventoryFilterStrip
-                            storeId={storeId}
-                            activeSize={sizeFilter}
-                            onSizeChange={setSizeFilter}
-                            onEditSizesClick={() => setEditSizesOpen(true)}
-                        />
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                        <div className="relative w-full sm:w-[300px]">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search brands..."
-                                className="pl-9"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                <div className="flex flex-col gap-4 bg-card p-4 rounded-xl border shadow-sm">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                            <div className="flex bg-muted rounded-xl p-1 gap-1">
+                                <button
+                                    className={`px-4 py-2.5 text-xs font-black rounded-lg transition-all active:scale-95 ${regulator === null ? 'bg-white text-zinc-950 shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                    onClick={() => setRegulator(null)}
+                                >All</button>
+                                <button
+                                    onClick={() => setRegulator('22mm')}
+                                    className={`px-4 py-2.5 rounded-lg text-xs font-black border transition-all active:scale-95 ${regulator === '22mm' ? 'bg-orange-500 text-white border-orange-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-orange-50 hover:text-orange-600'}`}
+                                >22mm</button>
+                                <button
+                                    onClick={() => setRegulator('20mm')}
+                                    className={`px-4 py-2.5 rounded-lg text-xs font-black border transition-all active:scale-95 ${regulator === '20mm' ? 'bg-yellow-400 text-yellow-900 border-yellow-500 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-yellow-50 hover:text-yellow-600'}`}
+                                >20mm</button>
+                            </div>
+                            <InventoryFilterStrip
+                                storeId={storeId}
+                                activeSize={sizeFilter}
+                                onSizeChange={setSizeFilter}
+                                onEditSizesClick={() => setEditSizesOpen(true)}
                             />
                         </div>
-                        <Button onClick={() => setManageOpen(true)}>
-                            <Plus className="w-4 h-4 mr-2" /> Manage Brands
-                        </Button>
-                        <CreateBrandModal open={isManageOpen} onClose={() => setManageOpen(false)} storeId={storeId} />
-                        <EditStoreSizesModal open={isEditSizesOpen} onClose={() => setEditSizesOpen(false)} storeId={storeId} />
+
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <div className="relative w-full sm:w-[250px]">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search brands..."
+                                    className="pl-9 min-h-12 w-full"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                            <Button onClick={() => setManageOpen(true)} className="min-h-12 w-full sm:w-auto font-black">
+                                <Plus className="w-5 h-5 mr-2" /> Manage Brands
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -194,8 +194,25 @@ export const CylindersContent = ({ storeId, onAddToCart }: { storeId: string, on
                     <p className="text-muted-foreground text-sm">Try adjusting your filters or adding a new brand.</p>
                 </div>
             ) : (
-                <InventoryTable storeId={storeId!} inventory={filteredInventory} onRestockStateChange={setIsRestockActive} groupByBrand={!sizeFilter || sizeFilter === 'All'} />
+                <InventoryTable 
+                    storeId={storeId} 
+                    inventory={filteredInventory} 
+                    onRestockStateChange={setIsRestockActive} 
+                    groupByBrand={!sizeFilter || sizeFilter === 'All'} 
+                />
             )}
+
+            <CreateBrandModal 
+                storeId={storeId} 
+                open={isManageOpen} 
+                onClose={() => setManageOpen(false)} 
+            />
+
+            <EditStoreSizesModal
+                storeId={storeId}
+                open={isEditSizesOpen}
+                onClose={() => setEditSizesOpen(false)}
+            />
         </div>
     );
 };

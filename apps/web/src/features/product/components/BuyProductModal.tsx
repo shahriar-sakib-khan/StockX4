@@ -100,7 +100,7 @@ export const BuyProductModal = ({ isOpen, onClose, product, onAddToCart }: BuyPr
                             <Button
                             variant="outline"
                             size="icon"
-                            className="h-10 w-10 shrink-0"
+                            className="h-14 w-14 shrink-0"
                             onClick={() => handleQuantityChange(String(Math.max(0, Number(quantity || 0) - 1)))}
                         >
                             -
@@ -108,7 +108,7 @@ export const BuyProductModal = ({ isOpen, onClose, product, onAddToCart }: BuyPr
                         <Input
                             type="number"
                             placeholder="0"
-                            className="text-center text-lg font-bold h-10"
+                            className="text-center text-lg font-bold h-14"
                             value={quantity}
                             onChange={(e) => handleQuantityChange(e.target.value)}
                             autoFocus
@@ -116,7 +116,7 @@ export const BuyProductModal = ({ isOpen, onClose, product, onAddToCart }: BuyPr
                             <Button
                             variant="outline"
                             size="icon"
-                            className="h-10 w-10 shrink-0"
+                            className="h-14 w-14 shrink-0"
                             onClick={() => handleQuantityChange(String(Number(quantity || 0) + 1))}
                         >
                             +
@@ -146,7 +146,7 @@ export const BuyProductModal = ({ isOpen, onClose, product, onAddToCart }: BuyPr
                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">৳</span>
                                 <Input
                                 type="number"
-                                className="pl-6 h-9 bg-white text-right font-medium"
+                                className="pl-6 h-12 bg-white text-right font-medium"
                                 value={unitPrice}
                                 onChange={(e) => handleUnitChange(e.target.value)}
                                 />

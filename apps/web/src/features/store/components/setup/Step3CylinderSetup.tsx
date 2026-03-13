@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/button';
 import { CylinderSetupCard } from './cylinder/CylinderSetupCard';
 import { CylinderSizeSelector } from './cylinder/CylinderSizeSelector';
+import { InfoTooltip } from './shared/InfoTooltip';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -48,21 +49,23 @@ const emptyState = (brandId: string, size: string, regulatorType: '22mm' | '20mm
 const DEFAULT_GLOBAL_SIZES = ['12kg'];
 
 export const Step3CylinderSetup = ({ payload, updatePayload }: Step3Props) => {
-  const { data: globalSizes = DEFAULT_GLOBAL_SIZES } = useSystemSettings<string[]>('DEFAULT_CYLINDER_SIZES');
+  const { data: globalSizes = DEFAULT_GLOBAL_SIZES } = useSystemSettings<string[]>('DEFAULT_CYLINDER_SIZES', DEFAULT_GLOBAL_SIZES);
 
   const activeSizes: string[] = payload.cylinderSizes && payload.cylinderSizes.length > 0
     ? payload.cylinderSizes
-    : globalSizes;
+    : (globalSizes || DEFAULT_GLOBAL_SIZES);
 
-  const [activeSize, setActiveSize]       = useState(activeSizes[0] ?? globalSizes[0]);
+  const [activeSize, setActiveSize]       = useState(activeSizes[0] ?? DEFAULT_GLOBAL_SIZES[0]);
   const [customSizeInput, setCustomSizeInput] = useState('');
   const [cardRegulators, setCardRegulators]   = useState<Record<string, '22mm' | '20mm'>>({});
   const [sizeToDelete, setSizeToDelete]       = useState<string | null>(null);
 
   // Keep activeSize in sync if sizes list changes
   useEffect(() => {
-    if (!activeSizes.includes(activeSize)) setActiveSize(activeSizes[0] ?? globalSizes[0]);
-  }, [activeSizes.join(',')]);
+    if (!activeSizes.includes(activeSize)) {
+      setActiveSize(activeSizes[0] ?? DEFAULT_GLOBAL_SIZES[0]);
+    }
+  }, [activeSizes, activeSize]);
 
   const { data: globalData, isLoading: brandsLoading } = useQuery({
     queryKey: ['globalBrands'],
@@ -183,9 +186,12 @@ export const Step3CylinderSetup = ({ payload, updatePayload }: Step3Props) => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold tracking-tight">Cylinder Inventory Setup</h2>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold tracking-tight">
+          Cylinder Inventory Setup
+          <InfoTooltip content="Set your starting stock and selling prices for each brand and size." />
+        </h2>
         <p className="text-muted-foreground text-sm">
           Select the sizes your store carries, then enter initial stock and prices per brand.
           Toggle <span className="font-semibold text-orange-500">22mm</span> / <span className="font-semibold text-yellow-600">20mm</span> on each card for both variants.
@@ -206,7 +212,7 @@ export const Step3CylinderSetup = ({ payload, updatePayload }: Step3Props) => {
       />
 
       {/* ── Brand Cards for active size ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-5">
+      <div className="grid grid-cols-1 gap-8">
         {selectedBrands.map((brand: any) => {
           const cardKey = brand._id;
           return (

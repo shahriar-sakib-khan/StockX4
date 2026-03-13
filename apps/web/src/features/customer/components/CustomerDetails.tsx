@@ -3,8 +3,8 @@ import { useCustomer } from '@/features/customer/hooks/useCustomers';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/Modal';
 import { CustomerForm } from '@/features/customer/components/CustomerForm';
-import { CardDescription } from '@/components/ui/card';
-import { Phone, MapPin, User, ReceiptText, Banknote, Edit, Calendar, PackageMinus } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Phone, MapPin, User, ReceiptText, Banknote, Edit, Calendar, PackageMinus, Store, ArrowUpRight, ArrowDownLeft, History, Building2, Receipt as ReceiptIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTransactions, transactionApi } from '@/features/pos/api/transaction.api';
 import { Input } from '@/components/ui/input';
@@ -128,163 +128,266 @@ export const CustomerDetails = ({ customerId, isOpen, onClose }: CustomerDetails
     if (!isOpen) return null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={customer?.name || 'Customer Details'} className="max-w-4xl h-[90vh]">
+        <Modal isOpen={isOpen} onClose={onClose} title={customer?.name || 'Customer Details'} className="max-w-4xl h-full sm:h-auto md:max-h-[85vh]">
             {isCustomerLoading ? (
                 <div className="p-8 text-center">Loading customer details...</div>
             ) : customer ? (
-                <div className="flex flex-col h-full">
-                    {/* Header Section */}
-                    <div className="p-6 border-b bg-muted/10 flex justify-between items-start">
-                        <div className="flex gap-4">
-                            <div className="relative h-24 w-24 rounded-xl overflow-hidden border bg-slate-100 flex-shrink-0">
-                                {customer.imageUrl ? (
-                                    <img src={customer.imageUrl} alt={customer.name} className="h-full w-full object-cover" />
-                                ) : (
-                                    <div className="flex h-full w-full items-center justify-center">
-                                        <User className="w-10 h-10 text-muted-foreground/30" />
+                <div className="flex flex-col h-full sm:h-auto">
+                    {/* Header Section - Entity info scrolls with content on mobile */}
+                    <div className="bg-white border-b-2 border-slate-100/50 p-3 sm:p-5 md:p-8 z-10 shrink-0 sm:shrink-0 relative">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-4 w-full sm:w-auto">
+                                 <div className="relative h-14 w-14 sm:h-20 sm:w-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm bg-white flex-shrink-0">
+                                     {customer.imageUrl ? (
+                                         <img src={customer.imageUrl} alt={customer.name} className="h-full w-full object-cover" />
+                                     ) : (
+                                         <div className="flex h-full w-full items-center justify-center">
+                                             {customer.type === 'wholesale' ? <Store className="w-6 h-6 sm:w-8 sm:h-8 text-sky-400" /> : <User className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-400" />}
+                                         </div>
+                                     )}
+                                 </div>
+                                <div className="space-y-0.5">
+                                     <div className="flex items-center gap-1.5 sm:gap-2">
+                                         <span className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                                             ID: {customer._id.substring(customer._id.length - 4).toUpperCase()}
+                                         </span>
+                                         <span className={`text-[8px] sm:text-[10px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border ${customer.type === 'wholesale' ? 'bg-sky-50 text-sky-600 border-sky-100' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                                             {customer.type}
+                                         </span>
+                                     </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <a href={`tel:${customer.phone}`} className="flex items-center gap-1.5 text-indigo-600 font-black text-sm hover:underline">
+                                            <Phone size={14} strokeWidth={3} className="text-indigo-400" /> {customer.phone}
+                                        </a>
+                                        <div className="flex items-center gap-1.5 text-slate-500 font-bold text-xs italic">
+                                            <MapPin size={14} strokeWidth={2} className="text-rose-400 shrink-0" /> {customer.address || 'No location details'}
+                                        </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-row gap-2 w-full sm:w-auto justify-end">
+                                 <Button 
+                                     variant="secondary" 
+                                     size="sm" 
+                                     onClick={() => setIsEditOpen(true)}
+                                     className="h-9 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl border border-slate-200 font-black uppercase tracking-widest shadow-sm text-[9px] sm:text-[10px]"
+                                 >
+                                    <Edit className="w-3.5 h-3.5 mr-1.5" /> Edit
+                                </Button>
+                                {(customer.totalDue || 0) > 0 && (
+                                     <Button 
+                                         size="sm" 
+                                         onClick={() => setIsPayDueOpen(true)}
+                                         className="h-9 sm:h-12 px-3 sm:px-4 rounded-lg sm:rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black uppercase tracking-widest shadow-lg shadow-emerald-100 text-[9px] sm:text-[10px]"
+                                     >
+                                        <Banknote className="w-4 h-4 mr-1.5" /> Pay Due
+                                    </Button>
                                 )}
                             </div>
-                            <div>
-                                <h2 className="text-2xl font-bold flex flex-wrap items-center gap-2">
-                                    <span className="shrink-0">{customer.name}</span>
-
-                                    <div className="flex items-center gap-2">
-                                        {(customer.totalDue || 0) > 0 && (
-                                            <span className="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-full font-bold border border-red-200 shadow-sm">
-                                                Due: ৳{customer.totalDue.toLocaleString()}
-                                            </span>
-                                        )}
-
-                                        {dueCylinders.length > 0 && (
-                                            <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold border border-amber-200 shadow-sm">
-                                                Cylinders: {dueCylinders.reduce((sum: number, d: any) => sum + d.quantity, 0)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </h2>
-                                <div className="text-xs font-bold text-slate-400 mt-0.5 tracking-widest uppercase bg-slate-100/50 px-2 py-0.5 rounded w-fit border border-slate-200/50">
-                                    ID: {customer._id.substring(customer._id.length - 6).toUpperCase()}
-                                </div>
-                                <CardDescription className="mt-1 flex flex-col gap-1">
-                                    <div className="flex items-center gap-2">
-                                        <Phone className="w-4 h-4" /> {customer.phone}
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="w-4 h-4" /> {customer.address || 'No Address'}
-                                    </div>
-                                </CardDescription>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => setIsEditOpen(true)}>
-                                <Edit className="w-4 h-4 mr-2" /> Edit Details
-                            </Button>
-                            {(customer.totalDue || 0) > 0 && (
-                                <Button size="sm" onClick={() => setIsPayDueOpen(true)}>
-                                    <Banknote className="w-4 h-4 mr-2" /> Pay Due
-                                </Button>
-                            )}
                         </div>
                     </div>
 
-                    {/* Due Cylinders Section */}
-                    {dueCylinders.length > 0 && (
-                        <div className="p-6 bg-slate-50 border-b">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold flex items-center gap-2">
-                                    <PackageMinus className="w-5 h-5 text-orange-500" />
-                                    Due Cylinders
+                    {/* Scrollable Body */}
+                    <div className="flex-1 overflow-y-auto bg-slate-100/30">
+                        {/* Due Cylinders Section */}
+                        {dueCylinders.length > 0 && (
+                            <div className="px-3 sm:px-4 py-2 sm:py-3 bg-amber-50/50 border-b border-amber-100">
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                    <PackageMinus className="w-4 h-4 text-amber-500" />
+                                    Cylinder Loan Status
                                 </h3>
-                                <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50 font-bold" onClick={() => setIsDueSettlementOpen(true)}>
-                                    Return Due Cylinders
+                                <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-8 rounded-xl text-amber-600 border border-amber-200 bg-white hover:bg-amber-50 font-black uppercase tracking-widest text-[10px] px-3 active:scale-95 transition-all" 
+                                    onClick={() => setIsDueSettlementOpen(true)}
+                                >
+                                    Return All Due
                                 </Button>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {mappedDueItems.map((item: any, idx: number) => (
-                                    <div key={idx} className="bg-white border text-center border-orange-100 rounded-xl p-4 shadow-sm flex flex-col items-center justify-center gap-1 group hover:border-orange-300 transition-colors">
-                                        {item.image ? (
-                                            <img src={item.image} alt="" className="w-12 h-12 object-contain mb-1 mix-blend-multiply" />
-                                        ) : (
-                                            <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-bold mb-1">No Img</div>
-                                        )}
-                                        <span className="text-lg font-black text-orange-600 leading-none">{item.maxQty}x</span>
-                                        <span className="font-bold text-xs text-slate-700 leading-tight">{item.brandName}</span>
-                                        <div className="flex gap-1 mt-1">
-                                            {item.size && <span className="text-[8px] font-black bg-blue-50 text-blue-600 px-1 py-0.5 rounded border border-blue-100">{item.size}</span>}
-                                            {item.regulator && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1 py-0.5 rounded border border-amber-100">{item.regulator}</span>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                                 {mappedDueItems.map((item: any, idx: number) => (
+                                     <div key={idx} className="bg-white border border-stone-100 text-center rounded-xl p-2 shadow-sm flex flex-col items-center justify-center gap-0.5 hover:border-amber-200 transition-all">
+                                         {item.image ? (
+                                             <div className="relative w-8 h-8 mb-1">
+                                                 <img src={item.image} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                                             </div>
+                                         ) : (
+                                             <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-[8px] text-slate-400 font-extrabold border border-slate-100 uppercase">Empty</div>
+                                         )}
+                                         <span className="text-lg font-black text-slate-900 leading-none">{item.maxQty}</span>
+                                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Qty</span>
+                                         <span className="font-black text-[9px] text-slate-600 truncate w-full text-center">{item.brandName}</span>
+                                         <div className="flex justify-center gap-0.5">
+                                             {item.size && <span className="text-[7px] font-black bg-indigo-50 text-indigo-600 px-1 py-0.5 rounded border border-indigo-100">{item.size}</span>}
+                                             {item.regulator && <span className="text-[7px] font-black bg-sky-50 text-sky-600 px-1 py-0.5 rounded border border-sky-100">{item.regulator}</span>}
+                                         </div>
+                                     </div>
+                                 ))}
+                             </div>
                         </div>
                     )}
 
-                    {/* Content Section */}
-                    <div className="flex-1 overflow-auto p-6 bg-slate-50">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <ReceiptText className="w-5 h-5 text-muted-foreground" />
-                            Transaction History
-                        </h3>
-
+                        {/* Content Section */}
+                        <div className="p-3 sm:p-6">
+                            <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 mb-3 sm:mb-6">
+                                <h3 className="text-base sm:text-lg font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+                                    <ReceiptText className="w-5 h-5 text-slate-400" />
+                                    Transaction Diary
+                                </h3>
+                             <div className="w-full sm:w-auto py-1.5 px-3 sm:px-6 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-between sm:flex-col sm:text-center gap-2 sm:gap-0">
+                                 <span className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Net Balance</span>
+                                 <span className="text-base sm:text-2xl font-black text-expense tracking-tight">৳{customer.totalDue?.toLocaleString() || 0}</span>
+                             </div>
+                         </div>
                         {isHistoryLoading ? (
-                            <div>Loading history...</div>
+                            <div className="flex flex-col items-center justify-center py-6 sm:py-12 gap-2 sm:gap-4">
+                                <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 sm:border-b-4 border-primary"></div>
+                                <p className="text-slate-400 font-black uppercase tracking-widest text-[8px] sm:text-[10px]">Loading History...</p>
+                            </div>
                         ) : transactions.length === 0 ? (
-                            <div className="text-center py-10 text-muted-foreground bg-white rounded-lg border border-dashed">
-                                No transactions found.
+                            <div className="text-center py-8 sm:py-16 text-slate-300 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                                <History size={48} className="mx-auto mb-2 sm:mb-4 opacity-10" />
+                                <p className="font-black uppercase tracking-[0.2em] text-xs sm:text-sm">No History Recorded</p>
                             </div>
                         ) : (
-                            <div className="bg-white rounded-lg border shadow-sm">
-                                <table className="w-full text-sm text-left">
-                                    <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
-                                        <tr>
-                                            <th className="p-3">Date</th>
-                                            <th className="p-3">Type</th>
-                                            <th className="p-3 text-right">Amount</th>
-                                            <th className="p-3 text-right">Due</th>
-                                            <th className="p-3 text-center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y">
-                                        {transactions.map((tx: any) => (
-                                            <tr
-                                                key={tx._id}
-                                                className="hover:bg-slate-50/50 cursor-pointer group"
-                                                onClick={() => setSelectedTransaction(tx)}
-                                            >
-                                                <td className="p-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
-                                                        {format(new Date(tx.createdAt), 'dd MMM yyyy, HH:mm')}
-                                                    </div>
-                                                </td>
-                                                <td className="p-3">
-                                                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
-                                                        tx.type === 'DUE_PAYMENT' ? 'bg-green-50 text-green-700 border-green-200' :
-                                                        tx.type === 'RETURN' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                                                        'bg-blue-50 text-blue-700 border-blue-200'
-                                                    }`}>
-                                                        {tx.type}
-                                                    </span>
-                                                </td>
-                                                <td className="p-3 text-right font-semibold">৳{tx.finalAmount}</td>
-                                                <td className="p-3 text-right text-muted-foreground">{tx.dueAmount > 0 ? `৳${tx.dueAmount}` : '-'}</td>
-                                                <td className="p-3 text-center">
-                                                    <Button variant="ghost" size="sm" onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedTransaction(tx);
-                                                    }}>
-                                                        View
-                                                    </Button>
-                                                </td>
+                            <div className="space-y-4">
+                                {/* Desktop History Table */}
+                                <div className="hidden sm:block bg-white rounded-3xl border-2 border-slate-100 shadow-xl overflow-hidden">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-slate-900 text-slate-400 font-black uppercase tracking-widest text-[10px] border-b-0">
+                                            <tr>
+                                                <th className="px-4 py-4">Date</th>
+                                                <th className="px-4 py-4">Activity</th>
+                                                <th className="px-4 py-4 text-right">Total</th>
+                                                <th className="px-4 py-4 text-right">Due / Repayment</th>
+                                                <th className="px-4 py-4 text-right">Paid</th>
+                                                <th className="px-4 py-4 text-center">Receipt</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50 italic font-medium">
+                                            {transactions.map((tx: any) => (
+                                                <tr
+                                                    key={tx._id}
+                                                    className="hover:bg-slate-50 transition-all cursor-pointer group"
+                                                    onClick={() => setSelectedTransaction(tx)}
+                                                >
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                                                            <div className="flex flex-col">
+                                                                <span className="font-black text-slate-900 text-xs">{format(new Date(tx.createdAt), 'dd MMM yyyy')}</span>
+                                                                <span className="text-[9px] text-slate-400 uppercase tracking-widest">{format(new Date(tx.createdAt), 'hh:mm a')}</span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`p-1.5 rounded-lg border ${
+                                                                tx.type === 'DUE_PAYMENT' ? 'bg-emerald-50 text-income border-emerald-100' :
+                                                                tx.type === 'RETURN' ? 'bg-amber-50 text-amber-500 border-amber-100' :
+                                                                'bg-indigo-50 text-indigo-500 border-indigo-100'
+                                                            }`}>
+                                                                {tx.type === 'DUE_PAYMENT' ? <ArrowDownLeft size={14} strokeWidth={3} /> : 
+                                                                 tx.type === 'RETURN' ? <PackageMinus size={14} strokeWidth={3} /> : 
+                                                                 <ArrowUpRight size={14} strokeWidth={3} />}
+                                                            </div>
+                                                            <span className="font-black text-slate-700 capitalize text-xs tracking-tight">{tx.type.replace(/_/g, ' ')}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right font-black text-slate-800 text-sm">
+                                                        {tx.finalAmount > 0 ? `৳${tx.finalAmount.toLocaleString()}` : '-'}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right font-black text-sm">
+                                                        {tx.dueAmount > 0 ? (
+                                                            <span className="text-amber-500">৳{tx.dueAmount.toLocaleString()}</span>
+                                                        ) : tx.dueAmount < 0 ? (
+                                                            <span className="text-blue-500">৳{Math.abs(tx.dueAmount).toLocaleString()}</span>
+                                                        ) : '-'}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-right font-black text-emerald-600 text-sm">
+                                                        {tx.paidAmount > 0 ? `৳${tx.paidAmount.toLocaleString()}` : '-'}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        <Button variant="outline" size="sm" className="h-8 rounded-xl border-2 border-slate-100 font-extrabold text-[10px] uppercase tracking-widest hover:border-primary hover:text-primary transition-all shadow-sm">
+                                                            View
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile History Card List */}
+                                 <div className="sm:hidden space-y-2">
+                                     {transactions.map((tx: any) => (
+                                         <Card 
+                                             key={tx._id} 
+                                             className="border border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white active:scale-[0.98] transition-all"
+                                             onClick={() => setSelectedTransaction(tx)}
+                                         >
+                                             <div className="flex items-center justify-between px-3 py-2 bg-slate-50/50 border-b border-slate-100">
+                                                 <div className="flex items-center gap-1.5">
+                                                     <Calendar size={11} className="text-slate-400" />
+                                                     <span className="text-[9px] font-black text-slate-800 uppercase tracking-tight">{format(new Date(tx.createdAt), 'dd MMM yyyy')}</span>
+                                                 </div>
+                                                 <span className="text-[9px] font-black text-slate-400">{format(new Date(tx.createdAt), 'hh:mm a')}</span>
+                                             </div>
+                                             <CardContent className="p-3 space-y-2">
+                                                 <div className="flex justify-between items-center">
+                                                     <div className="flex items-center gap-2">
+                                                         <div className={`p-1.5 rounded-lg border ${
+                                                             tx.type === 'DUE_PAYMENT' ? 'bg-emerald-50 text-income border-emerald-100' :
+                                                             tx.type === 'RETURN' ? 'bg-amber-50 text-amber-500 border-amber-100' :
+                                                             'bg-indigo-50 text-indigo-500 border-indigo-100'
+                                                         }`}>
+                                                             {tx.type === 'DUE_PAYMENT' ? <ArrowDownLeft size={14} strokeWidth={3} /> : 
+                                                              tx.type === 'RETURN' ? <PackageMinus size={14} strokeWidth={3} /> : 
+                                                              <ArrowUpRight size={14} strokeWidth={3} />}
+                                                         </div>
+                                                         <div className="font-black text-slate-900 uppercase tracking-tight text-xs">{tx.type.replace(/_/g, ' ')}</div>
+                                                     </div>
+                                                     <div className="flex items-center gap-1.5">
+                                                         {tx.finalAmount > 0 && (
+                                                             <div className="bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200 flex items-center gap-1">
+                                                                 <span className="text-[8px] font-black text-slate-500 uppercase">Total</span>
+                                                                 <span className="font-black text-slate-800 text-xs">৳{tx.finalAmount.toLocaleString()}</span>
+                                                             </div>
+                                                         )}
+                                                         {tx.paidAmount > 0 && (
+                                                             <div className="bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100 flex items-center gap-1">
+                                                                 <span className="text-[8px] font-black text-emerald-600 uppercase">Paid</span>
+                                                                 <span className="font-black text-emerald-600 text-xs">৳{tx.paidAmount.toLocaleString()}</span>
+                                                             </div>
+                                                         )}
+                                                         {tx.dueAmount > 0 ? (
+                                                             <div className="bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 flex items-center gap-1">
+                                                                 <span className="text-[8px] font-black text-amber-600 uppercase">Due</span>
+                                                                 <span className="font-black text-amber-600 text-xs">৳{tx.dueAmount.toLocaleString()}</span>
+                                                             </div>
+                                                         ) : tx.dueAmount < 0 && (
+                                                             <div className="bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100 flex items-center gap-1">
+                                                                 <span className="text-[8px] font-black text-blue-600 uppercase">Repay</span>
+                                                                 <span className="font-black text-blue-600 text-xs">৳{Math.abs(tx.dueAmount).toLocaleString()}</span>
+                                                             </div>
+                                                         )}
+                                                     </div>
+                                                 </div>
+                                                 <div className="flex justify-between items-center pt-1.5 border-t border-slate-50">
+                                                     <div className="text-[8px] text-slate-300 font-black uppercase tracking-tighter">REF: #{tx._id.substring(tx._id.length - 6).toUpperCase()}</div>
+                                                     <Button variant="secondary" size="sm" className="h-7 px-3 rounded-lg font-black uppercase text-[8px] tracking-widest border border-slate-200 bg-white shadow-sm">View Details</Button>
+                                                 </div>
+                                             </CardContent>
+                                         </Card>
+                                     ))}
+                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
+            </div>
             ) : (
                 <div className="p-8 text-center text-red-500">Customer not found</div>
             )}

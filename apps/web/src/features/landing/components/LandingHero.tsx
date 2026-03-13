@@ -8,8 +8,8 @@ export const LandingHero = () => {
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-6 tracking-tight">
                     Ready to Transform Your LPG <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">Business?</span>
                 </h1>

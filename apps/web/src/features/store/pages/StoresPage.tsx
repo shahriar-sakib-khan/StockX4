@@ -46,14 +46,17 @@ export const StoresPage = () => {
   return (
     <PortalLayout>
       <ErrorBoundary>
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
             <div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">My Stores</h1>
-            <p className="text-muted-foreground mt-1">Manage your store locations and staff</p>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">My Stores</h1>
+                <p className="text-slate-500 font-bold text-xs sm:text-sm mt-1 uppercase tracking-widest">Manage your store locations and staff</p>
             </div>
-            <Button onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            New Store
+            <Button 
+                onClick={() => setIsModalOpen(true)}
+                className="w-full sm:w-auto h-12 sm:h-10 font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl"
+            >
+                <Plus className="w-4 h-4 mr-2" />
+                New Store
             </Button>
         </div>
 

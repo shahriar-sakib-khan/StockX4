@@ -52,7 +52,7 @@ export const InventoryCardHeader = ({ item, statusConfig }: InventoryCardHeaderP
             </div>
 
             {/* Inventory Status Badge */}
-            <div className={`px-4 py-1.5 rounded-full border-2 text-xs font-black uppercase tracking-wider shadow-sm ${statusConfig.color.replace('bg-', 'bg-').replace('text-', 'text-').replace('border-', 'border-')}`}>
+            <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border-2 text-[10px] sm:text-xs font-black uppercase tracking-wider shadow-sm whitespace-nowrap shrink-0 ${statusConfig.color}`}>
                 {statusConfig.label}
             </div>
         </div>

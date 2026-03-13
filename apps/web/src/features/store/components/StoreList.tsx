@@ -63,7 +63,7 @@ export const StoreList = ({
 
               <Button
                 variant="secondary"
-                className="w-full"
+                className="w-full h-14 sm:h-12 font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900"
                 onClick={() => navigate(`/stores/${store._id}/dashboard`)}
               >
                 Enter Store

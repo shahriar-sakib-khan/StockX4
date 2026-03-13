@@ -29,9 +29,7 @@ export const useAuth = () => {
       return { success: true };
     } catch (error: any) {
        console.error("Register error", error);
-       // Safely unpack specific error message from backend if available
-       const message = await error.response?.json().then((d: any) => d.error).catch(() => 'Registration failed');
-       toast.error(message);
+       toast.error(error.message || 'Registration failed');
        throw error;
     } finally {
       setIsLoading(false);
@@ -41,8 +39,7 @@ export const useAuth = () => {
   const login = async (data: LoginData) => {
     setIsLoading(true);
     try {
-      const res = await api.post('auth/login-unified', { json: data }).json<any>();
-      console.log('Login successful:', res);
+      const res = await api.post('auth/login', { json: data }).json<any>();
 
       if (res.selectionRequired && res.type === 'staff_selection') {
           // Handle multiple staff roles - for now we just toast or redirect to a selection page
@@ -54,8 +51,8 @@ export const useAuth = () => {
 
       const { user, accessToken, redirect } = res;
 
-      // Determine which store to populate
-      if (user.storeId || accessToken.includes('staff')) { // OR check res structure
+      // Determine which store to populate based on server-provided user data
+      if (user.storeId || user.role === 'staff' || user.role === 'manager' || user.role === 'driver') {
           const { useStaffStore } = await import('../../staff/stores/staff.store');
           useStaffStore.getState().setAuth({
               _id: user.id || user._id,
@@ -77,9 +74,41 @@ export const useAuth = () => {
       return { success: true };
     } catch (error: any) {
         console.error("Login error", error);
-        const errorData = await error.response?.json().catch(() => ({}));
-        const message = errorData?.details || errorData?.error || 'Invalid credentials';
-        toast.error(message);
+        toast.error(error.message || 'Invalid credentials');
+        throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const googleLogin = async (credential: string) => {
+    setIsLoading(true);
+    try {
+      const res = await api.post('auth/google', { json: { credential } }).json<any>();
+      const { user, accessToken, redirect } = res;
+
+      if (user.storeId || user.role === 'staff' || user.role === 'manager' || user.role === 'driver') {
+          const { useStaffStore } = await import('../../staff/stores/staff.store');
+          useStaffStore.getState().setAuth({
+              _id: user.id || user._id,
+              name: user.name,
+              role: user.role,
+              storeId: user.storeId
+          }, accessToken);
+      } else {
+          setAuth(user, accessToken);
+      }
+
+      toast.success('Signed in with Google!');
+      if (redirect) {
+          navigate(redirect);
+      } else {
+          navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+      }
+      return { success: true };
+    } catch (error: any) {
+        console.error("Google Login error", error);
+        toast.error('Google sign-in failed');
         throw error;
     } finally {
       setIsLoading(false);
@@ -142,8 +171,7 @@ export const useAuth = () => {
       toast.success('Password changed successfully');
     } catch (error: any) {
       console.error('Password change failed', error);
-      const message = await error.response?.json().then((d: any) => d.message).catch(() => 'Failed to change password');
-      toast.error(message);
+      toast.error(error.message || 'Failed to change password');
       throw error;
     }
   };
@@ -163,6 +191,7 @@ export const useAuth = () => {
   return {
     login,
     register,
+    googleLogin,
     logout,
     uploadAvatar,
     deleteAvatar,

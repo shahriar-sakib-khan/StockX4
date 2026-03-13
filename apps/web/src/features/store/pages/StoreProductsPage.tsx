@@ -57,11 +57,11 @@ const ProductCard = ({ product }: { product: any }) => {
         </div>
 
         {/* Price tiers */}
-        <div className="border border-slate-100 rounded-xl py-2 px-2 bg-slate-50 flex flex-col gap-1">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider text-center border-b border-slate-200 pb-1 mb-0.5">Price Tiers</span>
-          <div className="flex items-center justify-between"><span className="text-[10px] font-black text-slate-400 uppercase">BUY</span><span className="text-sm font-black text-rose-500">৳{product.costPrice ?? 0}</span></div>
-          <div className="flex items-center justify-between"><span className="text-[10px] font-black text-slate-400 uppercase">WSL</span><span className="text-sm font-black text-blue-600">৳{product.wholesalePrice ?? 0}</span></div>
-          <div className="flex items-center justify-between"><span className="text-[10px] font-black text-slate-400 uppercase">RTL</span><span className="text-sm font-black text-emerald-600">৳{product.sellingPrice ?? 0}</span></div>
+        <div className="border border-slate-100 rounded-xl py-2 px-1 sm:px-2 bg-slate-50 flex flex-col gap-1 overflow-hidden">
+          <span className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider text-center border-b border-slate-200 pb-1 mb-0.5">Price Tiers</span>
+          <div className="flex items-center justify-between gap-1 sm:gap-2"><span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase">BUY</span><span className="text-xs sm:text-sm font-black text-rose-500 truncate">৳{product.costPrice ?? 0}</span></div>
+          <div className="flex items-center justify-between gap-1 sm:gap-2"><span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase">WSL</span><span className="text-xs sm:text-sm font-black text-blue-600 truncate">৳{product.wholesalePrice ?? 0}</span></div>
+          <div className="flex items-center justify-between gap-1 sm:gap-2"><span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase">RTL</span><span className="text-xs sm:text-sm font-black text-emerald-600 truncate">৳{product.sellingPrice ?? 0}</span></div>
         </div>
       </div>
     </div>
@@ -82,12 +82,12 @@ export const StoreProductsPage = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Products</h2>
-          <p className="text-muted-foreground text-sm mt-0.5">Manage your store inventory and products.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">Products</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mt-0.5">Manage your store inventory and products.</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 w-full sm:w-auto min-h-[48px] sm:min-h-[40px]">
           <Plus className="w-4 h-4" /> Add Product
         </Button>
       </div>
@@ -97,11 +97,11 @@ export const StoreProductsPage = () => {
       )}
 
       {!isLoading && (!products || products.length === 0) && (
-        <div className="bg-card border border-dashed border-border rounded-xl p-12 text-center flex flex-col items-center justify-center">
-          <div className="bg-primary/10 p-4 rounded-full mb-4"><Package className="w-8 h-8 text-primary" /></div>
-          <h3 className="text-lg font-semibold text-foreground">No Products Found</h3>
-          <p className="text-muted-foreground max-w-sm mt-2 mb-6 text-sm">You haven't added any products yet. Use the button above or add them during store setup.</p>
-          <Button variant="outline">Import Products</Button>
+        <div className="bg-card border border-dashed border-border rounded-xl p-8 sm:p-12 text-center flex flex-col items-center justify-center">
+          <div className="bg-primary/10 p-3 sm:p-4 rounded-full mb-3 sm:mb-4"><Package className="w-6 h-6 sm:w-8 sm:h-8 text-primary" /></div>
+          <h3 className="text-base sm:text-lg font-semibold text-foreground">No Products Found</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mt-2 mb-4 sm:mb-6">You haven't added any products yet. Use the button above or add them during store setup.</p>
+          <Button variant="outline" className="min-h-[48px] sm:min-h-[40px] w-full sm:w-auto">Import Products</Button>
         </div>
       )}
 

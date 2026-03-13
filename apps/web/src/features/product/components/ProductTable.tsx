@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { TableBody } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Trash2, ShoppingCart, Edit, Banknote } from "lucide-react";
 import { InventoryBadge, InventoryCell, InventoryCountCell, InventoryHeadCell, InventoryPriceCell, InventoryRow, InventoryTableWrapper, InventoryTableHeader } from "@/components/common/InventoryTableComponents";
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface ProductTableProps {
     products: any[];
@@ -12,7 +14,10 @@ interface ProductTableProps {
 }
 
 export const ProductTable = ({ products, type, onBuy, onDelete, onManageDefect }: ProductTableProps) => {
+    const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
     return (
+        <>
         <InventoryTableWrapper>
             <InventoryTableHeader>
                 <InventoryHeadCell width="w-[20%]">Brand & Model</InventoryHeadCell>
@@ -80,9 +85,7 @@ export const ProductTable = ({ products, type, onBuy, onDelete, onManageDefect }
                                     size="icon"
                                     variant="ghost"
                                     className="h-8 w-8 text-muted-foreground hover:text-red-500"
-                                    onClick={() => {
-                                        if (confirm('Delete this item?')) onDelete(p._id);
-                                    }}
+                                    onClick={() => setDeleteTarget(p._id)}
                                     title="Delete"
                                 >
                                     <Trash2 className="w-4 h-4" />
@@ -93,5 +96,16 @@ export const ProductTable = ({ products, type, onBuy, onDelete, onManageDefect }
                 ))}
             </TableBody>
         </InventoryTableWrapper>
+
+        <ConfirmDialog
+            isOpen={!!deleteTarget}
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={() => { if (deleteTarget) onDelete(deleteTarget); setDeleteTarget(null); }}
+            title="Delete Product"
+            description="Are you sure you want to delete this product? This action cannot be undone."
+            confirmLabel="Delete"
+            variant="destructive"
+        />
+        </>
     );
 };

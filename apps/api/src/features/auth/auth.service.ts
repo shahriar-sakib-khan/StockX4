@@ -6,21 +6,30 @@ import { RefreshToken } from './refreshToken.model';
 import { StaffModel } from '../staff/staff.model';
 import { StoreModel } from '../store/store.model';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
-const REFRESH_SECRET = process.env.REFRESH_SECRET || 'superrefreshsecret';
+const _jwtSecret = process.env.JWT_SECRET;
+if (!_jwtSecret) throw new Error('FATAL: JWT_SECRET environment variable is required');
+const JWT_SECRET: string = _jwtSecret;
+
+const _refreshSecret = process.env.REFRESH_SECRET;
+if (!_refreshSecret) throw new Error('FATAL: REFRESH_SECRET environment variable is required');
+const REFRESH_SECRET: string = _refreshSecret;
 
 export class AuthService {
   static async register(email: string, password: string, name: string, phone?: string): Promise<IUser> {
-    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone?.trim();
+
+    const existingUser = await User.findOne({ $or: [{ email: normalizedEmail }, { phone: normalizedPhone }] });
     if (existingUser) {
       throw new Error('User already exists');
     }
 
-    const hashedPassword = await argon2.hash(password);
+    // Lower memory cost (16MB) to prevent OOM on Render Free tier
+    const hashedPassword = await argon2.hash(password, { memoryCost: 2 ** 14, timeCost: 2 });
 
     const user = await User.create({
-      email,
-      phone,
+      email: normalizedEmail,
+      phone: normalizedPhone,
       password: hashedPassword,
       name,
     });
@@ -28,24 +37,12 @@ export class AuthService {
     return user;
   }
 
-  static async login(email: string, password: string) {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error('Invalid credentials');
-    }
 
-    const isPasswordValid = await argon2.verify(user.password!, password);
-    if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
-    }
-
-    return this.generateTokens(user);
-  }
-
-  static async unifiedLogin(identifier: string, password: string) {
+  static async login(identifier: string, password: string) {
+    const normalizedIdentifier = identifier.trim().toLowerCase();
     // 1. Find potential identities
-    const user = await User.findOne({ $or: [{ email: identifier }, { phone: identifier }] });
-    const staffMembers = await StaffModel.find({ contact: identifier }).populate('storeId');
+    const user = await User.findOne({ $or: [{ email: normalizedIdentifier }, { phone: normalizedIdentifier }] });
+    const staffMembers = await StaffModel.find({ contact: normalizedIdentifier }).populate('storeId');
 
     if (!user && staffMembers.length === 0) {
       throw new Error('Invalid credentials');
@@ -55,25 +52,30 @@ export class AuthService {
     let validIdentity: any = null;
     let type: 'user' | 'staff' = 'user';
 
-    if (user) {
-      const isValid = await argon2.verify(user.password!, password);
-      if (isValid) {
-        validIdentity = user;
-        type = 'user';
-      }
-    }
-
-    if (!validIdentity && staffMembers.length > 0) {
-      // Check the first staff member (passwords should be sync'd if they are the same person,
-      // but in this model they are separate hashes. We check if the password matches ANY of the staff records with this contact)
-      for (const staff of staffMembers) {
-        const isValid = staff.passwordHash && await argon2.verify(staff.passwordHash, password);
+    try {
+      if (user) {
+        const isValid = await argon2.verify(user.password!, password);
         if (isValid) {
-          validIdentity = staff;
-          type = 'staff';
-          break;
+          validIdentity = user;
+          type = 'user';
         }
       }
+
+      if (!validIdentity && staffMembers.length > 0) {
+        // Check the first staff member (passwords should be sync'd if they are the same person,
+        // but in this model they are separate hashes. We check if the password matches ANY of the staff records with this contact)
+        for (const staff of staffMembers) {
+          if (!staff.passwordHash) continue;
+          const isValid = await argon2.verify(staff.passwordHash, password);
+          if (isValid) {
+            validIdentity = staff;
+            type = 'staff';
+            break;
+          }
+        }
+      }
+    } catch (e: any) {
+      throw new Error('Hash verification failed: ' + e.message);
     }
 
     if (!validIdentity) {
@@ -119,7 +121,7 @@ export class AuthService {
       if (matchingStaff.length === 1) {
           const staff = matchingStaff[0];
           const token = jwt.sign(
-            { userId: staff._id, role: staff.role, storeId: (staff.storeId as any)._id, type: 'staff' },
+            { userId: staff._id, role: staff.role, storeId: (staff.storeId as any)._id, type: 'staff', name: staff.name },
             JWT_SECRET,
             { expiresIn: '12h' }
           );
@@ -150,6 +152,61 @@ export class AuthService {
     }
   }
 
+  static async googleLogin(idToken: string) {
+    const { OAuth2Client } = await import('google-auth-library');
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    
+    const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) throw new Error('Invalid Google Token');
+    
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    const { name, picture } = payload;
+    
+    let user = await User.findOne({ email: normalizedEmail });
+    
+    if (!user) {
+        // Create new user if doesn't exist
+        user = await User.create({
+            email: normalizedEmail,
+            name,
+            avatar: picture,
+            role: 'user', // Default role
+            // No password for social logins, or generate a random one
+        });
+    }
+
+    // Reuse unified login logic for store redirection
+    // Since we only have the User object here (not Staff for now for Google)
+    const stores = await StoreModel.find({ ownerId: user._id });
+    const tokens = await this.generateTokens(user);
+
+    if (stores.length === 1) {
+        return {
+            ...tokens,
+            redirect: `/stores/${stores[0]._id}/dashboard`,
+            selectionRequired: false
+        };
+    } else if (stores.length > 1) {
+        return {
+            ...tokens,
+            redirect: '/stores',
+            selectionRequired: true,
+            stores: stores.map(s => ({ id: s._id, name: s.name, slug: s.slug }))
+        };
+    } else {
+        return {
+            ...tokens,
+            redirect: '/setup',
+            selectionRequired: false
+        };
+    }
+  }
+
   static async refresh(refreshToken: string) {
     try {
       const payload = jwt.verify(refreshToken, REFRESH_SECRET) as { userId: string };
@@ -177,7 +234,7 @@ export class AuthService {
 
   private static async generateTokens(user: any) {
     const accessToken = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id, role: user.role, name: user.name },
       JWT_SECRET,
       { expiresIn: '15m' }
     );

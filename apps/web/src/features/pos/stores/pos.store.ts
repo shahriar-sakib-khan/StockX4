@@ -18,7 +18,7 @@ export const usePosStore = create<PosState>()(
       name: 'pos-storage',
       partialize: (state) => {
         // Exclude UI state and modes that should reset on sessions
-        const { mode, activeCategory, ...rest } = state;
+        const { mode, activeCategory, transactionMode, ...rest } = state;
         return rest;
       },
     }

@@ -27,7 +27,9 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
     const [brandName, setBrandName] = useState("");
     const [modelName, setModelName] = useState("");
 
-    const [price, setPrice] = useState("");
+    const [buyingPrice, setBuyingPrice] = useState("");
+    const [retailPrice, setRetailPrice] = useState("");
+    const [wholesalePrice, setWholesalePrice] = useState("");
     const [stock, setStock] = useState("0");
     const [burners, setBurners] = useState("1");
     const [regulatorType, setRegulatorType] = useState("20mm");
@@ -58,9 +60,9 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                 const newBrand = await createCustomBrand.mutateAsync({
                     storeId,
                     data: {
-                        name: brandName,
+                        customName: brandName,
                         type: type, // 'stove' or 'regulator'
-                        color: '#000000', // Default
+                        customColor: '#000000', // Default
                         isCustom: true
                     }
                 });
@@ -98,9 +100,9 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                     productId: createdProductId,
                     counts: { full: parseInt(stock) || 0, empty: 0, defected: 0 },
                     prices: {
-                        buyingPriceFull: 0,
-                        retailPriceFull: parseFloat(price) || 0,
-                        wholesalePriceFull: 0,
+                        buyingPriceFull: parseFloat(buyingPrice) || 0,
+                        retailPriceFull: parseFloat(retailPrice) || 0,
+                        wholesalePriceFull: parseFloat(wholesalePrice) || 0,
                         buyingPriceGas: 0,
                         retailPriceGas: 0,
                         wholesalePriceGas: 0
@@ -112,11 +114,14 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
             onClose();
             // Reset form?
             setBrandName("");
-            setPrice("");
+            setBuyingPrice("");
+            setRetailPrice("");
+            setWholesalePrice("");
             setStock("0");
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast.error("Failed to add product");
+            const message = await error.response?.json().then((d: any) => d.error).catch(() => error.message || "Failed to add product");
+            toast.error(message);
         } finally {
             setIsCreating(false);
         }
@@ -137,6 +142,7 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                         value={brandName}
                         onChange={(e) => setBrandName(e.target.value)}
                         list="brand-suggestions"
+                        className="h-12 sm:h-10 text-sm font-semibold"
                     />
                     <datalist id="brand-suggestions">
                         {existingBrands.map((b: any) => (
@@ -145,22 +151,24 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                     </datalist>
                 </div>
 
-                {/* Model - Visual only for now as per schema limitation, or we can assume it's omitted */}
-                <div className="grid gap-2">
-                    <Label htmlFor="model">Model (Optional)</Label>
-                    <Input
-                        id="model"
-                        placeholder="Model Number/Name"
-                        value={modelName}
-                        onChange={(e) => setModelName(e.target.value)}
-                    />
-                </div>
+                {type === 'stove' && (
+                    <div className="grid gap-2">
+                        <Label htmlFor="model">Model (Optional)</Label>
+                        <Input
+                            id="model"
+                            placeholder="Model Number/Name"
+                            value={modelName}
+                            onChange={(e) => setModelName(e.target.value)}
+                            className="h-12 sm:h-10 text-sm font-semibold"
+                        />
+                    </div>
+                )}
 
                 {type === 'stove' ? (
                     <div className="grid gap-2">
                         <Label htmlFor="burners">Burner Count</Label>
                         <Select value={burners} onValueChange={setBurners}>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-12 sm:h-10 text-sm font-semibold">
                                 <SelectValue placeholder="Select burners" />
                             </SelectTrigger>
                             <SelectContent className="z-[10001]">
@@ -175,7 +183,7 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                     <div className="grid gap-2">
                         <Label htmlFor="type">Type</Label>
                         <Select value={regulatorType} onValueChange={setRegulatorType}>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-12 sm:h-10 text-sm font-semibold">
                                 <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent className="z-[10001]">
@@ -186,31 +194,55 @@ export const AddProductModal = ({ isOpen, onClose, storeId, type, existingBrands
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="price">Price</Label>
+                        <Label htmlFor="buyingPrice">Buy Price</Label>
                         <Input
-                            id="price"
+                            id="buyingPrice"
                             type="number"
                             placeholder="0.00"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
+                            value={buyingPrice}
+                            onChange={(e) => setBuyingPrice(e.target.value)}
+                            className="h-12 sm:h-10 text-sm font-semibold"
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="stock">Initial Stock</Label>
+                        <Label htmlFor="retailPrice">Sell Price</Label>
+                        <Input
+                            id="retailPrice"
+                            type="number"
+                            placeholder="0.00"
+                            value={retailPrice}
+                            onChange={(e) => setRetailPrice(e.target.value)}
+                            className="h-12 sm:h-10 text-sm font-semibold"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="wholesalePrice">Wholesale</Label>
+                        <Input
+                            id="wholesalePrice"
+                            type="number"
+                            placeholder="0.00"
+                            value={wholesalePrice}
+                            onChange={(e) => setWholesalePrice(e.target.value)}
+                            className="h-12 sm:h-10 text-sm font-semibold"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="stock">Stock</Label>
                         <Input
                             id="stock"
                             type="number"
                             placeholder="0"
                             value={stock}
                             onChange={(e) => setStock(e.target.value)}
+                            className="h-12 sm:h-10 text-sm font-semibold"
                         />
                     </div>
                 </div>
 
                 <div className="flex justify-end pt-4">
-                    <Button type="submit" disabled={isCreating}>
+                    <Button type="submit" disabled={isCreating} className="w-full sm:w-auto h-12 sm:h-10">
                         {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Add Product
                     </Button>

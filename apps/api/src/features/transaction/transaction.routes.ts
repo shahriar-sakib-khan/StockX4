@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction, Router } from 'express';
+import { Response, NextFunction, Router } from 'express';
+import { AuthRequest } from '../../middleware/auth.middleware';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionSchema } from '@repo/shared';
 import { authenticate } from '../../middleware/auth.middleware';
@@ -8,10 +9,10 @@ import { z } from 'zod';
 const router: Router = Router();
 
 export class TransactionController {
-  static async create(req: Request, res: Response, next: NextFunction) {
+  static async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const data = CreateTransactionSchema.parse(req.body);
-      const user = (req as any).user;
+      const user = req.user!;
       let storeId = user.storeId || req.headers['x-store-id'];
 
       if (!storeId) {
@@ -34,6 +35,14 @@ export class TransactionController {
           }
       }
 
+      // Permanent Fix: Fallback to session user details if staffId not found (e.g. for Owners)
+      if (!data.transactorName) {
+        data.transactorName = user.name || 'Unknown';
+      }
+      if (!data.transactorRole) {
+        data.transactorRole = user.role || 'user';
+      }
+
       const transaction = await TransactionService.create(storeId, staffId, data);
       res.status(201).json(transaction);
     } catch (error) {
@@ -41,9 +50,9 @@ export class TransactionController {
     }
   }
 
-  static async getHistory(req: Request, res: Response, next: NextFunction) {
+  static async getHistory(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-        const user = (req as any).user;
+        const user = req.user!;
         const storeId = user.storeId || req.headers['x-store-id'];
 
         if (!storeId) return res.status(400).json({ message: "Store Context Missing" });
@@ -55,9 +64,9 @@ export class TransactionController {
     }
   }
 
-  static async getSummary(req: Request, res: Response, next: NextFunction) {
+  static async getSummary(req: AuthRequest, res: Response, next: NextFunction) {
       try {
-          const user = (req as any).user;
+          const user = req.user!;
           const storeId = user.storeId || req.headers['x-store-id'];
 
           if (!storeId) return res.status(400).json({ message: "Store Context Missing" });

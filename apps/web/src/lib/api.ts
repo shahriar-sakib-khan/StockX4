@@ -2,11 +2,17 @@ import ky from 'ky';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { useStaffStore } from '@/features/staff/stores/staff.store';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const PROD_API_URL = 'https://stockx4-api.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || (!isLocal ? PROD_API_URL : 'http://localhost:3001');
+
+console.log(`[API] Mode: ${!isLocal ? 'Production' : 'Development'}, URL: ${API_URL}`);
 
 export const api = ky.create({
   prefixUrl: API_URL,
   retry: 0,
+  timeout: 60000,
+  credentials: 'include',
   hooks: {
     beforeRequest: [
       (request) => {

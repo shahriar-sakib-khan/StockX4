@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Users } from 'lucide-react';
 import { StaffCard, type Role, type StaffData } from './staff/StaffCard';
 import { Field, inputCls } from './shared/SetupFormFields';
+import { InfoTooltip } from './shared/InfoTooltip';
 
 
 export const Step6StaffSetup = ({ storeId, onItemAdded }: { storeId: string; onItemAdded?: () => void }) => {
@@ -86,7 +87,10 @@ export const Step6StaffSetup = ({ storeId, onItemAdded }: { storeId: string; onI
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Add Staff Members <span className="text-base font-normal text-muted-foreground">(Optional)</span></h2>
+        <h2 className="text-2xl font-bold tracking-tight">
+          Add Staff Members <span className="text-base font-normal text-muted-foreground">(Optional)</span>
+          <InfoTooltip content="Register your employees to track their sales performance and delivery activities." />
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">Create logins for your store staff. An owner account has been auto-created.</p>
       </div>
 
@@ -138,7 +142,7 @@ export const Step6StaffSetup = ({ storeId, onItemAdded }: { storeId: string; onI
         <button
           onClick={handleAdd}
           disabled={loading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 w-full sm:w-auto min-h-[48px] rounded-lg bg-primary text-primary-foreground text-sm font-bold shadow hover:opacity-90 transition disabled:opacity-50"
         >
           {loading ? '…' : '+ Add Staff Member'}
         </button>

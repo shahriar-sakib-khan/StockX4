@@ -5,6 +5,7 @@ import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { InfoTooltip } from '@/features/store/components/setup/shared/InfoTooltip';
 
 export const SettingsPage = () => {
   const { user } = useAuthStore();
@@ -14,26 +15,29 @@ export const SettingsPage = () => {
   if (!user) return null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+        Settings
+        <InfoTooltip content="Configure your account settings and preferences." />
+      </h1>
 
-      <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-          <h2 className="text-xl font-bold text-foreground mb-6">Account Preferences</h2>
-          <p className="text-muted-foreground">General settings will go here (Notifications, Theme, etc).</p>
+      <div className="bg-card border border-border rounded-xl p-5 sm:p-8 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-6">Account Preferences</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">General settings will go here (Notifications, Theme, etc).</p>
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-8">
-          <h2 className="text-xl font-bold text-destructive mb-4 flex items-center">
-              <Trash2 className="mr-2" /> Danger Zone
+      <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-5 sm:p-8">
+          <h2 className="text-lg sm:text-xl font-bold text-destructive mb-3 sm:mb-4 flex items-center">
+              <Trash2 className="mr-2 w-5 h-5 sm:w-6 sm:h-6" /> Danger Zone
           </h2>
-          <p className="text-destructive/80 mb-6">
+          <p className="text-sm sm:text-base text-destructive/80 mb-5 sm:mb-6">
               Permanently delete your account and all of your content. This action cannot be undone.
           </p>
           <Button
               onClick={() => setIsDeleteModalOpen(true)}
               variant="destructive"
-              className="font-medium shadow-sm"
+              className="font-medium shadow-sm w-full sm:w-auto min-h-[48px] sm:min-h-0"
           >
               Delete Account
           </Button>

@@ -90,7 +90,10 @@ export const useUpdateStoreBrandsBulk = () => {
     return useMutation({
         mutationFn: ({ storeId, globalBrandIds }: { storeId: string; globalBrandIds: string[] }) =>
             brandApi.updateStoreBrandsBulk(storeId, globalBrandIds),
-        onSuccess: (_, { storeId }) => queryClient.invalidateQueries({ queryKey: ['store-brands', storeId] }),
+        onSuccess: (_, { storeId }) => {
+            queryClient.invalidateQueries({ queryKey: ['store-brands', storeId] });
+            queryClient.invalidateQueries({ queryKey: ['inventory', storeId] });
+        },
     });
 };
 

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useCreateVehicle, useUpdateVehicle } from '../hooks/useVehicles';
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface VehicleFormProps {
@@ -77,67 +77,106 @@ export const VehicleForm = ({ onSuccess, initialData }: VehicleFormProps) => {
     };
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-             {/* Image Upload */}
-             <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Vehicle Image</label>
-                <div className="flex items-center gap-4">
-                    {imageUrl ? (
-                        <div className="relative w-24 h-24 rounded-lg overflow-hidden border">
-                            <img src={imageUrl} alt="Vehicle" className="w-full h-full object-cover" />
-                            <button
-                                type="button"
-                                onClick={() => form.setValue('imageUrl', '')}
-                                className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/70"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="w-24 h-24 rounded-lg border border-dashed flex items-center justify-center bg-muted/50 text-muted-foreground">
-                            <Upload size={24} />
-                        </div>
-                    )}
-                    <div className="flex-1">
-                        <Input
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-8 p-1 sm:p-2">
+             {/* Image Upload - Premium Aesthetic */}
+             <div className="space-y-3">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Vehicle Appearance</label>
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                    <div className="relative group shrink-0">
+                        {imageUrl ? (
+                            <div className="relative w-28 h-28 sm:w-40 sm:h-40 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border-4 border-slate-100 shadow-xl group-hover:scale-[1.02] transition-transform duration-500">
+                                <img src={imageUrl} alt="Vehicle" className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => form.setValue('imageUrl', '')}
+                                        className="bg-rose-500 text-white rounded-xl p-2 hover:bg-rose-600 shadow-lg"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="w-28 h-28 sm:w-40 sm:h-40 rounded-[1.5rem] sm:rounded-[2rem] border-4 border-dashed border-slate-100 flex flex-col items-center justify-center bg-slate-50 text-slate-300 hover:bg-slate-100 hover:border-indigo-200 transition-all group/upload cursor-pointer overflow-hidden">
+                                <Upload size={24} className="group-hover/upload:scale-110 group-hover/upload:text-indigo-400 transition-all mb-1" />
+                                <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest text-slate-400">Empty Profile</span>
+                            </div>
+                        )}
+                        <input
                             type="file"
                             accept="image/*"
                             onChange={handleFileUpload}
                             disabled={uploading}
+                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {uploading ? 'Uploading...' : 'Upload a photo of the vehicle'}
+                    </div>
+                    
+                    <div className="flex-1 space-y-1 sm:space-y-2 text-center sm:text-left">
+                        <h4 className="font-black text-slate-800 uppercase tracking-tight text-base sm:text-lg">Identity Photo</h4>
+                        <p className="text-xs font-bold text-slate-400 leading-relaxed max-w-[200px] sm:max-w-none">
+                            {uploading ? 'Processing high-quality upload...' : 'Click or drag a clear photo of the vehicle to help staff identify it quickly.'}
                         </p>
+                        {uploading && (
+                             <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden mt-3">
+                                <div className="bg-indigo-500 h-full animate-progress" style={{ width: '60%' }} />
+                             </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <div>
-                <label className="text-sm font-medium">License Plate</label>
-                <Input {...form.register('licensePlate')} placeholder="e.g. DHAKA-METRO-GA-1234" />
-                {form.formState.errors.licensePlate && <p className="text-red-500 text-xs">{form.formState.errors.licensePlate.message}</p>}
-            </div>
-
-            <div>
-                <label className="text-sm font-medium">Vehicle Model (Optional)</label>
-                <Input {...form.register('vehicleModel')} placeholder="e.g. Tata Ace" />
-                {form.formState.errors.vehicleModel && <p className="text-red-500 text-xs">{form.formState.errors.vehicleModel.message}</p>}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                   <label className="text-sm font-medium">Driver Name</label>
-                   <Input {...form.register('driverName')} placeholder="Driver Name" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+                <div className="space-y-1 sm:space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">License Plate</label>
+                    <Input 
+                        {...form.register('licensePlate')} 
+                        placeholder="e.g. DHAKA-METRO-GA-1234" 
+                        className="h-12 sm:h-14 px-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-900 placeholder:text-slate-300 focus:border-indigo-500 focus:bg-white transition-all focus:ring-4 focus:ring-indigo-500/10 uppercase text-xs sm:text-sm"
+                    />
+                    {form.formState.errors.licensePlate && <p className="text-rose-500 text-[10px] font-black uppercase mt-1 ml-1">{form.formState.errors.licensePlate.message}</p>}
                 </div>
-                <div>
-                   <label className="text-sm font-medium">Driver Phone</label>
-                   <Input {...form.register('driverPhone')} placeholder="017..." />
+
+                <div className="space-y-1 sm:space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Vehicle Model</label>
+                    <Input 
+                        {...form.register('vehicleModel')} 
+                        placeholder="e.g. Tata Ace (Small Truck)" 
+                        className="h-12 sm:h-14 px-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-900 placeholder:text-slate-300 focus:border-indigo-500 focus:bg-white transition-all focus:ring-4 focus:ring-indigo-500/10 text-xs sm:text-sm"
+                    />
+                    {form.formState.errors.vehicleModel && <p className="text-rose-500 text-[10px] font-black uppercase mt-1 ml-1">{form.formState.errors.vehicleModel.message}</p>}
+                </div>
+
+                <div className="space-y-1 sm:space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Driver Name</label>
+                   <Input 
+                        {...form.register('driverName')} 
+                        placeholder="Full Name" 
+                        className="h-12 sm:h-14 px-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-900 placeholder:text-slate-300 focus:border-indigo-500 focus:bg-white transition-all focus:ring-4 focus:ring-indigo-500/10 text-xs sm:text-sm"
+                    />
+                </div>
+
+                <div className="space-y-1 sm:space-y-2">
+                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Driver Mobile</label>
+                   <Input 
+                        {...form.register('driverPhone')} 
+                        placeholder="01XXXXXXXXX" 
+                        className="h-12 sm:h-14 px-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-900 placeholder:text-slate-300 focus:border-indigo-500 focus:bg-white transition-all focus:ring-4 focus:ring-indigo-500/10 text-xs sm:text-sm"
+                    />
                 </div>
             </div>
 
-            <div className="flex justify-end">
-                <Button type="submit" disabled={isPending}>
-                    {isPending ? (isEditing ? 'Updating...' : 'Adding...') : (isEditing ? 'Update Vehicle' : 'Add Vehicle')}
+            <div className="pt-4 sm:pt-6 border-t-2 border-slate-50">
+                <Button 
+                    type="submit" 
+                    disabled={isPending}
+                    className="w-full h-14 sm:h-16 bg-slate-900 hover:bg-black text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-slate-200 active:scale-[0.98] transition-all disabled:opacity-50 text-xs sm:text-sm"
+                >
+                    {isPending ? (
+                        <div className="flex items-center gap-2">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>{isEditing ? 'Syncing...' : 'Registering...'}</span>
+                        </div>
+                    ) : (isEditing ? 'Update Vehicle Profile' : 'Confirm Registration')}
                 </Button>
             </div>
         </form>

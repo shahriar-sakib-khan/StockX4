@@ -89,22 +89,22 @@ export const LandingCoreFeatures = () => {
                      {/* Background Pattern */}
                      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
 
-                     <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-slate-800">
-                        <div>
-                            <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
-                            <div className="text-slate-400 font-medium">Active Businesses</div>
+                     <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center lg:divide-x divide-slate-800">
+                        <div className="mb-4 lg:mb-0 lg:border-r border-slate-800 lg:border-r-0">
+                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2">500+</div>
+                            <div className="text-slate-400 font-medium text-xs sm:text-base">Active Businesses</div>
+                        </div>
+                        <div className="mb-4 lg:mb-0 lg:border-r border-slate-800 lg:border-r-0">
+                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2">50K+</div>
+                            <div className="text-slate-400 font-medium text-xs sm:text-base">Daily Deliveries</div>
+                        </div>
+                        <div className="lg:border-r border-slate-800 lg:border-r-0">
+                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2">99.9%</div>
+                            <div className="text-slate-400 font-medium text-xs sm:text-base">Uptime</div>
                         </div>
                         <div>
-                            <div className="text-4xl md:text-5xl font-bold mb-2">50K+</div>
-                            <div className="text-slate-400 font-medium">Daily Deliveries</div>
-                        </div>
-                        <div>
-                            <div className="text-4xl md:text-5xl font-bold mb-2">99.9%</div>
-                            <div className="text-slate-400 font-medium">Uptime</div>
-                        </div>
-                        <div>
-                            <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
-                            <div className="text-slate-400 font-medium">Support</div>
+                            <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2">24/7</div>
+                            <div className="text-slate-400 font-medium text-xs sm:text-base">Support</div>
                         </div>
                      </div>
                 </div>

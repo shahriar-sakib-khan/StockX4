@@ -28,10 +28,10 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
       <button
         type="button"
         onClick={() => onSizeChange(null)}
-        className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${
+        className={`shrink-0 px-6 py-3 rounded-full text-sm font-black border transition-all active:scale-95 ${
           activeSize === null
-            ? 'bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20'
-            : 'bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+            ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20'
+            : 'bg-card text-slate-600 border-slate-200 hover:bg-muted hover:text-foreground'
         }`}
       >
         All
@@ -44,10 +44,10 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
             key={size}
             type="button"
             onClick={() => onSizeChange(size)}
-            className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${
+            className={`shrink-0 px-6 py-3 rounded-full text-sm font-black border transition-all active:scale-95 ${
               isSelected
-                ? 'bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20'
-                : 'bg-card text-muted-foreground border-border hover:bg-muted hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20'
+                : 'bg-card text-slate-600 border-slate-200 hover:bg-muted hover:text-foreground'
             }`}
           >
             {size}
@@ -59,10 +59,10 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
         <button
           type="button"
           onClick={onEditSizesClick}
-          className="shrink-0 px-3 py-1.5 ml-2 rounded-full text-sm font-medium border border-dashed border-muted-foreground/30 text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-1 transition-colors"
+          className="shrink-0 px-4 py-3 ml-2 rounded-full text-sm font-bold border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50 hover:text-slate-800 flex items-center gap-1.5 transition-all active:scale-95"
           title="Edit Store Sizes"
         >
-          <Settings size={14} />
+          <Settings size={16} />
           Edit
         </button>
       )}

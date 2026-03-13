@@ -21,6 +21,7 @@ export interface IStoreBrand extends Document {
     customLogo?: string;
     customColor?: string;
     customCylinderImage?: string;
+    type: 'cylinder' | 'stove' | 'regulator';
 
     createdAt: Date;
     updatedAt: Date;
@@ -37,6 +38,7 @@ const StoreBrandSchema = new Schema<IStoreBrand>({
     customLogo: { type: String },
     customColor: { type: String },
     customCylinderImage: { type: String },
+    type: { type: String, enum: ['cylinder', 'stove', 'regulator'], default: 'cylinder' },
 }, { timestamps: true });
 
 // A store cannot have two entries for the same global brand

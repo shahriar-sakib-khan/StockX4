@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGlobalBrands } from '@/features/brand/hooks/useBrands';
 import { AlertTriangle } from 'lucide-react';
 import type { SetupCylinderState } from './Step3CylinderSetup';
+import { InfoTooltip } from './shared/InfoTooltip';
 import { SetupBrandCard } from './brands/SetupBrandCard';
 
 interface Step2Props {
@@ -79,12 +80,15 @@ export const Step2BrandSelection = ({ payload, updatePayload }: Step2Props) => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold tracking-tight">Select Brands</h2>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Select Brands
+            <InfoTooltip content="Select the brands you sell. This will create your inventory list for the next step." />
+          </h2>
           <p className="text-muted-foreground">Select the Gas Cylinder brands your store carries. (Mandatory)</p>
         </div>
         <button
           onClick={handleSelectAll}
-          className={`px-4 py-2 shrink-0 rounded-lg text-sm font-bold border-2 transition-all ${
+          className={`w-full sm:w-auto h-14 sm:h-12 px-4 shrink-0 rounded-xl text-xs sm:text-sm font-black uppercase tracking-widest border-2 transition-all ${
             isAllSelected
               ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'
               : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'

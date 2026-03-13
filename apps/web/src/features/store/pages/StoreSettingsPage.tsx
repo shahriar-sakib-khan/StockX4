@@ -81,12 +81,12 @@ export const StoreSettingsPage = () => {
 
   return (
     <div className="space-y-8 max-w-4xl">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
             <div>
-                <h1 className="text-3xl font-bold text-foreground tracking-tight">Store Settings</h1>
-                <p className="text-muted-foreground mt-1">Manage details and configuration for {store.name}</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Store Settings</h1>
+                <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage details and configuration for {store.name}</p>
             </div>
-            <Button onClick={() => setIsCreateModalOpen(true)} variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold shadow-sm">
+            <Button onClick={() => setIsCreateModalOpen(true)} variant="outline" className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bold shadow-sm w-full sm:w-auto min-h-[48px] sm:min-h-[40px]">
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Store
             </Button>
@@ -103,13 +103,13 @@ export const StoreSettingsPage = () => {
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md w-full">
             <div className="space-y-2">
                 <label className="text-sm font-black text-slate-700">Store Name</label>
                 <Input
                 {...register('name')}
                 placeholder="e.g. Test Store"
-                className="h-10 text-base font-medium"
+                className="h-12 sm:h-10 text-base font-medium"
                 />
                 {errors.name && <p className="text-destructive text-xs font-semibold">{errors.name.message}</p>}
             </div>
@@ -119,7 +119,7 @@ export const StoreSettingsPage = () => {
                 <Input
                 {...register('code')}
                 placeholder="e.g. ST-001"
-                className="h-10 text-base font-medium"
+                className="h-12 sm:h-10 text-base font-medium"
                 />
             </div>
 
@@ -128,7 +128,7 @@ export const StoreSettingsPage = () => {
                 <Input
                 {...register('ownerName')}
                 placeholder="e.g. John Doe"
-                className="h-10 text-base font-medium"
+                className="h-12 sm:h-10 text-base font-medium"
                 />
             </div>
 
@@ -137,13 +137,13 @@ export const StoreSettingsPage = () => {
                 <Input
                 {...register('ownerPhone')}
                 placeholder="e.g. 01700000000"
-                className="h-10 text-base font-medium"
+                className="h-12 sm:h-10 text-base font-medium"
                 />
             </div>
 
             <Button
                 type="submit"
-                className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-10 px-8"
+                className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 sm:h-10 px-8 w-full sm:w-auto"
                 disabled={updateStore.isPending}
             >
                 {updateStore.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

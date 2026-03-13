@@ -20,7 +20,7 @@ export class CustomerController {
       if (error.code === 11000) {
         return res.status(409).json({ error: 'Customer with this phone already exists in this store' });
       }
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Customer operation failed' });
     }
   }
 
@@ -32,7 +32,7 @@ export class CustomerController {
       const customers = await CustomerService.findByStore(targetStoreId, req.query);
       return res.status(200).json({ customers });
     } catch (error: any) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Customer operation failed' });
     }
   }
 
@@ -45,7 +45,7 @@ export class CustomerController {
       return res.status(200).json({ customer });
     } catch (error: any) {
       if (error.message === 'Customer not found') return res.status(404).json({ error: 'Customer not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Customer operation failed' });
     }
   }
 
@@ -63,7 +63,7 @@ export class CustomerController {
       return res.status(200).json({ customer });
     } catch (error: any) {
       if (error.message === 'Customer not found') return res.status(404).json({ error: 'Customer not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Customer operation failed' });
     }
   }
 
@@ -76,7 +76,7 @@ export class CustomerController {
       return res.status(200).json({ success: true });
     } catch (error: any) {
       if (error.message === 'Customer not found') return res.status(404).json({ error: 'Customer not found' });
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Customer operation failed' });
     }
   }
 }

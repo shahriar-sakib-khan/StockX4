@@ -12,26 +12,26 @@ interface SummaryCardProps {
 
 export const SummaryCard = ({ title, value, subtext, color, icon }: SummaryCardProps) => {
     const colors = {
-        emerald: "bg-emerald-50 border-emerald-100 text-emerald-600",
-        rose: "bg-rose-50 border-rose-100 text-rose-600",
-        slate: "bg-slate-900 border-slate-800 text-white shadow-xl",
-        amber: "bg-amber-50 border-amber-100 text-amber-600",
-        cyan: "bg-cyan-50 border-cyan-100 text-cyan-600",
-        red: "bg-red-50 border-red-100 text-red-600",
-        orange: "bg-orange-500 border-orange-600 text-white shadow-lg",
+        emerald: "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm",
+        rose: "bg-rose-50 border-rose-200 text-rose-700 shadow-sm",
+        slate: "bg-slate-900 border-slate-800 text-white shadow-2xl",
+        amber: "bg-amber-50 border-amber-200 text-amber-700 shadow-sm",
+        cyan: "bg-cyan-50 border-cyan-200 text-cyan-700 shadow-sm",
+        red: "bg-red-50 border-red-200 text-red-700 shadow-sm",
+        orange: "bg-orange-500 border-orange-600 text-white shadow-xl z-10",
     };
 
     return (
         <Card className={cn("border-none shadow-sm overflow-hidden", colors[color])}>
-            <CardContent className="p-3 pt-4 pb-4">
-                <div className="flex items-center gap-2 mb-2">
-                    <div className={cn("p-1.5 rounded-lg", color === 'slate' ? "bg-white/10" : "bg-white/50")}>
-                        {icon}
+            <CardContent className="p-1.5 sm:p-5 pt-2 sm:pt-5 pb-2 sm:pb-5">
+                <div className="flex items-center gap-1 sm:gap-3 mb-1 sm:mb-3">
+                    <div className={cn("p-1 sm:p-2 rounded-md sm:rounded-xl", color === 'slate' || color === 'orange' ? "bg-white/20" : "bg-white/80 shadow-inner")}>
+                        {React.cloneElement(icon as React.ReactElement, { size: 10, className: "sm:size-5" })}
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-70">{title}</span>
+                    <span className="text-[7px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-[0.15em] opacity-80 leading-none truncate">{title}</span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-black mb-0.5">৳{value.toLocaleString()}</div>
-                <div className="text-[10px] font-bold opacity-60 uppercase">{subtext}</div>
+                <div className="text-xs sm:text-4xl font-black mb-0 sm:mb-1 tracking-tight truncate">৳{value.toLocaleString()}</div>
+                <div className="text-[6px] sm:text-xs font-black opacity-70 uppercase tracking-tighter sm:tracking-wider truncate">{subtext}</div>
             </CardContent>
         </Card>
     );

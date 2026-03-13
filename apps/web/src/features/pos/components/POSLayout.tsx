@@ -87,24 +87,24 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
     const isLocked = activeCategory === 'stove' || activeCategory === 'regulator';
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 relative overflow-y-auto pb-12">
+    <div className="flex flex-col h-full gap-1.5 sm:gap-2 p-1.5 sm:p-2 relative overflow-y-auto pb-12">
 
       {/* 1. Header Bar */}
       <POSHeader storeId={storeId} userName={userName} userRole={userRole} onLogout={onLogout} />
 
       {/* 2. Main Cart Grid (Responsive) */}
-      <div className="flex flex-col lg:flex-row gap-2 h-auto lg:h-[35vh] shrink-0 min-h-[300px]">
+      <div className="flex flex-col lg:flex-row gap-2 h-auto lg:h-[35vh] shrink-0 min-h-[200px] sm:min-h-[300px]">
           {/* LEFT: Selling Window */}
           <div
             onClick={() => setMode('REFILL')}
-            className={`flex-1 border-4 rounded-xl p-2 bg-white/50 flex flex-col h-60 lg:h-full cursor-pointer transition-all ${
+            className={`flex-1 border-2 md:border-4 rounded-xl p-1.5 sm:p-2 bg-white/50 flex flex-col h-40 sm:h-60 lg:h-full cursor-pointer transition-all ${
               (mode === 'REFILL' || mode === 'PACKAGED') ? 'border-blue-500 shadow-md ring-2 ring-blue-100' : 'border-slate-200 opacity-80'
             }`}
           >
                <POSItemList
                  items={safeSaleItems}
-                 title="Selling Items"
-                 emptyMsg="No items added for sale"
+                 title="Selling"
+                 emptyMsg="No items"
                  listType="SALE"
                />
           </div>
@@ -112,7 +112,7 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
           {/* RIGHT: Returned Window */}
           <div
             onClick={() => !isLocked && setMode('EMPTY')}
-            className={`flex-1 border-4 rounded-xl p-2 bg-white/50 flex flex-col h-60 lg:h-full transition-all relative ${
+            className={`flex-1 border-2 md:border-4 rounded-xl p-1.5 sm:p-2 bg-white/50 flex flex-col h-40 sm:h-60 lg:h-full transition-all relative ${
               isLocked ? 'border-slate-100 cursor-not-allowed' :
               mode === 'EMPTY' ? 'border-slate-500 shadow-md ring-2 ring-slate-100 cursor-pointer' :
               'border-slate-200 opacity-80 cursor-pointer'
@@ -120,8 +120,8 @@ export const POSLayout = ({ children, storeId, userName, userRole, onLogout }: P
           >
               <POSItemList
                 items={combinedReturnItems}
-                title="Returned Items"
-                emptyMsg="No returned items"
+                title="Returned"
+                emptyMsg="No items"
                 listType="RETURN"
               />
 
