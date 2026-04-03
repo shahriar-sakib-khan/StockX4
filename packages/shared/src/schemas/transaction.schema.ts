@@ -24,7 +24,7 @@ export const CreateTransactionSchema = z.object({
   customerType: z.enum(['retail', 'wholesale', 'Customer', 'Shop', 'Vehicle']).optional(),
   items: z.array(TransactionItemSchema).min(1, "At least one item is required"),
   paymentMethod: z.enum(['CASH', 'DIGITAL', 'DUE']).default('CASH'),
-  type: z.enum(['SALE', 'RETURN', 'EXCHANGE', 'DUE_PAYMENT', 'EXPENSE', 'DUE_CYLINDER_SETTLEMENT']).default('SALE'),
+  type: z.enum(['SALE', 'RETURN', 'EXCHANGE', 'DUE_PAYMENT', 'EXPENSE', 'DUE_CYLINDER_SETTLEMENT', 'SALARY']).default('SALE'),
   finalAmount: z.number().nonnegative().optional(), // Defaults to total
   paidAmount: z.number().nonnegative().default(0),
   transactorName: z.string().optional(),

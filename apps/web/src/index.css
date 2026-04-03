@@ -148,3 +148,9 @@
     transform: rotateX(12deg);
   }
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

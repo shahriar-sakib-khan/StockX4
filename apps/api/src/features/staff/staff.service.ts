@@ -51,8 +51,23 @@ export class StaffService {
     return safeStaff;
   }
 
-  static async update(storeId: string, staffDocId: string, data: Partial<CreateStaffInput>) {
+  static async update(storeId: string, staffDocId: string, data: any) {
     const updatePayload: any = { ...data };
+    
+    // Check if there is an immediate salary change that requires a bump to salaryDue
+    const existingStaff = await StaffModel.findOne({ _id: staffDocId, storeId });
+    if (!existingStaff) throw new Error('Staff not found');
+
+    if (data.salary !== undefined) {
+      if (!data.salaryEffectiveDate || data.salaryEffectiveDate === 'immediate') {
+         if (data.salary !== existingStaff.salary) {
+             const diff = data.salary - existingStaff.salary;
+             // Add the difference between the new and old salary to the due balance immediately
+             updatePayload.salaryDue = (existingStaff.salaryDue || 0) + diff;
+         }
+      }
+    }
+
     if (data.password) {
       updatePayload.passwordHash = await argon2.hash(data.password);
       delete updatePayload.password;
@@ -73,22 +88,6 @@ export class StaffService {
   }
 
   static async findByStore(storeId: string) {
-    await this.processMonthlySalaries(storeId);
     return StaffModel.find({ storeId }).select('-passwordHash');
-  }
-
-  static async processMonthlySalaries(storeId: string) {
-    const staffMembers = await StaffModel.find({ storeId, isActive: true });
-    const now = new Date();
-    for (const staff of staffMembers) {
-      if (!staff.salary || staff.salary <= 0) continue;
-      const lastProcessed = staff.lastSalaryProcessed || staff.createdAt;
-      const monthsDiff =
-        (now.getFullYear() - lastProcessed.getFullYear()) * 12 + (now.getMonth() - lastProcessed.getMonth());
-      if (monthsDiff > 0) {
-        staff.salaryDue = (staff.salaryDue || 0) + staff.salary * monthsDiff;
-        await staff.save();
-      }
-    }
   }
 }

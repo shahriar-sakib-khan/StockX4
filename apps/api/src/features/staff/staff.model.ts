@@ -14,6 +14,8 @@ export interface IStaff extends Document {
   lastSalaryProcessed?: Date;
   isActive: boolean;
   salaryEnabled: boolean;
+  pendingSalary?: number;
+  salaryEffectiveDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +34,8 @@ const staffSchema = new Schema<IStaff>(
     lastSalaryProcessed: { type: Date, default: new Date() },
     isActive: { type: Boolean, default: true },
     salaryEnabled: { type: Boolean, default: true },
+    pendingSalary: { type: Number },
+    salaryEffectiveDate: { type: Date },
   },
   { timestamps: true }
 );

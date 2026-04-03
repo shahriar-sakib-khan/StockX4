@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { cn } from '@/lib/utils';
+import { CalendarClock } from 'lucide-react';
 
 interface EditStaffModalProps {
   storeId: string;
@@ -16,9 +17,32 @@ interface EditStaffModalProps {
   onClose: () => void;
 }
 
+/** Generate 6 month options */
+const getMonthOptions = () => {
+  const now = new Date();
+  const options: { value: string; label: string }[] = [
+    { value: 'immediate', label: `This month (${now.toLocaleDateString('en-US', { month: 'long' })})` },
+  ];
+  
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  options.push({
+    value: nextMonth.toISOString(),
+    label: `From next month (${nextMonth.toLocaleDateString('en-US', { month: 'long' })})`,
+  });
+
+  for (let i = 2; i <= 5; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    options.push({
+      value: d.toISOString(),
+      label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+    });
+  }
+  return options;
+};
+
 export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps) => {
   const updateStaff = useUpdateStaff();
-  const { register, handleSubmit, formState: { errors }, reset, control } = useForm<UpdateStaffInput>({
+  const { register, handleSubmit, formState: { errors, isDirty }, reset, control, watch, setValue } = useForm<UpdateStaffInput>({
     resolver: zodResolver(updateStaffSchema),
     defaultValues: {
         name: staff.name,
@@ -29,6 +53,12 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
   });
 
   const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [salaryEffective, setSalaryEffective] = useState('immediate');
+  const [isChangingSalary, setIsChangingSalary] = useState(false);
+
+  const currentSalary = staff.salary || 0;
+  const watchedSalary = watch('salary');
+  const salaryChanged = watchedSalary != null && Number(watchedSalary) !== currentSalary;
 
   useEffect(() => {
     reset({
@@ -43,9 +73,15 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
   }, [staff, reset]);
 
   const onSubmit = (data: UpdateStaffInput) => {
-    // Clean up empty password
-    if (!data.password) {
-        delete data.password;
+    if (!data.password) delete data.password;
+
+    // Handle salary effective date
+    if (salaryChanged && salaryEffective !== 'immediate') {
+      // Schedule the salary change for a future date
+      data.pendingSalary = Number(data.salary);
+      data.salaryEffectiveDate = salaryEffective;
+      // Keep the current salary unchanged
+      data.salary = currentSalary;
     }
 
     updateStaff.mutate({ storeId, staffId: staff._id, data }, {
@@ -59,12 +95,14 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
     });
   };
 
+  const monthOptions = getMonthOptions();
+
   return (
     <Modal isOpen={true} onClose={onClose} title="Edit Staff Member">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Full Name</label>
+                <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Full Name</label>
                 <Input
                   {...register('name')}
                   placeholder="e.g. John Doe"
@@ -74,7 +112,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
               </div>
 
               <div className="space-y-1.5">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Phone / Email</label>
+                 <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Phone / Email</label>
                  <Input
                    {...register('contact')}
                    placeholder="e.g. 01711111111"
@@ -84,9 +122,9 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
               </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Role</label>
+                <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Role</label>
                 <select
                   {...register('role')}
                   className="w-full h-12 sm:h-14 bg-white border-2 border-slate-100 rounded-2xl px-5 py-2 text-slate-700 font-bold focus:outline-none focus:border-indigo-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:20px_20px] bg-[right_1rem_center] bg-no-repeat transition-all"
@@ -96,24 +134,97 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                     <option value="driver">Driver</option>
                     <option value="owner">Owner</option>
                 </select>
-                 {errors.role && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.role.message}</p>}
+                  {errors.role && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.role.message}</p>}
               </div>
 
-              <div className="space-y-1.5">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Monthly Salary (৳)</label>
-                 <Input
-                   {...register('salary')}
-                   type="number"
-                   placeholder="0"
-                   min="0"
-                   className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
-                 />
-                 {errors.salary && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.salary.message}</p>}
+              <div className={cn("space-y-1.5 border-2 border-slate-100 rounded-2xl p-4 bg-slate-50 transition-all", isChangingSalary ? "col-span-1 sm:col-span-2" : "")}>
+                 <div className="flex justify-between items-center mb-1">
+                     <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Monthly Salary</label>
+                     {!isChangingSalary && (
+                         <button 
+                             type="button" 
+                             onClick={() => setIsChangingSalary(true)}
+                             className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full transition-all"
+                         >
+                             Change
+                         </button>
+                     )}
+                 </div>
+                 
+                 {!isChangingSalary ? (
+                     <div className="font-black text-slate-700 text-lg">
+                         ৳{currentSalary.toLocaleString()}
+                     </div>
+                 ) : (
+                     <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                             <div className="space-y-1.5">
+                                 <label className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">New Salary Amount (৳)</label>
+                                 <Input
+                                   {...register('salary')}
+                                   type="number"
+                                   placeholder="0"
+                                   min="0"
+                                   className="h-10 sm:h-12 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 font-bold text-slate-700 transition-all px-4 bg-white"
+                                 />
+                                 {errors.salary && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.salary.message}</p>}
+                             </div>
+
+                             <div className="space-y-1.5">
+                                 <label className="text-[9px] sm:text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none flex items-center gap-1">
+                                     <CalendarClock className="w-3.5 h-3.5" /> Effective Date
+                                 </label>
+                                 <select
+                                     value={salaryEffective}
+                                     onChange={(e) => setSalaryEffective(e.target.value)}
+                                     className="w-full h-10 sm:h-12 bg-white border-2 border-amber-200 rounded-xl px-4 text-sm font-bold text-slate-700 focus:outline-none focus:border-amber-400 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%23D97706%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:16px_16px] bg-[right_0.75rem_center] bg-no-repeat transition-all"
+                                 >
+                                     {monthOptions.map((opt) => (
+                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                     ))}
+                                 </select>
+                                 {salaryEffective !== 'immediate' && (
+                                     <p className="text-[9px] text-amber-600 font-bold ml-1 mt-1">
+                                         Current salary ৳{currentSalary.toLocaleString()} will continue until the selected month.
+                                     </p>
+                                 )}
+                             </div>
+                         </div>
+                         
+                         <div className="flex justify-end pt-2 border-t border-slate-200">
+                             <button 
+                                 type="button" 
+                                 onClick={() => {
+                                     setIsChangingSalary(false);
+                                     setValue('salary', currentSalary);
+                                     setSalaryEffective(monthOptions[1].value); // reset to next month
+                                 }}
+                                 className="text-[10px] sm:text-xs font-bold text-slate-500 hover:text-slate-700 w-full sm:w-auto text-center px-4 py-2"
+                             >
+                                 Cancel
+                             </button>
+                         </div>
+                     </div>
+                 )}
               </div>
           </div>
 
+
+          {/* Pending Salary Indicator — show if staff already has a pending change */}
+          {staff.pendingSalary != null && staff.salaryEffectiveDate && (
+              <div className="p-3 sm:p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                  <div className="space-y-0.5">
+                      <span className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none">Scheduled Salary Change</span>
+                      <p className="text-[10px] sm:text-xs text-blue-500 font-bold">
+                          Effective {new Date(staff.salaryEffectiveDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </p>
+                  </div>
+                  <span className="font-black text-lg sm:text-xl text-blue-700">৳{staff.pendingSalary.toLocaleString()}</span>
+              </div>
+          )}
+
           {staff.role === 'owner' && (
-              <div className="flex items-center justify-between p-4 sm:p-5 border-2 border-indigo-50 rounded-2xl bg-indigo-50/50">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border-2 border-indigo-50 rounded-2xl bg-indigo-50/50 gap-3">
                   <div className="space-y-1">
                       <label className="text-xs font-black text-indigo-900 uppercase tracking-tight">Salary Visibility</label>
                       <p className="text-[10px] text-indigo-600 font-bold mt-0.5">Show or hide your salary across the store.</p>
@@ -128,7 +239,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                               variant={field.value !== false ? "outline" : "default"}
                               size="sm"
                               className={cn(
-                                "h-12 px-6 rounded-xl font-black uppercase tracking-tighter text-[10px]",
+                                "h-12 px-6 rounded-xl font-black uppercase tracking-tighter text-[10px] w-full sm:w-auto",
                                 field.value === false ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "bg-white text-indigo-600 border-2 border-indigo-100"
                               )}
                           >
@@ -140,7 +251,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
           )}
 
           <div className="space-y-1.5">
-             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Profile Image</label>
+             <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Profile Image</label>
              <Controller
                 control={control}
                 name="image"
@@ -155,9 +266,9 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
              {errors.image && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.image.message}</p>}
           </div>
 
-          <div className="space-y-2 border-t-2 border-slate-100 pt-5 mt-2">
+          <div className="space-y-2 border-t-2 border-slate-100 pt-4 sm:pt-5 mt-2">
              <div className="flex justify-between items-center mb-1">
-                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Security</label>
+                 <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Security</label>
                  <Button
                     type="button"
                     variant="ghost"
@@ -186,22 +297,27 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
              )}
           </div>
 
-           <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mt-2">
+           <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mt-2">
                 <input
                     type="checkbox"
                     id="isActive"
                     {...register('isActive')}
                     className="h-5 w-5 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
                 />
-                <label htmlFor="isActive" className="text-sm font-black text-slate-700 cursor-pointer uppercase tracking-tight">Account Active</label>
+                <label htmlFor="isActive" className="text-xs sm:text-sm font-black text-slate-700 cursor-pointer uppercase tracking-tight">Account Active</label>
            </div>
 
           <Button
             type="submit"
-            className="w-full h-14 bg-slate-900 text-white hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 rounded-2xl font-black uppercase tracking-widest text-xs mt-4 active:scale-[0.98]"
-            disabled={updateStaff.isPending}
+            className={cn(
+                "w-full h-14 transition-all shadow-xl rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs mt-6",
+                isDirty 
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-200 active:scale-[0.98]" 
+                    : "bg-slate-200 text-slate-500 shadow-none cursor-default"
+            )}
+            disabled={updateStaff.isPending || !isDirty}
           >
-            {updateStaff.isPending ? 'Saving Changes...' : 'Update Staff Profile'}
+            {updateStaff.isPending ? 'Updating...' : 'Update Staff Profile'}
           </Button>
         </form>
     </Modal>

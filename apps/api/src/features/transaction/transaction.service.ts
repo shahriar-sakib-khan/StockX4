@@ -133,14 +133,7 @@ export class TransactionService {
               }
           }
       } else if (data.type === 'EXPENSE' && itemsWithSubtotal.length > 0) {
-          // Salary Payment Logic
-          for (const item of itemsWithSubtotal) {
-             if (item.name && item.name.toLowerCase().includes('salary') && item.productId) {
-                 await StaffModel.findByIdAndUpdate(item.productId, {
-                     $inc: { salaryDue: -(item.subtotal || 0) }
-                 }, { session });
-             }
-          }
+          // Expense processing — salary payments are now handled by the dedicated SALARY route
       }
 
 

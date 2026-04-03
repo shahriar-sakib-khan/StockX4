@@ -8,14 +8,12 @@ import { useStore } from '@/features/store/hooks/useStores';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { ArrowLeft, Printer, CheckCircle, PackageMinus, Info } from 'lucide-react';
-import { Modal } from '@/components/ui/Modal';
+import { ArrowLeft, Printer, CheckCircle, PlusCircle } from 'lucide-react';
 import { Receipt } from '../components/Receipt';
 import { InvoiceHeader } from '../components/invoice/InvoiceHeader';
 import { InvoiceCustomerDetails } from '../components/invoice/InvoiceCustomerDetails';
-import { InvoiceItemsTable } from '../components/invoice/InvoiceItemsTable';
+import { InvoiceItemsTable, ExtraExpense } from '../components/invoice/InvoiceItemsTable';
 import { InvoiceTotals } from '../components/invoice/InvoiceTotals';
 
 export const CheckoutPage = () => {
@@ -33,10 +31,55 @@ export const CheckoutPage = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [completedTransaction, setCompletedTransaction] = useState<any>(null);
 
+    // Extra Expenses — draft-first pattern
+    const [extraExpenses, setExtraExpenses] = useState<ExtraExpense[]>([]);
+    // Draft for a new expense (null = no draft open)
+    const [draft, setDraft] = useState<{ amount: number; note: string } | null>(null);
+    // Which committed expense is being edited (null = none)
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editDraft, setEditDraft] = useState<{ amount: number; note: string }>({ amount: 0, note: '' });
+
+    const openDraft = () => setDraft({ amount: 200, note: 'cylinder change' });
+
+    const confirmDraft = () => {
+        if (!draft) return;
+        if (!draft.amount) { toast.error('Enter an amount'); return; }
+        setExtraExpenses(prev => [
+            ...prev,
+            { id: crypto.randomUUID(), amount: draft.amount, note: draft.note || 'cylinder change' }
+        ]);
+        setDraft(null);
+    };
+
+    const cancelDraft = () => setDraft(null);
+
+    const startEdit = (id: string) => {
+        const exp = extraExpenses.find(e => e.id === id);
+        if (!exp) return;
+        setEditingId(id);
+        setEditDraft({ amount: exp.amount, note: exp.note });
+    };
+
+    const confirmEdit = () => {
+        if (!editingId) return;
+        setExtraExpenses(prev => prev.map(e => e.id === editingId ? { ...e, ...editDraft } : e));
+        setEditingId(null);
+    };
+
+    const cancelEdit = () => setEditingId(null);
+
+    const deleteExpense = (id: string) => {
+        setExtraExpenses(prev => prev.filter(e => e.id !== id));
+        if (editingId === id) setEditingId(null);
+    };
+
+    const extraTotal = extraExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
     useEffect(() => {
-        setFinalAmount(totals.netTotal);
-        setPaidAmount(totals.netTotal);
-    }, [totals.netTotal]);
+        const base = totals.netTotal + extraTotal;
+        setFinalAmount(base);
+        setPaidAmount(base);
+    }, [totals.netTotal, extraTotal]);
 
     const dueAmount = finalAmount - paidAmount;
 
@@ -102,6 +145,15 @@ export const CheckoutPage = () => {
                     isSettled: true,
                     isReturn: true,
                     saleType: 'RETURN' as const
+                })),
+                ...extraExpenses.map(e => ({
+                    productId: '000000000000000000000000', // Ad-hoc expense item
+                    type: 'EXPENSE' as const,
+                    category: 'EXTRA_EXPENSE',
+                    name: e.note || 'Extra Expense',
+                    quantity: 1,
+                    unitPrice: e.amount,
+                    subtotal: e.amount
                 }))
             ];
 
@@ -234,7 +286,88 @@ export const CheckoutPage = () => {
                                                 regulator: b.regulator
                                             }))
                                         ]}
+                                        extraExpenses={extraExpenses}
+                                        onEditExpense={startEdit}
+                                        onDeleteExpense={deleteExpense}
                                 />
+
+                                {/* Inline edit row for existing expense — no-print */}
+                                {editingId && (() => {
+                                    const exp = extraExpenses.find(e => e.id === editingId);
+                                    if (!exp) return null;
+                                    return (
+                                        <div className="no-print mt-2 flex items-center gap-2 bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                            <span className="text-[10px] font-black text-amber-700 whitespace-nowrap">৳</span>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                value={editDraft.amount || ''}
+                                                onChange={e => setEditDraft(d => ({ ...d, amount: Number(e.target.value) }))}
+                                                className="w-20 sm:w-28 text-right font-black text-sm h-9 border border-amber-300 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                                autoFocus
+                                            />
+                                            <Input
+                                                type="text"
+                                                value={editDraft.note}
+                                                onChange={e => setEditDraft(d => ({ ...d, note: e.target.value }))}
+                                                placeholder="cylinder change"
+                                                className="flex-1 font-bold text-xs h-9 border border-amber-200 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                            />
+                                            <button type="button" onClick={confirmEdit}
+                                                className="h-9 px-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-wide transition-colors shrink-0">
+                                                Save
+                                            </button>
+                                            <button type="button" onClick={cancelEdit}
+                                                className="h-9 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs transition-colors shrink-0">
+                                                ✕
+                                            </button>
+                                        </div>
+                                    );
+                                })()}
+
+                                {/* Draft row for new expense — no-print */}
+                                {draft && (
+                                    <div className="no-print mt-2 flex items-center gap-2 bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                        <span className="text-[10px] font-black text-amber-700 whitespace-nowrap">৳</span>
+                                        <Input
+                                            type="number"
+                                            min={0}
+                                            value={draft.amount || ''}
+                                            onChange={e => setDraft(d => d ? { ...d, amount: Number(e.target.value) } : d)}
+                                            className="w-20 sm:w-28 text-right font-black text-sm h-9 border border-amber-300 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                            autoFocus
+                                        />
+                                        <Input
+                                            type="text"
+                                            value={draft.note}
+                                            onChange={e => setDraft(d => d ? { ...d, note: e.target.value } : d)}
+                                            placeholder="cylinder change"
+                                            className="flex-1 font-bold text-xs h-9 border border-amber-200 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                        />
+                                        <button type="button" onClick={confirmDraft}
+                                            className="h-9 px-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-wide transition-colors shrink-0">
+                                            Add
+                                        </button>
+                                        <button type="button" onClick={cancelDraft}
+                                            className="h-9 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs transition-colors shrink-0">
+                                            ✕
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Add Extra Expense trigger — no-print, hidden while draft is open */}
+                                {!draft && (
+                                    <div className="no-print mt-2">
+                                        <button
+                                            type="button"
+                                            onClick={openDraft}
+                                            className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-amber-700 uppercase tracking-widest border border-dashed border-amber-300 rounded-lg px-3 py-2 hover:bg-amber-50 transition-colors w-full justify-center"
+                                        >
+                                            <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                            Add Extra Expense
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* Editable Totals Section */}
                                 <div className="mt-4 sm:mt-6 space-y-1.5 sm:space-y-2 border-t border-dashed pt-4 text-right">
@@ -246,6 +379,12 @@ export const CheckoutPage = () => {
                                         <div className="flex justify-between items-center text-slate-500 text-[10px] sm:text-xs">
                                             <span>Returns (No Charge)</span>
                                             <span className="font-bold">{totals.returnTotal}</span>
+                                        </div>
+                                    )}
+                                    {extraTotal > 0 && (
+                                        <div className="flex justify-between items-center text-amber-700 text-[10px] sm:text-xs font-bold">
+                                            <span className="uppercase tracking-wide">+ Extra Expenses</span>
+                                            <span>+{extraTotal}</span>
                                         </div>
                                     )}
 

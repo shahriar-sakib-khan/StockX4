@@ -166,27 +166,36 @@ export const StaffList = ({ storeId }: { storeId: string }) => {
                                 </div>
                             ) : (isManagement) ? (
                                  <div className="mt-auto pt-4 sm:pt-6 border-t border-dashed border-slate-200">
-                                     <div className="flex justify-between items-end mb-3 sm:mb-4 group/salary">
-                                         <div className="flex flex-col">
-                                             <span className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Monthly</span>
+                                     <div className="flex flex-col gap-2 sm:gap-3 mb-3 sm:mb-4">
+                                         {/* Monthly salary — always shown */}
+                                         <div className="flex justify-between items-center">
+                                             <span className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Monthly</span>
                                              <span className="font-black text-base sm:text-xl text-slate-900 leading-none tracking-tight">৳{member.salary?.toLocaleString() || 0}</span>
                                          </div>
-                                         <div className="flex flex-col items-end">
+
+                                         {/* Due / Paid in Advance — ALWAYS SHOWN */}
+                                         <div className={cn(
+                                             "flex justify-between items-center p-2.5 sm:p-3 rounded-xl border-2",
+                                             (member.salaryDue || 0) > 0
+                                                 ? "bg-rose-50 border-rose-100"
+                                                 : (member.salaryDue || 0) < 0
+                                                     ? "bg-emerald-50 border-emerald-100"
+                                                     : "bg-slate-50 border-slate-100" // Zero due
+                                         )}>
                                              <span className={cn(
-                                                 "text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none mb-1",
-                                                 (member.salaryDue || 0) > 0 ? "text-rose-500" : "text-emerald-500"
+                                                 "text-[8px] sm:text-[10px] font-black uppercase tracking-widest leading-none",
+                                                 (member.salaryDue || 0) > 0 ? "text-rose-500" : (member.salaryDue || 0) < 0 ? "text-emerald-500" : "text-slate-400"
                                              )}>
-                                                 {(member.salaryDue || 0) > 0 ? 'DUE' : 'PAID'}
+                                                 {(member.salaryDue || 0) > 0 ? 'Salary Due' : (member.salaryDue || 0) < 0 ? 'Paid in Advance' : 'Due'}
                                              </span>
                                              <span className={cn(
-                                                 "font-black text-lg sm:text-2xl md:text-3xl leading-none",
-                                                 (member.salaryDue || 0) > 0 ? "text-rose-600" : "text-emerald-600"
+                                                 "font-black text-lg sm:text-2xl leading-none",
+                                                 (member.salaryDue || 0) > 0 ? "text-rose-600" : (member.salaryDue || 0) < 0 ? "text-emerald-600" : "text-slate-500"
                                              )}>
                                                  ৳{Math.abs(member.salaryDue || 0).toLocaleString()}
                                              </span>
                                          </div>
                                      </div>
-    
 
                                      <Button
                                          className="w-full h-12 md:h-14 bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 rounded-xl sm:rounded-2xl font-black uppercase tracking-tighter active:scale-[0.98] text-[10px] sm:text-xs md:text-sm"
@@ -236,6 +245,10 @@ export const StaffList = ({ storeId }: { storeId: string }) => {
             storeId={storeId}
             staff={selectedStaffDetails}
             onClose={() => setSelectedStaffDetails(null)}
+            onEdit={() => {
+                setSelectedStaffDetails(null);
+                setEditingStaff(selectedStaffDetails);
+            }}
           />
       )}
 

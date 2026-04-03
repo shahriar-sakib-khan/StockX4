@@ -1,42 +1,35 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/Modal';
-import { CardDescription } from '@/components/ui/card';
 import { Phone, User, ReceiptText, Banknote, Calendar, BadgeCheck } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTransactions } from '@/features/pos/api/transaction.api';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { Receipt } from '@/features/pos/components/Receipt';
 import { PaySalaryModal } from './PaySalaryModal';
+import { useSalaryHistory } from '../salary/hooks/useSalary';
 import { cn } from '@/lib/utils';
 
 interface StaffDetailsModalProps {
     storeId: string;
-    staff: any;
+    staff: {
+        _id: string;
+        name: string;
+        role: string;
+        contact?: string;
+        phone?: string;
+        image?: string;
+        salary: number;
+        salaryDue: number;
+        createdAt: string;
+    };
+    storeName?: string;
     onClose: () => void;
+    onEdit?: () => void;
 }
 
-export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModalProps) => {
-    // We use transaction API but filter by productId (Staff ID) for SALARY payments
-    // Actually, our API might not support filtering by productId easily in `getHistory` directly unless we added it on backend.
-    // The previous implementation of `transactionApi.getHistory` filters by `customerId`.
-    // For Staff Salary history, we need to fetch transactions where type=EXPENSE and items.productId = staffId.
-    // OR we can just fetch ALL expenses and filter client side for now, or add a new filter backend.
-    // Let's assume for now we might need to update backend filters to support `productId` search or just `search` param.
-    // BUT, `PaySalaryModal` creates transaction with `type: EXPENSE`.
-    // Let's update `transactionApi` to support searching/filtering.
-    // For now, let's try to fetch all transactions and filter client side if list is small, OR
-    // better: Use `search` param with Staff Name if backend supports it.
-    // Backend `getHistory` in `transaction.service.ts` supports `search` strictly? No, i commented it out.
-
-    // WORKAROUND: We will fetch all transactions for store with type=EXPENSE and filter client side.
-    // This is not scalable but works for MVP.
-    const { data: transactionsData, isLoading: isHistoryLoading } = useTransactions(storeId, { type: 'EXPENSE', limit: 1000 });
-
-    const transactions = transactionsData?.data?.filter((tx: any) =>
-        tx.items?.some((item: any) => item.productId === staff._id)
-    ) || [];
+export const StaffDetailsModal = ({ storeId, staff, storeName, onClose, onEdit }: StaffDetailsModalProps) => {
+    // Server-side salary history — replaces the old client-side filter workaround
+    const { data: historyData, isLoading: isHistoryLoading } = useSalaryHistory(storeId, staff._id);
+    const transactions = historyData?.data || [];
 
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
     const [isPaySalaryOpen, setIsPaySalaryOpen] = useState(false);
@@ -44,7 +37,7 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
     return (
         <Modal isOpen={true} onClose={onClose} title={staff.name} className="max-w-4xl h-full sm:h-auto md:max-h-[90vh]">
             <div className="flex flex-col h-full sm:h-auto">
-                {/* Header Section - Entity info scrolls with content on mobile */}
+                {/* Header Section */}
                 <div className="p-3 sm:p-5 md:p-8 border-b bg-white relative shrink-0 sm:shrink-0">
                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center sm:items-start text-center sm:text-left">
                         <div className="relative group shrink-0">
@@ -88,16 +81,20 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                               <div className="grid grid-cols-2 gap-2 pt-1 sm:pt-2 sm:max-w-md">
                                 <div className={cn(
                                     "p-1.5 sm:p-2 md:p-3 rounded-xl sm:rounded-2xl border-2 flex flex-col items-center sm:items-start transition-all",
-                                    (staff.salaryDue || 0) > 0 ? "bg-rose-50 border-rose-100" : "bg-emerald-50 border-emerald-100"
+                                    (staff.salaryDue || 0) > 0 ? "bg-rose-50 border-rose-100" : (staff.salaryDue || 0) < 0 ? "bg-emerald-50 border-emerald-100" : "bg-slate-50 border-slate-100"
                                 )}>
                                     <span className={cn(
-                                        "text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-0.5 sm:mb-1",
-                                        (staff.salaryDue || 0) > 0 ? "text-rose-400" : "text-emerald-400"
-                                    )}>Due Balance</span>
+                                        "text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-0.5 sm:mb-1 leading-none text-center sm:text-left",
+                                        (staff.salaryDue || 0) > 0 ? "text-rose-500" : (staff.salaryDue || 0) < 0 ? "text-emerald-500" : "text-slate-400"
+                                    )}>
+                                        {(staff.salaryDue || 0) > 0 ? 'Salary Due' : (staff.salaryDue || 0) < 0 ? 'Paid in Advance' : 'Due'}
+                                    </span>
                                     <span className={cn(
                                         "text-base sm:text-lg md:text-xl font-black",
-                                        (staff.salaryDue || 0) > 0 ? "text-rose-600" : "text-emerald-600"
-                                    )}>৳{Math.abs(staff.salaryDue || 0)}</span>
+                                        (staff.salaryDue || 0) > 0 ? "text-rose-600" : (staff.salaryDue || 0) < 0 ? "text-emerald-600" : "text-slate-500"
+                                    )}>
+                                        ৳{Math.abs(staff.salaryDue || 0)}
+                                    </span>
                                 </div>
                                 <div className="p-1.5 sm:p-2 md:p-3 rounded-xl sm:rounded-2xl border-2 border-indigo-100 bg-indigo-50 flex flex-col items-center sm:items-start">
                                     <span className="text-[8px] sm:text-[9px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-0.5 sm:mb-1">Monthly</span>
@@ -106,7 +103,16 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                             </div>
                         </div>
 
-                        <div className="w-full sm:w-auto pt-1 sm:pt-0">
+                        <div className="w-full sm:w-auto pt-1 sm:pt-0 flex flex-col sm:flex-row items-center gap-2">
+                             {onEdit && (
+                                 <Button 
+                                    variant="outline"
+                                    className="w-full sm:w-auto h-12 md:h-14 px-6 sm:px-8 border-2 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] md:text-xs active:scale-[0.98] transition-all"
+                                    onClick={onEdit}
+                                 >
+                                    Edit Profile
+                                 </Button>
+                             )}
                              <Button 
                                 className="w-full sm:w-auto h-12 md:h-14 px-6 sm:px-8 bg-slate-900 text-white rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[9px] sm:text-[10px] md:text-xs shadow-xl shadow-slate-200 active:scale-[0.98] transition-all"
                                 onClick={() => setIsPaySalaryOpen(true)}
@@ -117,7 +123,7 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                     </div>
                 </div>
 
-                {/* Content Section - Natural flow on mobile */}
+                {/* Content Section */}
                 <div className="flex-1 bg-slate-50/50 p-3 sm:p-5 md:p-8">
                     <div className="flex items-center justify-between mb-4 sm:mb-6">
                         <h3 className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -154,8 +160,13 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                                                     <Calendar className="w-3 h-3" />
                                                     {format(new Date(tx.createdAt), 'dd MMM yyyy')}
                                                 </div>
-                                                <div className="text-slate-800 font-black text-sm uppercase tracking-tight">
+                                                <div className="text-slate-800 font-black text-sm uppercase tracking-tight flex items-center md:items-start flex-wrap gap-1">
                                                     {tx.items[0]?.name || 'Standard Salary'}
+                                                    {tx.items.find((item: any) => item.name?.toLowerCase().includes('bonus')) && (
+                                                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-amber-100 text-amber-700">
+                                                            Bonus ৳{tx.items.find((item: any) => item.name?.toLowerCase().includes('bonus')).subtotal}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="text-emerald-600 font-black text-lg">
@@ -163,7 +174,7 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                                             </div>
                                         </div>
                                         <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase">Paid via Cash</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase">Paid via {tx.paymentMethod || 'Cash'}</span>
                                             <Button variant="link" size="sm" className="h-8 px-0 text-indigo-600 font-black text-[10px] uppercase tracking-widest">
                                                 Receipt →
                                             </Button>
@@ -197,8 +208,13 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                                                     </div>
                                                 </td>
                                                 <td className="p-6">
-                                                    <div className="text-slate-600 font-bold text-sm">
+                                                    <div className="text-slate-600 font-bold text-sm flex items-center flex-wrap gap-2">
                                                         {tx.items[0]?.name || 'Staff Salary Disbursement'}
+                                                        {tx.items.find((item: any) => item.name?.toLowerCase().includes('bonus')) && (
+                                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-amber-100 text-amber-700">
+                                                                Bonus ৳{tx.items.find((item: any) => item.name?.toLowerCase().includes('bonus')).subtotal}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="p-6 text-right font-black text-emerald-600 text-lg">৳{tx.finalAmount}</td>
@@ -206,7 +222,7 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
                                                     <Button 
                                                         variant="ghost" 
                                                         size="sm" 
-                                                        className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 opacity-0 group-hover:opacity-100 transition-all"
+                                                        className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all"
                                                     >
                                                         Details
                                                     </Button>
@@ -234,7 +250,7 @@ export const StaffDetailsModal = ({ storeId, staff, onClose }: StaffDetailsModal
             <Modal isOpen={!!selectedTransaction} onClose={() => setSelectedTransaction(null)} title="Payment Receipt" className="max-w-4xl">
                 {selectedTransaction && (
                     <div className="flex justify-center p-4 bg-slate-100 rounded-lg overflow-auto">
-                        <Receipt transaction={selectedTransaction} storeName={'Store'} />
+                        <Receipt transaction={selectedTransaction} storeName={storeName || 'Store'} />
                     </div>
                 )}
             </Modal>

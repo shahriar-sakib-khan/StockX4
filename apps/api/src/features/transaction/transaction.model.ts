@@ -20,7 +20,7 @@ export interface ITransaction extends Document {
     paidAmount: number;
     dueAmount: number;
     invoiceNumber: string;
-    type: 'SALE' | 'RETURN' | 'EXCHANGE' | 'DUE_PAYMENT' | 'EXPENSE';
+    type: 'SALE' | 'RETURN' | 'EXCHANGE' | 'DUE_PAYMENT' | 'EXPENSE' | 'SALARY';
     status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
     paymentMethod: 'CASH' | 'DIGITAL' | 'DUE';
     dueCylinders?: {
@@ -70,7 +70,7 @@ const TransactionSchema = new Schema<ITransaction>({
     paidAmount: { type: Number, default: 0 },
     dueAmount: { type: Number, default: 0 },
     invoiceNumber: { type: String, required: true, unique: true, index: true },
-    type: { type: String, enum: ['SALE', 'RETURN', 'EXCHANGE', 'DUE_PAYMENT', 'EXPENSE', 'DUE_CYLINDER_SETTLEMENT'], default: 'SALE' },
+    type: { type: String, enum: ['SALE', 'RETURN', 'EXCHANGE', 'DUE_PAYMENT', 'EXPENSE', 'DUE_CYLINDER_SETTLEMENT', 'SALARY'], default: 'SALE' },
     status: { type: String, enum: ['PENDING', 'COMPLETED', 'CANCELLED'], default: 'COMPLETED' },
     paymentMethod: { type: String, enum: ['CASH', 'DIGITAL', 'DUE'], default: 'CASH' },
     dueCylinders: [

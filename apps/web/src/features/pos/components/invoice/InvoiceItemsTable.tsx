@@ -1,3 +1,4 @@
+import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export interface InvoiceItem {
@@ -18,13 +19,22 @@ export interface InvoiceItem {
     burners?: number;
 }
 
+export interface ExtraExpense {
+    id: string;
+    amount: number;
+    note: string;
+}
+
 interface InvoiceItemsTableProps {
     items: InvoiceItem[];
     highlightReturns?: boolean;
     isExpense?: boolean;
+    extraExpenses?: ExtraExpense[];
+    onEditExpense?: (id: string) => void;
+    onDeleteExpense?: (id: string) => void;
 }
 
-export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense = false }: InvoiceItemsTableProps) => {
+export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense = false, extraExpenses, onEditExpense, onDeleteExpense }: InvoiceItemsTableProps) => {
     // Helper to render a section
     const renderSection = (title: string, sectionItems: InvoiceItem[], isReturnSection = false, isDueSection = false) => {
         if (sectionItems.length === 0) return null;
@@ -134,7 +144,19 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense =
     const sortedReturns = [...regularReturns, ...settledReturns];
 
     const dueItems = items.filter(i => i.saleType === 'DUE' || i.isDue);
-    const expenseItems = items.filter(i => i.saleType === 'EXPENSE');
+    const expenseItems = items.filter(i => 
+        (i.saleType?.toUpperCase() === 'EXPENSE' || i.type?.toUpperCase() === 'EXPENSE') && 
+        i.category?.toUpperCase() !== 'EXTRA_EXPENSE'
+    );
+    
+    // Extract saved extra expenses from the items array (for history/print views)
+    const savedExtraExpenses: ExtraExpense[] = items
+        .filter(i => i.category?.toUpperCase() === 'EXTRA_EXPENSE')
+        .map((i, idx) => ({
+            id: `saved-${idx}`,
+            amount: i.subtotal,
+            note: i.name
+        }));
 
     // Categorized Accessories
     const stoveItems = items.filter(i => i.category?.toLowerCase() === 'stove' || i.type?.toLowerCase() === 'stove');
@@ -154,7 +176,9 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense =
             type !== 'stove' &&
             cat !== 'regulator' &&
             type !== 'regulator' &&
+            cat !== 'extra_expense' &&
             sType !== 'EXPENSE' &&
+            type !== 'expense' &&
             sType !== 'PACKAGED' &&
             sType !== 'REFILL' &&
             sType !== 'RETURN' &&
@@ -189,6 +213,52 @@ export const InvoiceItemsTable = ({ items, highlightReturns = false, isExpense =
                 {renderSection('Cylinders Kept as DUE', dueItems, false, true)}
                 {renderSection('General Products / Accessories', productItems)}
                 {renderSection('Expenses & Services', expenseItems)}
+
+                {/* Extra Expenses — editable in POS, static in History/Print */}
+                {((extraExpenses && extraExpenses.length > 0) || (savedExtraExpenses.length > 0)) && (
+                    <div className="py-2 sm:py-3">
+                        <h3 className="font-black uppercase text-[10px] sm:text-xs underline mb-1.5 sm:mb-2 text-amber-700">Extra Expenses</h3>
+                        <div className="space-y-1 sm:space-y-2">
+                            {[...(extraExpenses || []), ...savedExtraExpenses].map((exp) => {
+                                const isSaved = exp.id.toString().startsWith('saved-');
+                                return (
+                                    <div key={exp.id} className="py-2 sm:py-3 border-b border-dotted border-amber-200 last:border-0 flex items-center justify-between gap-2">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-black text-sm sm:text-base text-amber-900 truncate">{exp.note || 'Extra Expense'}</div>
+                                            <div className="text-[10px] sm:text-xs text-amber-600 font-bold">1 × {exp.amount}</div>
+                                        </div>
+                                        <div className="font-black text-base sm:text-lg text-amber-900 shrink-0 mx-2">{exp.amount}</div>
+                                        {/* Edit / Delete — no-print, only show if not saved AND callbacks provided */}
+                                        {!isSaved && (onEditExpense || onDeleteExpense) && (
+                                            <div className="flex gap-1 no-print shrink-0">
+                                                {onEditExpense && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onEditExpense(exp.id)}
+                                                        className="p-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-700 transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                                                    </button>
+                                                )}
+                                                {onDeleteExpense && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => onDeleteExpense(exp.id)}
+                                                        className="p-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

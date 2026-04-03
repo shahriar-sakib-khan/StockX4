@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { StoreController } from './store.controller';
 import { authenticate } from '../../middleware/auth.middleware';
 import { StaffManagementRoutes } from '../staff/staff.routes';
+import { SalaryRoutes } from '../staff/salary/salary.routes';
 import { InventoryRoutes } from '../inventory/inventory.routes';
 import { BrandRoutes } from '../brand/brand.routes';
 
@@ -18,6 +19,8 @@ router.delete('/:id', (req, res, next) => StoreController.delete(req, res).catch
 
 // Mount Staff Routes: /stores/:storeId/staff
 router.use('/:storeId/staff', StaffManagementRoutes);
+// Mount Salary Routes: /stores/:storeId/staff/:staffId/salary
+router.use('/:storeId/staff/:staffId/salary', SalaryRoutes);
 // Mount Inventory Routes: /stores/:storeId/inventory
 router.use('/:storeId/inventory', InventoryRoutes);
 // Mount Brand Routes: /stores/:storeId/brands

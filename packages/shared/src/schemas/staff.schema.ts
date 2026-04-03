@@ -26,6 +26,8 @@ export const updateStaffSchema = z.object({
   salary: z.coerce.number().min(0, "Salary must be positive").optional(),
   salaryDue: z.coerce.number().optional(),
   salaryEnabled: z.boolean().optional(),
+  pendingSalary: z.coerce.number().min(0).optional(),
+  salaryEffectiveDate: z.string().optional(),
 });
 
 export const staffLoginSchema = z.object({
