@@ -1,29 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../api/dashboard.api';
-import { Wallet, TrendingUp, TrendingDown, Coins as IconCoins, Shield } from 'lucide-react';
+import { Wallet, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface CashBoxProps {
     storeId: string;
 }
 
-const StatCard = ({ label, value, icon: Icon, color, bg, borderColor }: any) => (
-    <div className={`p-3 sm:p-4 rounded-xl border ${borderColor} ${bg} shadow-sm group hover:shadow-md transition-all active:scale-95`}>
-        <div className="flex items-center gap-2 sm:gap-3">
-            <div className={`p-2 rounded-lg bg-white shadow-sm flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 ${color}`} />
+const StatPill = ({ label, value, icon: Icon, color, bgClass }: any) => (
+    <div className="flex-1 flex flex-col justify-center p-2.5 rounded-xl bg-muted/30 border border-border/30 hover:bg-muted/50 transition-colors">
+        <div className="flex items-center gap-1.5 mb-1">
+            <div className={`p-1 rounded-full ${bgClass}`}>
+                <Icon className={`w-3 h-3 ${color}`} strokeWidth={3} />
             </div>
-            <div className="min-w-0">
-                <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none truncate mb-1">
-                    {label}
-                </p>
-                <div className="flex items-baseline gap-0.5">
-                    <span className={`text-[10px] sm:text-xs font-bold ${color}`}>৳</span>
-                    <span className={`text-sm xs:text-base sm:text-2xl font-black ${color} tracking-tight truncate`}>
-                        {value.toLocaleString()}
-                    </span>
-                </div>
-            </div>
+            <p className="text-[9px] md:text-[10px] font-bold text-muted-foreground uppercase tracking-wider truncate">
+                {label}
+            </p>
+        </div>
+        <div className="flex items-baseline gap-0.5 pl-1">
+            <span className={`text-[10px] font-bold ${color}`}>৳</span>
+            <span className={`text-sm md:text-base font-black text-foreground tracking-tight truncate`}>
+                {value.toLocaleString()}
+            </span>
         </div>
     </div>
 );
@@ -34,72 +33,62 @@ export const CashBox = ({ storeId }: CashBoxProps) => {
         queryFn: () => dashboardApi.getStats(storeId, 'day')
     });
 
-    if (isLoading) return <Skeleton className="h-48 w-full rounded-xl shadow-sm" />;
+    if (isLoading) return <Skeleton className="h-[180px] w-full rounded-2xl shadow-sm" />;
 
     return (
-        <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-6 shadow-sm overflow-hidden relative">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-                <div className="flex items-center gap-2">
-                    <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
-                        <Wallet className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </div>
-                    <div>
-                        <h3 className="font-black text-slate-800 text-xs sm:text-base tracking-tight uppercase">Cash Box</h3>
-                        <p className="text-[8px] sm:text-[10px] text-muted-foreground uppercase font-black tracking-widest leading-none mt-0.5">Real-time Balance</p>
-                    </div>
-                </div>
-                <div className="hidden xs:flex flex-col items-end">
-                    <span className="text-[8px] sm:text-[10px] font-black text-emerald-600 uppercase tracking-tighter bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                        Live Tracking
-                    </span>
-                </div>
-            </div>
-
-            <div className="space-y-2.5 sm:space-y-4">
-                <div className="p-4 sm:p-6 bg-slate-900 rounded-2xl relative overflow-hidden group border border-slate-800 shadow-xl shadow-slate-200/50">
-                    {/* Background decoration */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-110 transition-transform"></div>
-                    
-                    <div className="relative z-10">
-                        <p className="text-[9px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 sm:mb-3 flex items-center gap-2">
-                            <IconCoins className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                            Cash in Hand
-                        </p>
-                        <div className="flex items-baseline gap-1 sm:gap-2">
-                            <span className="text-xl sm:text-3xl font-black text-white">৳</span>
-                            <span className="text-2xl xs:text-3xl sm:text-5xl font-black text-white tracking-tighter leading-none italic truncate">
-                                {(cashData?.cashInHand || 0).toLocaleString()}
-                            </span>
+        <Card className="border-border/40 shadow-sm bg-card relative overflow-hidden group">
+            {/* Extremely subtle background gradient flair */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[40px] pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
+            
+            {/* Removed h-full and justify-between, added simple gap-4 */}
+            <CardContent className="p-4 md:p-5 flex flex-col gap-4 relative z-10">
+                
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-600 dark:text-emerald-500">
+                            <Wallet className="w-4 h-4 md:w-5 md:h-5" strokeWidth={2.5} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-foreground text-sm md:text-base tracking-tight leading-none">Vault Balance</h3>
+                            <p className="text-[9px] md:text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mt-1">Liquid Cash</p>
                         </div>
                     </div>
+                    {/* Live Indicator */}
+                    <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2 py-0.5 md:py-1 rounded-full border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="text-[8px] md:text-[9px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">Live</span>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4">
-                    <StatCard
-                        label="In (Today)"
+                {/* Main Value - Tightened margins */}
+                <div className="flex flex-col justify-center">
+                    <div className="flex items-baseline gap-1.5">
+                        <span className="text-xl md:text-2xl font-black text-muted-foreground/50">৳</span>
+                        <span className="text-3xl lg:text-4xl 2xl:text-5xl font-black text-foreground tracking-tighter leading-none truncate">
+                            {(cashData?.cashInHand || 0).toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Flow Stats (In/Out) */}
+                <div className="flex gap-2 md:gap-3 w-full">
+                    <StatPill
+                        label="In"
                         value={cashData?.cashInPeriod || 0}
-                        icon={TrendingUp}
-                        color="text-emerald-600"
-                        bg="bg-emerald-50/50"
-                        borderColor="border-emerald-100"
+                        icon={ArrowUpRight}
+                        color="text-emerald-600 dark:text-emerald-500"
+                        bgClass="bg-emerald-500/15"
                     />
-                    <StatCard
-                        label="Out (Today)"
+                    <StatPill
+                        label="Out"
                         value={cashData?.cashOutPeriod || 0}
-                        icon={TrendingDown}
-                        color="text-rose-500"
-                        bg="bg-rose-50/50"
-                        borderColor="border-rose-100"
+                        icon={ArrowDownRight}
+                        color="text-destructive"
+                        bgClass="bg-destructive/15"
                     />
                 </div>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-                 <p className="text-[8px] sm:text-[10px] text-slate-400 uppercase font-black tracking-widest italic flex items-center justify-center gap-1.5 opacity-60">
-                    <Shield className="w-2.5 h-2.5" />
-                    Secure Transaction Data
-                 </p>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };

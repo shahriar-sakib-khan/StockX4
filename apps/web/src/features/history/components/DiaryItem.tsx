@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Clock, User, UserCheck, Receipt, FileText, ArrowUpRight, ArrowDownLeft, Eye } from 'lucide-react';
+import { Clock, ArrowUpRight, ArrowDownLeft, Eye, FileText, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { ReceiptPreviewModal } from './ReceiptPreviewModal';
@@ -38,120 +38,138 @@ export const DiaryItem = ({ transaction, isIncome, onClick }: DiaryItemProps) =>
         owner: "bg-rose-100 text-rose-700 border-rose-200",
         manager: "bg-blue-100 text-blue-700 border-blue-200",
         staff: "bg-emerald-100 text-emerald-700 border-emerald-200",
-        driver: "bg-emerald-100 text-emerald-700 border-emerald-200",
+        driver: "bg-amber-100 text-amber-700 border-amber-200",
     };
 
-    // Item Background Colors
+    // Item Background Colors - Made slightly cleaner and softer
     const getBgColor = () => {
-        if (!isIncome) return "bg-rose-50/50 border-rose-100 hover:border-rose-300";
-        if (isFullDue) return "bg-orange-50/50 border-orange-100 hover:border-orange-300";
-        if (hasDue) return "bg-amber-50/50 border-amber-100 hover:border-amber-300";
-        return "bg-emerald-50/50 border-emerald-100 hover:border-emerald-300";
+        if (!isIncome) return "bg-rose-50/40 border-rose-100 hover:border-rose-300 hover:bg-rose-50/70";
+        if (isFullDue) return "bg-orange-50/40 border-orange-100 hover:border-orange-300 hover:bg-orange-50/70";
+        if (hasDue) return "bg-amber-50/40 border-amber-100 hover:border-amber-300 hover:bg-amber-50/70";
+        return "bg-emerald-50/40 border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50/70";
     };
 
     return (
         <div
             onClick={onClick}
             className={cn(
-                "p-2 sm:p-3 rounded-xl sm:rounded-2xl border transition-all group hover:shadow-md cursor-pointer active:scale-[0.99] select-none",
+                "p-3 sm:p-4 rounded-2xl border transition-all duration-300 group hover:shadow-sm cursor-pointer active:scale-[0.98] select-none relative overflow-hidden",
                 getBgColor()
             )}
         >
-            <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-2 min-w-0 flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                
+                {/* LEFT SIDE: Icon & Primary Info */}
+                <div className="flex items-start gap-3 min-w-0 w-full sm:w-auto">
+                    
+                    {/* Status Icon */}
                     <div className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-105 mt-1",
+                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] transition-transform duration-500 group-hover:scale-110",
                         isIncome 
-                            ? (isFullDue ? "bg-orange-500 text-white" : hasDue ? "bg-amber-500 text-white" : "bg-emerald-500 text-white")
-                            : "bg-rose-500 text-white"
+                            ? (isFullDue ? "bg-orange-500 text-white shadow-orange-500/30" : hasDue ? "bg-amber-500 text-white shadow-amber-500/30" : "bg-emerald-500 text-white shadow-emerald-500/30")
+                            : "bg-rose-500 text-white shadow-rose-500/30"
                     )}>
                         {isIncome ? (
-                            isFullDue ? <Clock size={12} /> : <ArrowDownLeft size={12} />
+                            isFullDue ? <Clock size={16} strokeWidth={2.5} /> : <ArrowDownLeft size={18} strokeWidth={2.5} />
                         ) : (
-                            <ArrowUpRight size={12} />
+                            <ArrowUpRight size={18} strokeWidth={2.5} />
                         )}
                     </div>
                     
-                    <div className="min-w-0 flex-1">
-                        {/* Line 1: Entity Name & Type Badge */}
-                        <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-base sm:text-lg font-black text-slate-900 leading-tight truncate">
+                    <div className="min-w-0 flex-1 pt-0.5">
+                        
+                        {/* Title & Customer Type Badge */}
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5 leading-none">
+                            <h4 className="text-[13px] sm:text-[15px] font-black text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
                                 {entityName}
                             </h4>
                             {transaction.customerType && (
-                                <Badge variant="secondary" className="text-[7px] sm:text-[8px] font-black uppercase px-1.5 h-4 bg-slate-200 text-slate-600 border-none">
+                                <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 tracking-wider">
                                     {transaction.customerType}
-                                </Badge>
-                            )}
-                        </div>
-
-                        {/* Line 2: Transactor (By: ...) */}
-                        <div className="flex items-center gap-1.5 mb-1 opacity-90">
-                            <span className="text-[10px] sm:text-xs font-black text-slate-600">By: {staffName}</span>
-                            <Badge variant="outline" className={cn("text-[7px] sm:text-[8px] font-bold uppercase px-1 h-3.5 sm:h-4 tracking-tighter border-none shadow-none rounded opacity-80", roleColors[staffRole] || "bg-slate-100")}>
-                                {staffRole}
-                            </Badge>
-                        </div>
-
-                        {/* Line 3: Timestamp & Sub-details */}
-                        <div className="flex items-center gap-2 opacity-60">
-                             <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-tight">
-                                {format(new Date(transaction.createdAt), 'MMM dd, hh:mm a')}
-                            </span>
-                            {subEntity && (
-                                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 border-l border-slate-300 pl-2 leading-none truncate">
-                                    {subEntity}
                                 </span>
                             )}
+                        </div>
+
+                        {/* Transactor Info */}
+                        <div className="flex items-center gap-1.5 mb-1.5 opacity-80">
+                            <User size={10} className="text-slate-400" />
+                            <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 truncate max-w-[120px]">{staffName}</span>
+                            <span className={cn("text-[7px] font-black uppercase px-1 py-0.5 rounded tracking-widest", roleColors[staffRole] || "bg-slate-200 text-slate-600")}>
+                                {staffRole}
+                            </span>
+                        </div>
+
+                        {/* Date & Sub Entity */}
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                             <span>{format(new Date(transaction.createdAt), 'MMM dd, hh:mm a')}</span>
+                             {subEntity && (
+                                <>
+                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                    <span className="truncate max-w-[100px]">{subEntity}</span>
+                                </>
+                             )}
                         </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                    <div className="flex flex-col items-end">
+                {/* RIGHT SIDE: Price, Status Badges & Actions */}
+                <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto border-t sm:border-none border-slate-200/50 pt-2 sm:pt-0 mt-1 sm:mt-0">
+                    
+                    {/* Price & Badges */}
+                    <div className="flex flex-col items-start sm:items-end">
                         <div className={cn(
-                            "text-xl sm:text-3xl font-black leading-none tracking-tighter",
+                            "text-xl sm:text-2xl font-black leading-none tracking-tighter mb-1",
                             isIncome 
                                 ? (isFullDue ? "text-orange-600" : hasDue ? "text-amber-600" : "text-emerald-600")
                                 : "text-rose-600"
                         )}>
                             ৳{transaction.finalAmount.toLocaleString()}
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                            <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                        
+                        {/* Unified Status Badges */}
+                        <div className="flex items-center gap-1 flex-wrap">
+                            <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest">
                                 {transaction.type === 'SALE' ? (isFullDue ? 'Full Due' : hasDue ? 'Partial' : 'Paid') : 
                                  transaction.type === 'EXPENSE' ? 'Expense' : transaction.type}
                             </span>
+
+                            {(!isIncome || transaction.type === 'EXPENSE') && (transaction.dueAmount !== undefined) && (
+                                <div className="flex gap-1 items-center ml-1 border-l border-slate-200 pl-1">
+                                    {(transaction.paidAmount > 0 || transaction.dueAmount === 0) && (
+                                        <span className="text-[8px] text-emerald-600 font-bold bg-emerald-100 px-1 py-0.5 rounded">Paid: ৳{transaction.paidAmount.toLocaleString()}</span>
+                                    )}
+                                    {transaction.dueAmount > 0 && (
+                                        <span className="text-[8px] text-amber-600 font-bold bg-amber-100 px-1 py-0.5 rounded">Due: ৳{transaction.dueAmount.toLocaleString()}</span>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                        {(!isIncome || transaction.type === 'EXPENSE') && (transaction.dueAmount !== undefined) && (
-                            <div className="flex gap-2 mt-0.5 justify-end w-full">
-                                {(transaction.paidAmount > 0 || transaction.dueAmount === 0) && <span className="text-[8px] sm:text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1 rounded">Paid: ৳{transaction.paidAmount.toLocaleString()}</span>}
-                                {transaction.dueAmount > 0 && <span className="text-[8px] sm:text-[9px] text-amber-600 font-bold bg-amber-50 px-1 rounded">Due: ৳{transaction.dueAmount.toLocaleString()}</span>}
-                            </div>
-                        )}
                     </div>
 
-                    <div className="flex items-center gap-2">
-                         <Button 
+                    {/* Action Buttons (Moved to far right on mobile via justify-between on parent) */}
+                    <div className="flex items-center gap-1.5 sm:mt-2">
+                        <Button 
                             onClick={(e) => { e.stopPropagation(); onClick?.(); }}
                             variant="outline" 
-                            size="sm"
-                            className="h-10 px-2 rounded-xl border-slate-200 hover:bg-slate-900 hover:text-white transition-all group/btn active:scale-90 flex flex-col items-center justify-center"
+                            size="icon"
+                            className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg border-slate-200 bg-white hover:bg-slate-900 hover:border-slate-900 hover:text-white transition-all shadow-sm"
+                            title="View Details"
                         >
-                            <FileText size={12} />
-                            <span className="text-[8px] font-black opacity-50">{transaction.invoiceNumber?.slice(-6) || 'INV'}</span>
+                            <FileText size={14} />
                         </Button>
 
                         {transaction.receiptUrl && (
                             <Button 
                                 variant="outline"
-                                className="h-10 w-10 rounded-xl border border-rose-200 bg-rose-50 flex items-center justify-center hover:bg-rose-100 transition-all"
+                                size="icon"
+                                className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg border-rose-200 bg-rose-50 flex items-center justify-center hover:bg-rose-100 transition-all shadow-sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setIsReceiptOpen(true);
                                 }}
+                                title="View Receipt"
                             >
-                                <Eye size={16} className="text-rose-600" />
+                                <Eye size={14} className="text-rose-600" />
                             </Button>
                         )}
                     </div>

@@ -1,7 +1,7 @@
 import { Plus, ShoppingCart, Receipt, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { AddExpenseModal } from '@/features/pos/components/AddExpenseModal';
 
 export const MobileQuickActions = () => {
@@ -11,52 +11,101 @@ export const MobileQuickActions = () => {
 
     if (!id) return null;
 
+    // Strictly typed Framer Motion Animation Variants
+    const containerVariants: Variants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                staggerDirection: -1,
+            }
+        }
+    };
+
+    const itemVariants: Variants = {
+        hidden: { y: 20, opacity: 0, scale: 0.8 },
+        visible: { 
+            y: 0, 
+            opacity: 1, 
+            scale: 1,
+            transition: { type: "spring", stiffness: 350, damping: 25 }
+        },
+        exit: { y: 20, opacity: 0, scale: 0.8, transition: { duration: 0.2 } }
+    };
+
     return (
         <>
-            {/* Backdrop */}
-            {isOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] animate-in fade-in duration-200"
-                    onClick={() => setIsOpen(false)}
-                />
-            )}
-
-            {/* Actions Menu */}
-            <div className={`fixed right-6 bottom-24 z-[101] flex flex-col items-end gap-3 transition-all duration-300 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'}`}>
-                {/* Sale Action */}
-                <div className="flex items-center gap-3">
-                    <span className="bg-white px-3 py-1.5 rounded-lg text-xs font-black shadow-lg text-slate-700 uppercase tracking-wider">New Sale</span>
-                    <Link 
-                        to={`/stores/${id}/pos`}
+            <AnimatePresence>
+                {/* Frosted Glass Backdrop */}
+                {isOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
                         onClick={() => setIsOpen(false)}
-                        className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-all"
-                    >
-                        <ShoppingCart size={24} />
-                    </Link>
-                </div>
+                    />
+                )}
+            </AnimatePresence>
 
-                {/* Expense Action */}
-                <div className="flex items-center gap-3">
-                    <span className="bg-white px-3 py-1.5 rounded-lg text-xs font-black shadow-lg text-slate-700 uppercase tracking-wider">New Expense</span>
-                    <button 
-                        onClick={() => {
-                            setIsExpenseModalOpen(true);
-                            setIsOpen(false);
-                        }}
-                        className="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-105 active:scale-95 transition-all"
+            <AnimatePresence>
+                {/* Staggered Actions Menu */}
+                {isOpen && (
+                    <motion.div 
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        className="fixed right-6 bottom-40 z-[101] flex flex-col items-end gap-4"
                     >
-                        <Receipt size={24} />
-                    </button>
-                </div>
-            </div>
+                        {/* Sale Action */}
+                        <motion.div variants={itemVariants} className="flex items-center gap-4">
+                            <span className="bg-background/90 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-semibold shadow-sm text-foreground border border-border/50">
+                                New Sale
+                            </span>
+                            <Link 
+                                to={`/stores/${id}/pos`}
+                                onClick={() => setIsOpen(false)}
+                                className="w-14 h-14 bg-primary rounded-full flex items-center justify-center text-primary-foreground shadow-xl active:scale-90 transition-transform"
+                            >
+                                <ShoppingCart size={22} strokeWidth={2.5} />
+                            </Link>
+                        </motion.div>
 
-            {/* Main FAB */}
-            <button
+                        {/* Expense Action */}
+                        <motion.div variants={itemVariants} className="flex items-center gap-4">
+                            <span className="bg-background/90 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-semibold shadow-sm text-foreground border border-border/50">
+                                New Expense
+                            </span>
+                            <button 
+                                onClick={() => {
+                                    setIsExpenseModalOpen(true);
+                                    setIsOpen(false);
+                                }}
+                                className="w-14 h-14 bg-destructive rounded-full flex items-center justify-center text-destructive-foreground shadow-xl active:scale-90 transition-transform"
+                            >
+                                <Receipt size={22} strokeWidth={2.5} />
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Main FAB Toggle */}
+            <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`fixed right-6 bottom-24 z-[102] w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-500 active:scale-90 ${isOpen ? 'bg-slate-900 text-white rotate-45' : 'bg-primary text-white'}`}
+                animate={{ 
+                    rotate: isOpen ? 135 : 0,
+                    backgroundColor: isOpen ? 'hsl(var(--foreground))' : 'hsl(var(--primary))',
+                    color: isOpen ? 'hsl(var(--background))' : 'hsl(var(--primary-foreground))'
+                }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="fixed right-6 bottom-24 z-[102] w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] active:scale-90"
             >
-                {isOpen ? <X size={28} /> : <Plus size={28} strokeWidth={3} />}
-            </button>
+                <Plus size={28} strokeWidth={2.5} />
+            </motion.button>
 
             {/* Modals */}
             {isExpenseModalOpen && (

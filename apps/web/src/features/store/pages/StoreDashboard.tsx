@@ -16,58 +16,55 @@ export const StoreDashboard = () => {
     if (!storeId) return <div>Store ID missing</div>;
 
     const quickActions = [
-        { label: 'New Sale', icon: ShoppingCart, link: `/stores/${storeId}/pos`, color: 'bg-income text-white' },
-        { label: 'Add Stock', icon: Package, link: `/stores/${storeId}/inventory`, color: 'bg-indigo-600 text-white' },
-        { label: 'Record Expense', icon: Wallet, link: `/stores/${storeId}/history`, color: 'bg-expense text-white' },
-        { label: 'Manage Customers', icon: Users, link: `/stores/${storeId}/customers`, color: 'bg-sky-600 text-white' },
-        { label: 'Diary', icon: History, link: `/stores/${storeId}/history`, color: 'bg-slate-700 text-white' },
-        { label: 'Add Product', icon: FilePlus, link: `/stores/${storeId}/inventory`, color: 'bg-emerald-600 text-white' },
+        { label: 'New Sale', icon: ShoppingCart, link: `/stores/${storeId}/pos`, color: 'text-primary bg-primary/15' },
+        { label: 'Add Stock', icon: Package, link: `/stores/${storeId}/inventory`, color: 'text-blue-600 bg-blue-500/15' },
+        { label: 'Expense', icon: Wallet, link: `/stores/${storeId}/history`, color: 'text-destructive bg-destructive/15' },
+        { label: 'Customers', icon: Users, link: `/stores/${storeId}/customers`, color: 'text-sky-600 bg-sky-500/15' },
+        { label: 'Diary', icon: History, link: `/stores/${storeId}/history`, color: 'text-violet-600 bg-violet-500/15' },
+        { label: 'Add Product', icon: FilePlus, link: `/stores/${storeId}/inventory`, color: 'text-emerald-600 bg-emerald-500/15' },
     ];
 
     return (
-        <div className="space-y-8 pb-12">
-            {/* Header Section */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        // REMOVED pb-24 here because StoreLayout already handles bottom spacing!
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Premium Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pt-2">
                 <div>
-                    <h1 className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tighter">
-                        Store <span className="text-primary">Dashboard</span>
+                    <h1 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+                        Overview
                     </h1>
-                    <p className="text-slate-500 font-medium text-base sm:text-lg">
-                        Welcome back, <span className="text-slate-900 font-bold">{user?.name}</span>. Here's your store.
+                    <p className="text-muted-foreground font-medium text-sm md:text-base mt-1.5">
+                        Welcome back, <span className="text-foreground font-bold">{user?.name}</span>. Here is your store at a glance.
                     </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                    <Button asChild size="lg" variant="outline" className="h-14 px-6 border-2 font-bold hover:bg-slate-50 w-full sm:w-auto">
+                
+                {/* Primary Action Row */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <Button asChild size="lg" variant="outline" className="w-full sm:w-auto border-2 border-border/50 shadow-sm bg-card hover:bg-muted/50">
+                        <Link to={`/stores/${storeId}/inventory`}>
+                            <Package className="w-5 h-5 mr-2 opacity-70" />
+                            Inventory
+                        </Link>
+                    </Button>
+                    <Button asChild size="lg" className="w-full sm:w-auto shadow-lg shadow-primary/25">
                         <Link to={`/stores/${storeId}/pos`}>
                             <ShoppingCart className="w-5 h-5 mr-2" />
                             Launch POS
                         </Link>
                     </Button>
-                    <Button asChild size="lg" variant="outline" className="h-14 px-6 border-2 font-bold hover:bg-slate-50 w-full sm:w-auto">
-                        <Link to={`/stores/${storeId}/inventory`}>
-                            <Package className="w-5 h-5 mr-2" />
-                            Inventory
-                        </Link>
-                    </Button>
-                    <Button asChild size="lg" className="h-14 px-6 font-black shadow-lg shadow-primary/20 w-full sm:w-auto">
-                        <Link to={`/stores/${storeId}/history`}>
-                            <PlusCircle className="w-5 h-5 mr-2" />
-                            Record Expense
-                        </Link>
-                    </Button>
                 </div>
             </div>
 
-            {/* Quick Action Grid */}
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
+            {/* Quick Action Bento Grid */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                 {quickActions.map((action, idx) => (
-                    <Link key={idx} to={action.link} className="h-full">
-                        <Card className="hover:scale-[1.02] transition-transform cursor-pointer border-none shadow-sm hover:shadow-md h-full group overflow-hidden active:scale-95">
-                            <CardContent className="p-2 sm:p-4 flex flex-col items-center justify-center text-center gap-1.5 sm:gap-3 h-full min-h-[80px] sm:min-h-[100px]">
-                                <div className={`h-8 w-8 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl flex items-center justify-center shadow-inner transition-colors ${action.color}`}>
-                                    <action.icon className="w-4 h-4 sm:w-6 sm:h-6" />
+                    <Link key={idx} to={action.link} className="h-full block group outline-none">
+                        <Card className="h-full border-border/40 shadow-sm bg-card hover:shadow-md transition-all duration-200 active:scale-95">
+                            <CardContent className="p-3 md:p-5 flex flex-col items-center justify-center text-center gap-2 md:gap-3 h-full min-h-[90px]">
+                                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${action.color}`}>
+                                    <action.icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
                                 </div>
-                                <span className="font-black text-slate-700 uppercase tracking-tighter text-[9px] sm:text-xs group-hover:text-primary transition-colors leading-tight">
+                                <span className="font-bold text-foreground/80 text-[10px] md:text-xs uppercase tracking-wider group-hover:text-foreground transition-colors">
                                     {action.label}
                                 </span>
                             </CardContent>
@@ -76,35 +73,33 @@ export const StoreDashboard = () => {
                 ))}
             </div>
 
-            {/* Stats Cards */}
+            {/* Executive Stats Cards */}
             <DashboardStats storeId={storeId} />
 
-            {/* Main Content Grid (Reordered: CashBox -> Low Stock -> Rest) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                <div className="lg:col-span-3">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                        {/* Cash Box Widget */}
-                        <div className="md:scale-105 origin-top transition-transform h-full">
-                            <CashBox storeId={storeId} />
-                        </div>
+            {/* Main Bento Grid Container */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                
+                {/* Left Column: Cash & Inventory Snapshots */}
+                <div className="xl:col-span-1 flex flex-col gap-6">
+                    <div>
+                        <CashBox storeId={storeId} />
+                    </div>
 
-                        {/* Inventory Snapshot (Low stock) */}
-                        <div className="h-full">
-                            <InventorySnapshot storeId={storeId} />
-                        </div>
+                    <div className="flex-1">
+                        <InventorySnapshot storeId={storeId} />
                     </div>
                 </div>
 
-                {/* Left Column (Charts) */}
-                <div className="lg:col-span-3 space-y-6">
-                    <Card className="bg-white border-none shadow-lg shadow-slate-200/50 overflow-hidden">
-                        <div className="p-4 sm:p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
-                            <div>
-                                <h3 className="font-extrabold text-slate-800 text-lg sm:text-xl tracking-tight">Financial Trends</h3>
-                                <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">Last 30 Days Portfolio</p>
-                            </div>
+                {/* Right Column: Financial Chart */}
+                <div className="xl:col-span-2">
+                    <Card className="h-full border-border/40 shadow-sm bg-card overflow-hidden flex flex-col min-h-[400px]">
+                        <div className="p-5 md:p-6 border-b border-border/40 bg-muted/20">
+                            <h3 className="font-bold text-foreground text-lg tracking-tight">Financial Trends</h3>
+                            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mt-1">
+                                Revenue vs Expenses
+                            </p>
                         </div>
-                        <div className="p-2 sm:p-4 min-h-[300px] sm:h-96 w-full">
+                        <div className="p-4 md:p-6 flex-1">
                             <SalesExpenseChart storeId={storeId} />
                         </div>
                     </Card>

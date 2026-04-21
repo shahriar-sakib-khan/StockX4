@@ -55,30 +55,32 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                 <Button
                     form="pay-salary-form"
                     type="submit"
-                    className="w-full h-12 sm:h-14 bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-200 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs active:scale-[0.98]"
+                    className="w-full h-12 sm:h-14 bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-[0_4px_14px_-4px_rgba(16,185,129,0.4)] rounded-xl sm:rounded-2xl font-black uppercase tracking-widest text-[11px] sm:text-xs active:scale-[0.98]"
                     disabled={paySalary.isPending}
                 >
                     {paySalary.isPending ? 'Processing...' : `PAY ৳${totalPayout.toLocaleString()}`}
                 </Button>
             }
         >
-            <form id="pay-salary-form" onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            {/* THE FIX: Added max-h-[70vh] and overflow-y-auto to protect against mobile keyboard crush */}
+            <form id="pay-salary-form" onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 max-h-[70vh] sm:max-h-[80vh] overflow-y-auto px-1 pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                
                 {/* Monthly Salary Info */}
-                <div className="p-3 sm:p-4 bg-indigo-50 border-2 border-indigo-100 rounded-2xl flex justify-between items-center">
+                <div className="p-3 sm:p-4 bg-indigo-50/80 border border-indigo-100/80 rounded-xl sm:rounded-2xl flex justify-between items-center shadow-sm">
                     <div className="space-y-0.5">
-                        <span className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">Monthly Salary</span>
-                        <p className="text-[10px] sm:text-xs text-indigo-400 font-bold">{staff.name}</p>
+                        <span className="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">Monthly Salary</span>
+                        <p className="text-[10px] sm:text-[11px] text-indigo-600 font-bold uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">{staff.name}</p>
                     </div>
-                    <span className="font-black text-xl sm:text-2xl text-indigo-700">৳{(staff.salary || 0).toLocaleString()}</span>
+                    <span className="font-black text-lg sm:text-xl text-indigo-600">৳{(staff.salary || 0).toLocaleString()}</span>
                 </div>
 
                 {/* Salary Due / Advance Info */}
                 {(staff.salaryDue || 0) !== 0 && (
                     <div className={cn(
-                        "p-3 sm:p-4 rounded-2xl border-2 flex justify-between items-center",
+                        "p-3 sm:p-4 rounded-xl sm:rounded-2xl border flex justify-between items-center shadow-sm",
                         staff.salaryDue > 0
-                            ? "bg-rose-50 border-rose-100"
-                            : "bg-emerald-50 border-emerald-100"
+                            ? "bg-rose-50/80 border-rose-100"
+                            : "bg-emerald-50/80 border-emerald-100"
                     )}>
                         <span className={cn(
                             "text-[9px] sm:text-[10px] font-black uppercase tracking-widest",
@@ -87,7 +89,7 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                             {staff.salaryDue > 0 ? 'Salary Due' : 'Paid in Advance'}
                         </span>
                         <span className={cn(
-                            "font-black text-xl sm:text-2xl",
+                            "font-black text-lg sm:text-xl",
                             staff.salaryDue > 0 ? "text-rose-600" : "text-emerald-600"
                         )}>
                             ৳{Math.abs(staff.salaryDue).toLocaleString()}
@@ -96,7 +98,7 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                 )}
 
                 {/* Salary Payment Amount (Editable) */}
-                <div className="space-y-1.5">
+                <div className="space-y-1 sm:space-y-1.5 pt-1">
                     <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">
                         Salary Payment (৳)
                     </label>
@@ -105,17 +107,17 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                         value={payAmount}
                         onChange={(e) => setPayAmount(e.target.value)}
                         min="0"
-                        className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5 text-base sm:text-lg bg-white"
+                        className="h-11 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-slate-200 focus:border-indigo-500 font-bold text-slate-800 transition-all px-4 sm:px-5 text-base sm:text-lg bg-white shadow-sm"
                     />
-                    <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold ml-1">
+                    <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold ml-1 pt-0.5">
                         Paying this amount reduces the salary due.
                     </p>
                 </div>
 
                 {/* Payment Date (read-only) */}
-                <div className="space-y-1.5">
+                <div className="space-y-1 sm:space-y-1.5 pt-1">
                     <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Payment Date</label>
-                    <div className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold text-slate-600 px-5 flex items-center text-sm sm:text-base">
+                    <div className="h-11 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-slate-100 bg-slate-50 font-black uppercase tracking-widest text-slate-500 px-4 sm:px-5 flex items-center text-[10px] sm:text-[11px]">
                         {format(new Date(), 'dd MMMM yyyy')}
                     </div>
                 </div>
@@ -123,7 +125,7 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                 {/* Bonus Toggle */}
                 <div
                     className={cn(
-                        "flex items-center gap-3 p-3 sm:p-4 rounded-2xl border-2 cursor-pointer select-none transition-all mt-2",
+                        "flex items-center gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 cursor-pointer select-none transition-all mt-2 shadow-sm",
                         includeBonus
                             ? "bg-amber-50 border-amber-200"
                             : "bg-slate-50 border-slate-100 hover:border-slate-200"
@@ -135,15 +137,15 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                         id="bonus"
                         checked={includeBonus}
                         onChange={(e) => setIncludeBonus(e.target.checked)}
-                        className="h-5 w-5 rounded-lg border-2 border-slate-300 text-amber-600 focus:ring-amber-500 transition-all cursor-pointer"
+                        className="h-4 w-4 sm:h-5 sm:w-5 rounded border-2 border-slate-300 text-amber-500 focus:ring-amber-500 transition-all cursor-pointer"
                         onClick={(e) => e.stopPropagation()}
                     />
                     <div className="flex-1">
-                        <label htmlFor="bonus" className="text-xs sm:text-sm font-black text-slate-700 block uppercase tracking-tight cursor-pointer flex items-center gap-2">
-                            <Gift className="w-4 h-4 text-amber-500" />
+                        <label htmlFor="bonus" className="text-[11px] sm:text-sm font-black text-slate-700 block uppercase tracking-tight cursor-pointer flex items-center gap-1.5 sm:gap-2">
+                            <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-500" />
                             Include Bonus
                         </label>
-                        <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold leading-none mt-0.5">
+                        <p className="text-[8px] sm:text-[9px] text-slate-400 font-bold leading-none mt-1 sm:mt-0.5">
                             Additional bonus — does not affect salary due
                         </p>
                     </div>
@@ -151,8 +153,8 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
 
                 {/* Bonus Fields (appear only when toggled) */}
                 {includeBonus && (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200 p-3 sm:p-4 bg-amber-50/50 rounded-2xl border-2 border-amber-100">
-                        <div className="space-y-1.5">
+                    <div className="space-y-3 sm:space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 p-3 sm:p-4 bg-amber-50/50 rounded-xl sm:rounded-2xl border-2 border-amber-100 shadow-sm">
+                        <div className="space-y-1 sm:space-y-1.5">
                             <label className="text-[9px] sm:text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none ml-1">
                                 Bonus Amount (৳)
                             </label>
@@ -162,10 +164,10 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                                 onChange={(e) => setBonusAmount(e.target.value)}
                                 placeholder="e.g. 5000"
                                 min="1"
-                                className="h-12 sm:h-14 rounded-2xl border-2 border-amber-200 focus:border-amber-400 font-bold text-slate-700 transition-all px-5 bg-white"
+                                className="h-11 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-amber-200 focus:border-amber-400 font-bold text-slate-800 transition-all px-4 sm:px-5 bg-white text-sm sm:text-base"
                             />
                         </div>
-                        <div className="space-y-1.5">
+                        <div className="space-y-1 sm:space-y-1.5">
                             <label className="text-[9px] sm:text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none ml-1">
                                 Bonus Note (Optional)
                             </label>
@@ -173,7 +175,7 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
                                 value={bonusNote}
                                 onChange={(e) => setBonusNote(e.target.value)}
                                 placeholder="e.g. Eid Bonus, Performance Reward"
-                                className="h-12 sm:h-14 rounded-2xl border-2 border-amber-200 focus:border-amber-400 font-bold text-slate-700 transition-all px-5 bg-white"
+                                className="h-11 sm:h-14 rounded-xl sm:rounded-2xl border-2 border-amber-200 focus:border-amber-400 font-bold text-slate-800 transition-all px-4 sm:px-5 bg-white text-xs sm:text-sm"
                             />
                         </div>
                     </div>
@@ -181,9 +183,9 @@ export const PaySalaryModal = ({ storeId, staff, onClose }: PaySalaryModalProps)
 
                 {/* Total Payout Summary */}
                 {includeBonus && bonusAmount && Number(bonusAmount) > 0 && (
-                    <div className="p-3 sm:p-4 bg-slate-900 rounded-2xl flex justify-between items-center">
-                        <span className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Payout</span>
-                        <span className="font-black text-xl sm:text-2xl text-white">৳{totalPayout.toLocaleString()}</span>
+                    <div className="p-4 sm:p-5 bg-slate-900 rounded-xl sm:rounded-2xl flex justify-between items-center shadow-lg animate-in fade-in slide-in-from-bottom-2 mt-2">
+                        <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">Total Payout</span>
+                        <span className="font-black text-xl sm:text-2xl text-emerald-400">৳{totalPayout.toLocaleString()}</span>
                     </div>
                 )}
             </form>

@@ -3,12 +3,8 @@ import { DiaryItem } from './DiaryItem';
 import { HistoryInvoiceModal } from './HistoryInvoiceModal';
 import { EmptyState } from './EmptyState';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { Calculator, Info, ShoppingBag, Receipt, Filter } from 'lucide-react';
+import { ShoppingBag, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
 
 interface DiaryViewProps {
     transactions: any[];
@@ -22,9 +18,7 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
     const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
     const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
-    // Sales Sub-Filters
     const [salesFilter, setSalesFilter] = useState<'all' | 'paid' | 'partial' | 'due'>('all');
-    // Expense Sub-Filters
     const [expenseFilter, setExpenseFilter] = useState<'all' | 'restock' | 'salary' | 'vehicle' | 'utility'>('all');
 
     const filteredTransactions = useMemo(() => {
@@ -41,11 +35,11 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
         return docs;
     }, [transactions, searchQuery]);
 
-    const { sales, expenses, allSalesCount, allExpensesCount } = useMemo(() => {
-        const s = filteredTransactions.filter(tx => tx.type === 'SALE' || tx.type === 'DUE_PAYMENT');
-        const e = filteredTransactions.filter(tx => tx.type === 'EXPENSE' || tx.type === 'RETURN');
+    const { sales, expenses, s, e } = useMemo(() => {
+        const s_raw = filteredTransactions.filter(tx => tx.type === 'SALE' || tx.type === 'DUE_PAYMENT');
+        const e_raw = filteredTransactions.filter(tx => tx.type === 'EXPENSE' || tx.type === 'RETURN');
 
-        const filteredS = s.filter(tx => {
+        const filteredS = s_raw.filter(tx => {
             if (salesFilter === 'all') return true;
             if (salesFilter === 'paid') return tx.dueAmount === 0;
             if (salesFilter === 'partial') return tx.dueAmount > 0 && tx.paidAmount > 0;
@@ -53,11 +47,9 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
             return true;
         });
 
-        const filteredE = e.filter(tx => {
+        const filteredE = e_raw.filter(tx => {
             if (expenseFilter === 'all') return true;
-            
             const cat = (tx.category || tx.items?.[0]?.category || tx.items?.[0]?.name || '').toLowerCase().replace(/_/g, ' ');
-
             if (expenseFilter === 'restock') return cat.includes('restock') || tx.type === 'RETURN';
             if (expenseFilter === 'salary') return cat.includes('salary') || cat.includes('staff');
             if (expenseFilter === 'vehicle') return cat.includes('vehicle') || cat.includes('fuel') || cat.includes('repair');
@@ -65,102 +57,105 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
             return true;
         });
 
-        return { 
-            sales: filteredS, 
-            expenses: filteredE,
-            allSalesCount: s.length,
-            allExpensesCount: e.length,
-            s, e // Expose raw lists for filter counts
-        };
+        return { sales: filteredS, expenses: filteredE, s: s_raw, e: e_raw };
     }, [filteredTransactions, salesFilter, expenseFilter]);
-
-    const { s, e } = useMemo(() => {
-         // This is redundant with the above, I'll just use the one above.
-         return { s: filteredTransactions.filter(tx => tx.type === 'SALE' || tx.type === 'DUE_PAYMENT'), 
-                  e: filteredTransactions.filter(tx => tx.type === 'EXPENSE' || tx.type === 'RETURN') };
-    }, [filteredTransactions]);
-
 
     const [activeTab, setActiveTab] = useState<'sales' | 'expenses'>('sales');
 
     if (isLoading) {
-        return <div className="p-8 text-center text-muted-foreground font-black animate-pulse">LOADING DIARY...</div>;
+        return <div className="flex h-full items-center justify-center text-slate-400 font-black animate-pulse uppercase tracking-widest text-[10px] sm:text-xs min-h-[300px]">Loading Diary...</div>;
     }
 
     return (
-        <div className="space-y-4 sm:space-y-8">
-            {/* Mobile Toggle Button */}
-            <div className="flex lg:hidden bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+        <div className="flex flex-col w-full space-y-3 sm:space-y-4">
+            
+            {/* PRISTINE MOBILE TOGGLE */}
+            <div className="flex lg:hidden bg-slate-100/80 p-1.5 rounded-xl border border-slate-200/50 shadow-inner w-full shrink-0">
                 <button
                     onClick={() => setActiveTab('sales')}
                     className={cn(
-                        "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
-                        activeTab === 'sales' ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 opacity-60"
+                        "relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-300 ease-out z-10",
+                        activeTab === 'sales' ? "text-emerald-700" : "text-slate-500 hover:text-slate-700"
                     )}
                 >
-                    <ShoppingBag size={16} />
-                    Sales ({sales.length})
+                    {activeTab === 'sales' && (
+                        <div className="absolute inset-0 bg-white rounded-lg shadow-[0_1px_6px_-1px_rgba(16,185,129,0.15)] border border-emerald-100/50 -z-10 animate-in zoom-in-[0.98] duration-200" />
+                    )}
+                    <ShoppingBag size={14} className={activeTab === 'sales' ? "text-emerald-500" : "opacity-60"} />
+                    <span className="truncate">Sales ({sales.length})</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('expenses')}
                     className={cn(
-                        "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
-                        activeTab === 'expenses' ? "bg-white text-rose-600 shadow-sm" : "text-slate-500 opacity-60"
+                        "relative flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-300 ease-out z-10",
+                        activeTab === 'expenses' ? "text-rose-700" : "text-slate-500 hover:text-slate-700"
                     )}
                 >
-                    <Receipt size={16} />
-                    Expenses ({expenses.length})
+                    {activeTab === 'expenses' && (
+                        <div className="absolute inset-0 bg-white rounded-lg shadow-[0_1px_6px_-1px_rgba(244,63,94,0.15)] border border-rose-100/50 -z-10 animate-in zoom-in-[0.98] duration-200" />
+                    )}
+                    <Receipt size={14} className={activeTab === 'expenses' ? "text-rose-500" : "opacity-60"} />
+                    <span className="truncate">Expenses ({expenses.length})</span>
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:h-[calc(100svh-380px)] min-h-[400px]">
-                {/* Daily Sales Column */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-h-[500px] lg:h-[600px]">
+                
+                {/* ---------------- DAILY SALES COLUMN ---------------- */}
                 <div className={cn(
-                    "flex flex-col bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden",
+                    "flex flex-col bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_2px_15px_-5px_rgba(0,0,0,0.03)] overflow-hidden h-full",
                     activeTab === 'sales' ? "flex" : "hidden lg:flex"
                 )}>
-                    <div className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-emerald-50">
-                        <div className="flex justify-between items-center mb-2 sm:mb-4">
-                            <div className="flex items-center gap-2">
-                                <ShoppingBag size={16} className="text-emerald-600" />
-                                <h3 className="text-base sm:text-lg font-black text-emerald-900 tracking-tight">Daily Sales</h3>
+                    <div className="p-3 sm:p-5 pb-2 sm:pb-4 border-b border-slate-100 flex flex-col gap-3 sm:gap-4 shrink-0">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 sm:gap-2.5">
+                                <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-emerald-50 text-emerald-600">
+                                    <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
+                                </div>
+                                <h3 className="text-sm sm:text-lg font-black text-slate-900 tracking-tight">Daily Sales</h3>
                             </div>
-                            <div className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black">
+                            <div className="bg-emerald-100 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md sm:rounded-full text-[9px] sm:text-[11px] font-black shadow-inner">
                                 {sales.length}
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                        {/* THE FIX: Fully fluid, wrapping flex-container. No horizontal scrollbars ever. */}
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 bg-slate-100/80 p-1.5 rounded-xl sm:rounded-2xl border border-slate-200/50 shadow-inner w-full">
                             {['all', 'paid', 'partial', 'due'].map((f) => (
-                                    <button
-                                        key={f}
-                                        onClick={() => setSalesFilter(f as any)}
-                                        className={cn(
-                                            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase transition-all min-h-[32px] sm:min-h-[40px] whitespace-nowrap",
-                                            salesFilter === f 
-                                                ? "bg-slate-900 text-white shadow-md scale-105" 
-                                                : "bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                                        )}
-                                    >
-                                        {f} <span className="opacity-50 ml-0.5">({s.filter(tx => {
+                                <button
+                                    key={f}
+                                    onClick={() => setSalesFilter(f as any)}
+                                    className={cn(
+                                        "relative flex-auto min-w-[40%] sm:min-w-0 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black uppercase tracking-wider transition-all duration-300 ease-out outline-none z-10 text-center",
+                                        salesFilter === f ? "text-emerald-800" : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
+                                    )}
+                                >
+                                    {/* Premium Gliding Pill Background */}
+                                    {salesFilter === f && (
+                                        <div className="absolute inset-0 bg-white rounded-lg sm:rounded-xl shadow-[0_1px_4px_-1px_rgba(0,0,0,0.1)] border border-slate-100 -z-10 animate-in zoom-in-95 duration-300 ease-out" />
+                                    )}
+                                    {f} 
+                                    <span className={cn("ml-1 font-bold text-[8px] sm:text-[10px]", salesFilter === f ? "text-emerald-500" : "text-slate-400")}>
+                                        ({s.filter(tx => {
                                             if (f === 'all') return true;
                                             if (f === 'paid') return tx.dueAmount === 0;
                                             if (f === 'partial') return tx.dueAmount > 0 && tx.paidAmount > 0;
                                             if (f === 'due') return tx.paidAmount === 0;
                                             return false;
-                                        }).length})</span>
-                                    </button>
+                                        }).length})
+                                    </span>
+                                </button>
                             ))}
                         </div>
                     </div>
 
-                    <ScrollArea className="flex-1 p-3 sm:p-6 pt-2">
+                    <ScrollArea className="flex-1 p-2 sm:p-5 pt-2 bg-slate-50/30">
                         {sales.length === 0 ? (
-                            <div className="py-8">
-                                <EmptyState icon={<ShoppingBag size={40} />} title="No sales" subtitle="POS transaction needed" />
+                            <div className="py-10 flex justify-center">
+                                <EmptyState icon={<ShoppingBag size={32} className="text-slate-300" />} title="No sales" subtitle="No transactions found" />
                             </div>
                         ) : (
-                            <div className="space-y-3 sm:space-y-4 pt-1 pb-40">
+                            <div className="space-y-2 sm:space-y-3 pb-8">
                                 {sales.map(tx => (
                                     <DiaryItem key={tx._id} transaction={tx} isIncome={true} onClick={() => { setSelectedTransaction(tx); setIsInvoiceOpen(true); }} />
                                 ))}
@@ -169,35 +164,42 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
                     </ScrollArea>
                 </div>
 
-                {/* Daily Expenses Column */}
+                {/* ---------------- DAILY EXPENSES COLUMN ---------------- */}
                 <div className={cn(
-                    "flex flex-col bg-white rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm overflow-hidden",
+                    "flex flex-col bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_2px_15px_-5px_rgba(0,0,0,0.03)] overflow-hidden h-full",
                     activeTab === 'expenses' ? "flex" : "hidden lg:flex"
                 )}>
-                    <div className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-rose-50">
-                        <div className="flex justify-between items-center mb-2 sm:mb-4">
-                            <div className="flex items-center gap-2">
-                                <Receipt size={16} className="text-rose-600" />
-                                <h3 className="text-base sm:text-lg font-black text-rose-900 tracking-tight">Daily Expenses</h3>
+                    <div className="p-3 sm:p-5 pb-2 sm:pb-4 border-b border-slate-100 flex flex-col gap-3 sm:gap-4 shrink-0">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2 sm:gap-2.5">
+                                <div className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl bg-rose-50 text-rose-600">
+                                    <Receipt className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
+                                </div>
+                                <h3 className="text-sm sm:text-lg font-black text-slate-900 tracking-tight">Daily Expenses</h3>
                             </div>
-                            <div className="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black">
+                            <div className="bg-rose-100 text-rose-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md sm:rounded-full text-[9px] sm:text-[11px] font-black shadow-inner">
                                 {expenses.length}
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                        {/* THE FIX: Flex-wrap allows exactly 3 buttons on top row, 2 on bottom row automatically! */}
+                        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5 bg-slate-100/80 p-1.5 rounded-xl sm:rounded-2xl border border-slate-200/50 shadow-inner w-full">
                             {['all', 'restock', 'salary', 'vehicle', 'utility'].map((f) => (
-                                    <button
-                                        key={f}
-                                        onClick={() => setExpenseFilter(f as any)}
-                                        className={cn(
-                                            "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase transition-all min-h-[32px] sm:min-h-[40px] whitespace-nowrap",
-                                            expenseFilter === f 
-                                                ? "bg-slate-900 text-white shadow-md scale-105" 
-                                                : "bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                                        )}
-                                    >
-                                        {f} <span className="opacity-50 ml-0.5">({e.filter(tx => {
+                                <button
+                                    key={f}
+                                    onClick={() => setExpenseFilter(f as any)}
+                                    className={cn(
+                                        "relative flex-auto min-w-[28%] sm:min-w-0 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[11px] font-black uppercase tracking-wider transition-all duration-300 ease-out outline-none z-10 text-center",
+                                        expenseFilter === f ? "text-rose-800" : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50"
+                                    )}
+                                >
+                                    {/* Premium Gliding Pill Background */}
+                                    {expenseFilter === f && (
+                                        <div className="absolute inset-0 bg-white rounded-lg sm:rounded-xl shadow-[0_1px_4px_-1px_rgba(0,0,0,0.1)] border border-slate-100 -z-10 animate-in zoom-in-95 duration-300 ease-out" />
+                                    )}
+                                    {f} 
+                                    <span className={cn("ml-1 font-bold text-[8px] sm:text-[10px]", expenseFilter === f ? "text-rose-500" : "text-slate-400")}>
+                                        ({e.filter(tx => {
                                             if (f === 'all') return true;
                                             const cat = (tx.category || tx.items?.[0]?.category || tx.items?.[0]?.name || '').toLowerCase().replace(/_/g, ' ');
                                             if (f === 'restock') return cat.includes('restock') || tx.type === 'RETURN';
@@ -205,19 +207,20 @@ export const DiaryView = ({ transactions, summary, searchQuery = '', date, isLoa
                                             if (f === 'vehicle') return cat.includes('vehicle') || cat.includes('fuel') || cat.includes('repair');
                                             if (f === 'utility') return cat.includes('utility') || cat.includes('bill') || cat.includes('electric');
                                             return false;
-                                        }).length})</span>
-                                    </button>
+                                        }).length})
+                                    </span>
+                                </button>
                             ))}
                         </div>
                     </div>
 
-                    <ScrollArea className="flex-1 p-3 sm:p-6 pt-2">
+                    <ScrollArea className="flex-1 p-2 sm:p-5 pt-2 bg-slate-50/30">
                         {expenses.length === 0 ? (
-                            <div className="py-8">
-                                <EmptyState icon={<Receipt size={40} />} title="No expenses" subtitle="Add an expense to see" />
+                            <div className="py-10 flex justify-center">
+                                <EmptyState icon={<Receipt size={32} className="text-slate-300" />} title="No expenses" subtitle="No transactions found" />
                             </div>
                         ) : (
-                            <div className="space-y-3 sm:space-y-4 pt-1 pb-40">
+                            <div className="space-y-2 sm:space-y-3 pb-8">
                                 {expenses.map(tx => (
                                     <DiaryItem key={tx._id} transaction={tx} isIncome={false} onClick={() => { setSelectedTransaction(tx); setIsInvoiceOpen(true); }} />
                                 ))}

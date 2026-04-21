@@ -99,52 +99,58 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
 
   return (
     <Modal isOpen={true} onClose={onClose} title="Edit Staff Member">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="space-y-1.5">
+        {/* THE FIX: Removed space-y classes, made it relative so the button can stick to the bottom */}
+        <form 
+            id="edit-staff-form"
+            onSubmit={handleSubmit(onSubmit)} 
+            className="max-h-[75vh] sm:max-h-[80vh] overflow-y-auto relative px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="flex flex-col gap-1 sm:gap-1.5">
                 <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Full Name</label>
                 <Input
                   {...register('name')}
                   placeholder="e.g. John Doe"
-                  className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
+                  className="h-11 sm:h-12 rounded-xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-4 sm:px-5 text-sm sm:text-base bg-white"
                 />
-                {errors.name && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.name.message}</p>}
+                {errors.name && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.name.message}</p>}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="flex flex-col gap-1 sm:gap-1.5">
                  <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Phone / Email</label>
                  <Input
                    {...register('contact')}
                    placeholder="e.g. 01711111111"
-                   className="h-12 sm:h-14 rounded-2xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-5"
+                   className="h-11 sm:h-12 rounded-xl border-2 border-slate-100 focus:border-indigo-500 font-bold text-slate-700 transition-all px-4 sm:px-5 text-sm sm:text-base bg-white"
                  />
-                 {errors.contact && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.contact.message}</p>}
+                 {errors.contact && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.contact.message}</p>}
               </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              <div className="space-y-1.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="flex flex-col gap-1 sm:gap-1.5">
                 <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Role</label>
                 <select
                   {...register('role')}
-                  className="w-full h-12 sm:h-14 bg-white border-2 border-slate-100 rounded-2xl px-5 py-2 text-slate-700 font-bold focus:outline-none focus:border-indigo-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:20px_20px] bg-[right_1rem_center] bg-no-repeat transition-all"
+                  className="w-full h-11 sm:h-12 bg-white border-2 border-slate-100 rounded-xl px-4 sm:px-5 py-2 text-slate-700 font-bold text-sm sm:text-base focus:outline-none focus:border-indigo-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:16px_16px] sm:bg-[length:20px_20px] bg-[right_1rem_center] bg-no-repeat transition-all"
                 >
                     <option value="staff">Staff</option>
                     <option value="manager">Manager</option>
                     <option value="driver">Driver</option>
                     <option value="owner">Owner</option>
                 </select>
-                  {errors.role && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.role.message}</p>}
+                  {errors.role && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.role.message}</p>}
               </div>
 
-              <div className={cn("space-y-1.5 border-2 border-slate-100 rounded-2xl p-4 bg-slate-50 transition-all", isChangingSalary ? "col-span-1 sm:col-span-2" : "")}>
+              <div className={cn("flex flex-col gap-1 sm:gap-1.5 border-2 border-slate-100 rounded-xl p-3 sm:p-4 bg-slate-50 transition-all", isChangingSalary ? "col-span-1 sm:col-span-2" : "")}>
                  <div className="flex justify-between items-center mb-1">
                      <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Monthly Salary</label>
                      {!isChangingSalary && (
                          <button 
                              type="button" 
                              onClick={() => setIsChangingSalary(true)}
-                             className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full transition-all"
+                             className="text-[9px] sm:text-[10px] font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-100/50 px-2.5 py-1 rounded-full transition-all"
                          >
                              Change
                          </button>
@@ -152,40 +158,40 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                  </div>
                  
                  {!isChangingSalary ? (
-                     <div className="font-black text-slate-700 text-lg">
+                     <div className="font-black text-slate-700 text-base sm:text-lg">
                          ৳{currentSalary.toLocaleString()}
                      </div>
                  ) : (
-                     <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                             <div className="space-y-1.5">
-                                 <label className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">New Salary Amount (৳)</label>
+                     <div className="flex flex-col gap-3 sm:gap-4 animate-in fade-in slide-in-from-top-1">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                             <div className="flex flex-col gap-1 sm:gap-1.5">
+                                 <label className="text-[9px] sm:text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none">New Amount (৳)</label>
                                  <Input
                                    {...register('salary')}
                                    type="number"
                                    placeholder="0"
                                    min="0"
-                                   className="h-10 sm:h-12 rounded-xl border-2 border-indigo-200 focus:border-indigo-500 font-bold text-slate-700 transition-all px-4 bg-white"
+                                   className="h-10 sm:h-12 rounded-lg border-2 border-indigo-200 focus:border-indigo-500 font-bold text-slate-700 transition-all px-3 sm:px-4 bg-white text-sm sm:text-base"
                                  />
-                                 {errors.salary && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.salary.message}</p>}
+                                 {errors.salary && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.salary.message}</p>}
                              </div>
 
-                             <div className="space-y-1.5">
+                             <div className="flex flex-col gap-1 sm:gap-1.5">
                                  <label className="text-[9px] sm:text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none flex items-center gap-1">
                                      <CalendarClock className="w-3.5 h-3.5" /> Effective Date
                                  </label>
                                  <select
                                      value={salaryEffective}
                                      onChange={(e) => setSalaryEffective(e.target.value)}
-                                     className="w-full h-10 sm:h-12 bg-white border-2 border-amber-200 rounded-xl px-4 text-sm font-bold text-slate-700 focus:outline-none focus:border-amber-400 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%23D97706%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:16px_16px] bg-[right_0.75rem_center] bg-no-repeat transition-all"
+                                     className="w-full h-10 sm:h-12 bg-white border-2 border-amber-200 rounded-lg px-3 sm:px-4 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:border-amber-400 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%23D97706%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%3C/svg%3E')] bg-[length:14px_14px] sm:bg-[length:16px_16px] bg-[right_0.5rem_center] sm:bg-[right_0.75rem_center] bg-no-repeat transition-all"
                                  >
                                      {monthOptions.map((opt) => (
                                          <option key={opt.value} value={opt.value}>{opt.label}</option>
                                      ))}
                                  </select>
                                  {salaryEffective !== 'immediate' && (
-                                     <p className="text-[9px] text-amber-600 font-bold ml-1 mt-1">
-                                         Current salary ৳{currentSalary.toLocaleString()} will continue until the selected month.
+                                     <p className="text-[8px] sm:text-[9px] text-amber-600 font-bold ml-1 mt-1 leading-tight">
+                                         Current salary ৳{currentSalary.toLocaleString()} stays until chosen month.
                                      </p>
                                  )}
                              </div>
@@ -197,9 +203,9 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                                  onClick={() => {
                                      setIsChangingSalary(false);
                                      setValue('salary', currentSalary);
-                                     setSalaryEffective(monthOptions[1].value); // reset to next month
+                                     setSalaryEffective(monthOptions[1].value); 
                                  }}
-                                 className="text-[10px] sm:text-xs font-bold text-slate-500 hover:text-slate-700 w-full sm:w-auto text-center px-4 py-2"
+                                 className="text-[9px] sm:text-[10px] font-bold text-slate-500 hover:text-slate-700 w-full sm:w-auto text-center px-4 py-1.5 sm:py-2"
                              >
                                  Cancel
                              </button>
@@ -210,24 +216,25 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
           </div>
 
 
-          {/* Pending Salary Indicator — show if staff already has a pending change */}
+          {/* Pending Salary Indicator */}
           {staff.pendingSalary != null && staff.salaryEffectiveDate && (
-              <div className="p-3 sm:p-4 bg-blue-50 border-2 border-blue-100 rounded-2xl flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                  <div className="space-y-0.5">
-                      <span className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none">Scheduled Salary Change</span>
-                      <p className="text-[10px] sm:text-xs text-blue-500 font-bold">
+              <div className="p-3 sm:p-4 bg-blue-50 border-2 border-blue-100 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-3 sm:mb-4">
+                  <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] sm:text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none">Scheduled Change</span>
+                      <p className="text-[9px] sm:text-[10px] text-blue-500 font-bold">
                           Effective {new Date(staff.salaryEffectiveDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </p>
                   </div>
-                  <span className="font-black text-lg sm:text-xl text-blue-700">৳{staff.pendingSalary.toLocaleString()}</span>
+                  <span className="font-black text-base sm:text-lg text-blue-700">৳{staff.pendingSalary.toLocaleString()}</span>
               </div>
           )}
 
+          {/* Owner Salary Visibility */}
           {staff.role === 'owner' && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border-2 border-indigo-50 rounded-2xl bg-indigo-50/50 gap-3">
-                  <div className="space-y-1">
-                      <label className="text-xs font-black text-indigo-900 uppercase tracking-tight">Salary Visibility</label>
-                      <p className="text-[10px] text-indigo-600 font-bold mt-0.5">Show or hide your salary across the store.</p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 border-2 border-indigo-50 rounded-xl bg-indigo-50/50 gap-3 mb-3 sm:mb-4">
+                  <div className="flex flex-col gap-1">
+                      <label className="text-[10px] sm:text-xs font-black text-indigo-900 uppercase tracking-tight">Salary Visibility</label>
+                      <p className="text-[9px] sm:text-[10px] text-indigo-600 font-bold mt-0.5">Show/hide your salary across the store.</p>
                   </div>
                   <Controller
                       control={control}
@@ -239,8 +246,8 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                               variant={field.value !== false ? "outline" : "default"}
                               size="sm"
                               className={cn(
-                                "h-12 px-6 rounded-xl font-black uppercase tracking-tighter text-[10px] w-full sm:w-auto",
-                                field.value === false ? "bg-indigo-600 text-white shadow-lg shadow-indigo-100" : "bg-white text-indigo-600 border-2 border-indigo-100"
+                                "h-10 sm:h-12 px-4 sm:px-6 rounded-lg font-black uppercase tracking-tighter text-[9px] sm:text-[10px] w-full sm:w-auto",
+                                field.value === false ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "bg-white text-indigo-600 border-2 border-indigo-100"
                               )}
                           >
                               {field.value !== false ? 'Hide Salary' : 'Show Salary'}
@@ -250,7 +257,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
               </div>
           )}
 
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1 sm:gap-1.5 mb-3 sm:mb-4">
              <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Profile Image</label>
              <Controller
                 control={control}
@@ -263,10 +270,10 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                     />
                 )}
              />
-             {errors.image && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.image.message}</p>}
+             {errors.image && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.image.message}</p>}
           </div>
 
-          <div className="space-y-2 border-t-2 border-slate-100 pt-4 sm:pt-5 mt-2">
+          <div className="flex flex-col gap-2 border-t-2 border-slate-100 pt-3 mb-3 sm:mb-4">
              <div className="flex justify-between items-center mb-1">
                  <label className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none ml-1">Security</label>
                  <Button
@@ -274,7 +281,7 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
                     variant="ghost"
                     size="sm"
                     className={cn(
-                        "h-10 px-4 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all",
+                        "h-8 sm:h-10 px-3 sm:px-4 text-[9px] sm:text-[10px] font-black uppercase tracking-tighter rounded-lg transition-all",
                         showPasswordInput ? "bg-rose-50 text-rose-600 hover:bg-rose-100" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     )}
                     onClick={() => setShowPasswordInput(!showPasswordInput)}
@@ -284,41 +291,45 @@ export const EditStaffModal = ({ storeId, staff, onClose }: EditStaffModalProps)
              </div>
 
              {showPasswordInput && (
-                 <div className="animate-in fade-in slide-in-from-top-2 duration-200 pt-2">
+                 <div className="flex flex-col animate-in fade-in slide-in-from-top-2 duration-200 pt-1">
                      <Input
                         {...register('password')}
                         placeholder="Enter new 6-digit password"
                         type="password"
-                        className="h-12 rounded-2xl border-2 border-rose-100 focus:border-rose-300 font-bold text-slate-700 px-5"
+                        className="h-11 sm:h-12 rounded-xl border-2 border-rose-100 focus:border-rose-300 font-bold text-slate-700 px-4 sm:px-5 text-sm sm:text-base bg-white"
                      />
-                     <p className="text-[10px] text-slate-500 font-bold mt-1.5 ml-1">Security Note: Passwords must be at least 6 characters.</p>
-                     {errors.password && <p className="text-rose-500 text-[10px] font-bold uppercase tracking-tight ml-1">{errors.password.message}</p>}
+                     <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1.5 ml-1">Security Note: Passwords must be at least 6 characters.</p>
+                     {errors.password && <p className="text-rose-500 text-[9px] sm:text-[10px] font-bold uppercase tracking-tight ml-1">{errors.password.message}</p>}
                  </div>
              )}
           </div>
 
-           <div className="flex items-center gap-3 p-3 sm:p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 mt-2">
+           <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-slate-50 rounded-xl border-2 border-slate-100 mb-6 sm:mb-8">
                 <input
                     type="checkbox"
                     id="isActive"
                     {...register('isActive')}
-                    className="h-5 w-5 rounded-lg border-2 border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
+                    className="h-4 w-4 sm:h-5 sm:w-5 rounded border-2 border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
                 />
-                <label htmlFor="isActive" className="text-xs sm:text-sm font-black text-slate-700 cursor-pointer uppercase tracking-tight">Account Active</label>
+                <label htmlFor="isActive" className="text-[10px] sm:text-sm font-black text-slate-700 cursor-pointer uppercase tracking-tight">Account Active</label>
            </div>
 
-          <Button
-            type="submit"
-            className={cn(
-                "w-full h-14 transition-all shadow-xl rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs mt-6",
-                isDirty 
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-200 active:scale-[0.98]" 
-                    : "bg-slate-200 text-slate-500 shadow-none cursor-default"
-            )}
-            disabled={updateStaff.isPending || !isDirty}
-          >
-            {updateStaff.isPending ? 'Updating...' : 'Update Staff Profile'}
-          </Button>
+           {/* THE FIX: Sticky Bottom Button container hides any ghost space below it */}
+           <div className="sticky bottom-0 left-0 right-0 bg-white pt-2 pb-1 z-10 border-t border-slate-100/50">
+              <Button
+                type="submit"
+                className={cn(
+                    "w-full h-12 sm:h-14 transition-all shadow-lg rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs",
+                    isDirty 
+                        ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_14px_-4px_rgba(16,185,129,0.4)] active:scale-[0.98]" 
+                        : "bg-slate-100 text-slate-400 shadow-none cursor-not-allowed"
+                )}
+                disabled={updateStaff.isPending || !isDirty}
+              >
+                {updateStaff.isPending ? 'Updating...' : 'Update Staff Profile'}
+              </Button>
+           </div>
+           
         </form>
     </Modal>
   );

@@ -1,6 +1,6 @@
 import { useInventory } from '@/features/cylinder/hooks/useCylinders';
 import { POSCylinderCard } from './POSCylinderCard';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PackageX } from 'lucide-react';
 import { usePosStore } from '../stores/pos.store';
 import { useStoreBrands } from '@/features/brand/hooks/useBrands';
 import { useMemo } from 'react';
@@ -44,13 +44,11 @@ export const POSCylinders = ({ storeId }: POSCylindersProps) => {
 
         if (mode === 'EMPTY') {
             // In EMPTY mode, ensure ALL store active brands are shown, even if no inventory exists.
-            // We create "Virtual Products" for brands that don't have a product+inventory combo yet.
             const existingBrandProducts = new Set(invProducts.map((p: any) => p.brandId?._id?.toString()));
 
             const virtualProducts: any[] = [];
             brandMap.forEach((brand, brandId) => {
                 if (!existingBrandProducts.has(brandId)) {
-                    // Create a representative product for this brand
                     virtualProducts.push({
                         _id: `v_${brandId}`,
                         productId: `v_${brandId}`,
@@ -75,7 +73,12 @@ export const POSCylinders = ({ storeId }: POSCylindersProps) => {
    }, [inventory, brandsData, mode]);
 
   if (isLoading || isBrandsLoading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
+    return (
+        <div className="flex flex-col items-center justify-center w-full opacity-50 space-y-3 min-h-[300px]">
+            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Cylinders...</span>
+        </div>
+    );
   }
 
   const filteredItems = displayInventory.filter((item: any) => {
@@ -96,7 +99,7 @@ export const POSCylinders = ({ storeId }: POSCylindersProps) => {
     // 4. Stock Match Constraint
     let hasStock = true;
     if (mode === 'PACKAGED' || mode === 'REFILL') {
-        hasStock = (item.counts?.full || 0) > 0;
+        hasStock = (item.counts?.full || 0) > 0 || (item.counts?.packaged || 0) > 0; // Added packaged check
     }
     // EMPTY mode always shows everything because customers can return any brand empty cylinder.
     if (mode === 'EMPTY') hasStock = true;
@@ -105,23 +108,29 @@ export const POSCylinders = ({ storeId }: POSCylindersProps) => {
   });
 
   return (
-    <div className="h-full flex flex-col p-2 w-full">
-      {/* Slider / Horizontal Scroll Grid */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4 px-1 pt-1">
-          <div className="flex gap-4 h-full items-start min-w-max">
-            {filteredItems.length === 0 ? (
-                <div className="flex items-center justify-center w-full min-h-[100px] text-muted-foreground border-2 border-dashed rounded-lg bg-muted/50">
-                    No items found matching your filters.
-                </div>
-            ) : (
-                filteredItems.map((item: any) => (
-                    <div key={item._id} className="w-[260px] flex-shrink-0">
-                        <POSCylinderCard product={item} />
-                    </div>
-                ))
-            )}
-          </div>
-      </div>
+    // THE FIX: Mobile is h-auto (fluid), PC (sm and lg) gets locked height and hidden smooth vertical scrolling
+    <div className="w-full flex flex-col pt-2 sm:pt-3 pb-4 h-auto sm:h-[550px] lg:h-[60vh] xl:h-[65vh] sm:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          
+          {filteredItems.length === 0 ? (
+              // Premium Empty State
+              <div className="flex flex-col items-center justify-center w-full min-h-[250px] text-slate-400 border-2 border-dashed border-slate-200/60 rounded-2xl bg-slate-50/50 animate-in fade-in duration-300">
+                  <PackageX className="w-10 h-10 mb-3 text-slate-300" strokeWidth={1.5} />
+                  <span className="text-[11px] sm:text-xs font-black uppercase tracking-widest">No Cylinders Found</span>
+                  {(filterSearch || filterSize !== 'all' || filterRegulator !== 'all') && (
+                      <span className="text-[9px] sm:text-[10px] font-bold mt-1 opacity-70">Clear your filters to see more</span>
+                  )}
+              </div>
+          ) : (
+              // Perfectly responsive Grid
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  {filteredItems.map((item: any) => (
+                      <div key={item._id} className="w-full h-full">
+                          <POSCylinderCard product={item} />
+                      </div>
+                  ))}
+              </div>
+          )}
+          
     </div>
   );
 };

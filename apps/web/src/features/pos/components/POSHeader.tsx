@@ -1,12 +1,11 @@
 import { usePosStore } from '../stores/pos.store';
 import { useStaffStore } from '@/features/staff/stores/staff.store';
 import { Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, History } from 'lucide-react';
+import { LayoutGrid, ArrowDown, LogOut, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import { toast } from 'sonner';
-import { Modal } from '@/components/ui/Modal';
 import { DueCylinderModal } from './DueCylinderModal';
+import { cn } from '@/lib/utils';
 
 interface POSHeaderProps {
     storeId?: string;
@@ -16,7 +15,7 @@ interface POSHeaderProps {
 }
 
 export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderProps) => {
-    const { getTotals, clearCart, customer, saleItems, returnItems, transactionMode, allocatedDueCylinders } = usePosStore();
+    const { getTotals, clearCart, customer, saleItems, returnItems, allocatedDueCylinders } = usePosStore();
     const { staff } = useStaffStore();
     const { netTotal } = getTotals();
     const navigate = useNavigate();
@@ -25,7 +24,6 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
     const effectiveStoreId = storeId || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
 
     const {
-        setTransactionMode,
         setAllocatedDueCylinders,
         isDueModalOpen: isMismatchModalOpen,
         setDueModalOpen: setIsMismatchModalOpen,
@@ -34,10 +32,9 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
         getIsBalanced
     } = usePosStore();
 
-    // Mismatch State (Now from Store)
+    // Mismatch State
     const mismatchCount = storeMismatchCount;
     const isBalanced = getIsBalanced();
-
 
     const handleCheckoutScroll = () => {
         if (netTotal === 0 && saleItems.length === 0 && returnItems.length === 0) {
@@ -47,7 +44,6 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
 
         // 1. Calculate Cylinder Mismatch
         const mismatch = calculateMismatch();
-
         const currentAllocation = allocatedDueCylinders.reduce((acc, b) => acc + (b.selectedQty || 0), 0);
 
         if (mismatch > 0 && currentAllocation !== mismatch && !isMismatchModalOpen) {
@@ -57,7 +53,7 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
 
         const customerSection = document.getElementById('pos-customer-section');
         if (customerSection) {
-            customerSection.scrollIntoView({ behavior: 'smooth' });
+            customerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
             proceedToCheckout();
         }
@@ -65,108 +61,113 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
 
     const proceedToCheckout = () => {
         if (!customer) {
-            // Unlikely to reach here if the initial button click guarded it,
-            // but just in case they cleared the cart or bypassed it:
             const customerSection = document.getElementById('pos-customer-section');
             if (customerSection) {
                 customerSection.scrollIntoView({ behavior: 'smooth' });
                 toast.info("Please select a customer first", { id: 'cust-select' });
+            } else {
+                // Fallback scroll to bottom
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
             return;
         }
         navigate(effectiveStoreId ? `/stores/${effectiveStoreId}/pos/checkout` : '/pos/checkout');
     };
 
-    return (
-        <div className="flex items-center justify-between border rounded-lg p-2 sm:p-3 bg-white shadow-sm shrink-0 min-h-[56px] sm:min-h-[64px] gap-2 sm:gap-4 flex-wrap sm:flex-nowrap">
-           <div className="flex items-center gap-4 flex-1 sm:flex-none">
-                {staff ? (
-                    <Button
-                         variant="outline"
-                         size="icon"
-                         className="h-10 w-10 sm:h-12 sm:w-12 text-red-500 hover:text-red-600 hover:bg-red-50 active:scale-95"
-                         onClick={() => {
-                             clearCart();
-                             if (onLogout) onLogout();
-                         }}
-                     >
-                        <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6" />
-                    </Button>
-                ) : (
-                    <Link
-                        to={effectiveStoreId ? `/stores/${effectiveStoreId}/dashboard` : '/'}
-                        onClick={() => clearCart()}
-                    >
-                        <Button variant="outline" size="icon" className="h-10 w-10 sm:h-12 sm:w-12 active:scale-95">
-                            <LayoutDashboard className="h-5 w-5 sm:h-6 sm:w-6 text-slate-600" />
-                        </Button>
-                    </Link>
-                )}
- 
-                <div className="flex flex-col">
-                    <h1 className="font-black text-lg sm:text-2xl leading-none tracking-tighter uppercase">POS</h1>
-                    {customer && (
-                         <span className="text-xs sm:text-sm text-green-600 font-bold flex items-center gap-1 uppercase tracking-wider mt-0.5 sm:mt-1 truncate max-w-[120px] sm:max-w-none">
-                             {customer.name}
-                         </span>
-                    )}
-                </div>
-                {/* Transaction Tier */}
-                <div className="hidden sm:flex items-center border-2 border-slate-100 rounded-xl overflow-hidden bg-slate-50 p-1 gap-1 justify-center ml-4">
-                    <button
-                       className={`flex-1 md:flex-none px-5 py-2.5 text-xs font-black rounded-lg uppercase transition-all active:scale-95 ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
-                       onClick={() => setTransactionMode('wholesale')}
-                    >
-                       Wholesale
-                    </button>
-                    <button
-                       className={`flex-1 md:flex-none px-5 py-2.5 text-xs font-black rounded-lg uppercase transition-all active:scale-95 ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
-                       onClick={() => setTransactionMode('retail')}
-                    >
-                       Retail
-                    </button>
-                </div>
- 
-                <div className="h-10 w-px bg-slate-100 mx-4 hidden lg:block" />
- 
-                <div className="hidden lg:flex items-center gap-2">
-                    <Button 
-                        variant="ghost" 
-                        size="lg" 
-                        asChild
-                        className="h-12 text-slate-500 font-black px-6 rounded-xl hover:bg-slate-100 uppercase text-xs tracking-widest active:scale-95"
-                    >
-                        <Link to={effectiveStoreId ? `/stores/${effectiveStoreId}/history` : '/history'}>
-                            <History size={20} className="mr-2" /> History
-                        </Link>
-                    </Button>
-                </div>
-            </div>
+    const handleExitPos = () => {
+        clearCart();
+        if (onLogout) onLogout();
+        if (!staff) {
+             navigate(effectiveStoreId ? `/stores/${effectiveStoreId}/dashboard` : '/');
+        }
+    };
 
-           <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                {(userName || userRole) && (
-                    <div className="hidden md:block text-right mr-4 border-r pr-4">
-                        <div className="text-sm font-black uppercase tracking-tight">{userName}</div>
-                        <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{userRole}</div>
+    return (
+        <>
+            <header className="flex items-center justify-between w-full bg-white/90 backdrop-blur-md border border-slate-200/80 px-2 py-1.5 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.05)] z-20 gap-2 overflow-hidden shrink-0">
+              
+              {/* LEFT: Exit Action & Branding */}
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                 <button 
+                    onClick={handleExitPos}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-600 hover:text-rose-600 flex items-center justify-center shadow-inner transition-colors shrink-0"
+                    title="Exit POS"
+                 >
+                    {staff ? <LogOut size={14} strokeWidth={2.5} className="sm:w-5 sm:h-5" /> : <ArrowLeft size={14} strokeWidth={2.5} className="sm:w-5 sm:h-5" />}
+                 </button>
+
+                 <div className="flex flex-col justify-center min-w-0 w-full">
+                    
+                    {/* === DESKTOP VIEW (All inline) === */}
+                    <div className="hidden sm:flex items-center min-w-0">
+                        <h1 className="text-[16px] font-black uppercase tracking-widest text-slate-800 leading-none flex items-center shrink-0">
+                            POS <span className="text-slate-300 mx-2">•</span>
+                        </h1>
+                        
+                        <div className="flex items-center text-[12px] font-bold uppercase tracking-wider leading-none truncate mt-[2px]">
+                            {/* Name */}
+                            <span className="text-slate-500 truncate max-w-[180px]">
+                                {customer ? customer.name : (userName || 'Cashier')}
+                            </span>
+                            
+                            {/* Role / Customer Tag */}
+                            <span className="text-slate-300 mx-2 shrink-0">•</span>
+                            <span className={cn("shrink-0", customer ? "text-emerald-500" : "text-slate-400")}>
+                                {customer ? 'CUSTOMER' : userRole}
+                            </span>
+                        </div>
                     </div>
-                )}
- 
-                <div className="text-right flex flex-col items-end pr-1 sm:pr-2">
-                    <span className="text-xs sm:text-sm text-muted-foreground uppercase font-black tracking-widest mb-0.5">Total</span>
-                    <span className="text-xl sm:text-3xl font-black text-primary leading-none">৳{netTotal}</span>
-                </div>
-                <Button
-                    id="pos-checkout-btn"
+
+                    {/* === MOBILE VIEW (Stacked POS on top, FirstName • Role on bottom) === */}
+                    <div className="flex sm:hidden flex-col min-w-0">
+                        <span className="text-[12px] font-black uppercase tracking-widest text-slate-800 leading-none mb-1">
+                            POS
+                        </span>
+                        <div className="flex items-center text-[9px] font-bold uppercase tracking-wider leading-none mt-0.5">
+                            {/* Gets only the first name safely using optional chaining and split */}
+                            <span className="text-slate-700 truncate min-w-0">
+                                {customer ? customer.name?.split(' ')[0] : (userName?.split(' ')[0] || 'Cashier')}
+                            </span>
+                            <span className="text-slate-300 mx-1 shrink-0">•</span>
+                            <span className={cn("shrink-0", customer ? "text-emerald-500" : "text-slate-400")}>
+                                {customer ? 'CUST' : userRole}
+                            </span>
+                        </div>
+                    </div>
+
+                 </div>
+              </div>
+
+              {/* RIGHT: Live Total & Checkout Action */}
+              <div className="flex items-center gap-2 sm:gap-5 shrink-0">
+                 
+                 {/* Live Total */}
+                 <div className="flex flex-col items-end sm:flex-row sm:items-baseline gap-0 sm:gap-1.5 shrink-0">
+                    <span className="text-[7px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5 sm:mb-0">
+                      Total
+                    </span>
+                    <span className="text-[14px] sm:text-[22px] font-black text-orange-600 leading-none tracking-tighter">
+                      ৳{netTotal.toLocaleString()}
+                    </span>
+                 </div>
+                 
+                 {/* Sleek Checkout Button */}
+                 <Button 
                     onClick={handleCheckoutScroll}
-                    className={`h-12 sm:h-14 px-6 sm:px-10 rounded-lg sm:rounded-xl font-black uppercase tracking-widest shadow-xl transition-all duration-300 text-xs sm:text-base active:scale-95 ${
-                        isBalanced
-                            ? 'bg-green-600 hover:bg-green-700 text-white'
-                            : 'bg-amber-600 hover:bg-amber-700 text-white'
-                    }`}
-                >
-                    {isBalanced ? 'Checkout' : 'Add Due'} <span className="ml-1 sm:ml-2 text-xs opacity-70">↓</span>
-                </Button>
-           </div>
+                    className={cn(
+                        "h-8 sm:h-11 px-2.5 sm:px-6 rounded-full font-black text-[9px] sm:text-[12px] uppercase tracking-widest shadow-md transition-all active:scale-95 shrink-0",
+                        isBalanced 
+                            ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_14px_-4px_rgba(16,185,129,0.4)]" 
+                            : "bg-amber-500 hover:bg-amber-600 text-white shadow-[0_4px_14px_-4px_rgba(245,158,11,0.4)]"
+                    )}
+                 >
+                    <span className="hidden sm:inline">{isBalanced ? 'Checkout' : 'Add Due'}</span>
+                    <span className="sm:hidden">{isBalanced ? 'Pay' : 'Due'}</span>
+                    <ArrowDown size={12} strokeWidth={3} className="ml-1 sm:ml-1.5 sm:w-4 sm:h-4 opacity-80" />
+                 </Button>
+
+              </div>
+            </header>
 
             {/* Cylinder Mismatch Modal */}
             <DueCylinderModal
@@ -181,7 +182,6 @@ export const POSHeader = ({ storeId, userName, userRole, onLogout }: POSHeaderPr
                     setIsMismatchModalOpen(false);
                 }}
             />
-
-        </div>
+        </>
     );
 };

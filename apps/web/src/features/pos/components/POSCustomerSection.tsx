@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { User, Store, FileText, PackageMinus } from 'lucide-react';
+import { User, Store, FileText, PackageMinus, PackagePlus } from 'lucide-react';
 import { POSCustomerModal } from './POSCustomerModal';
 import { DueCylinderModal } from './DueCylinderModal';
 import { POSCustomerSearch } from './POSCustomerSearch';
@@ -13,8 +13,8 @@ import { POSCustomerFormFields } from './POSCustomerFormFields';
 import { POSCustomerDueInfo } from './POSCustomerDueInfo';
 import { useProducts } from '@/features/product/hooks/useProducts';
 import { useCreateTransaction } from '../api/transaction.api';
-import { ChevronRight, PackagePlus } from 'lucide-react';
 import { AllocatedDue } from '../stores/pos.types';
+import { cn } from '@/lib/utils';
 
 interface POSCustomerSectionProps {
     storeId: string;
@@ -175,8 +175,6 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                 onSuccess: (data: any) => {
                     const newCust = data.customer || data;
                     toast.success("New customer created successfully");
-
-                    // Navigating to checkout directly
                     proceedToCheckout(newCust);
                 }
             });
@@ -203,12 +201,11 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
     const mappedDueItems: AllocatedDue[] = useMemo(() => {
         return dueCylinders.map((due: any) => {
             const product = products?.find((p: any) => p._id === due.productId);
-            // Restore selection if already staged in store
             const stagedSelection = settledDueCylinders.find(s => s.productId === due.productId);
             return {
                 productId: due.productId,
                 brandName: due.brandName,
-                quantity: 0, // not used in this mode
+                quantity: 0, 
                 maxQty: due.quantity,
                 selectedQty: stagedSelection ? stagedSelection.selectedQty : 0,
                 image: due.image || product?.image,
@@ -223,161 +220,170 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
     const isCartEmpty = saleItems.length === 0 && returnItems.length === 0 && cartDueCylinders.length === 0;
 
     return (
-        <div id="pos-customer-section" className="mt-4 sm:mt-6 pt-4 sm:pt-6 pb-8 sm:pb-12 border-t-2 border-dashed border-slate-300 w-full shrink-0 relative">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <h2 className="text-base sm:text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                        {transactionMode === 'wholesale' ? <Store size={18} className="text-emerald-600 sm:w-6 sm:h-6" /> : <User size={18} className="text-indigo-600 sm:w-6 sm:h-6" />}
-                        <span className="truncate">Customer Info</span>
+        <div id="pos-customer-section" className="mt-4 sm:mt-8 pt-4 sm:pt-8 pb-6 sm:pb-12 border-t-2 border-dashed border-slate-300 w-full shrink-0 relative">
+            
+            {/* === PREMIUM TOP HEADER === */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 sm:mb-6 gap-4">
+                 
+                 {/* Title & Mode Switcher */}
+                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full lg:w-auto">
+                    <h2 className="text-base sm:text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-2 shrink-0">
+                        {transactionMode === 'wholesale' ? <Store size={20} className="text-emerald-600" /> : <User size={20} className="text-indigo-600" />}
+                        Customer Info
                     </h2>
 
-                    {/* Synced Toggle - Accessible outside restriction */}
-                    <div className="flex items-center border border-slate-200 rounded-lg sm:rounded-xl overflow-hidden bg-slate-50 p-0.5 sm:p-1 gap-1 h-9 sm:h-12">
-                       <button
+                    {/* Native App Style Segmented Control */}
+                    <div className="flex items-center bg-slate-100/80 border border-slate-200/60 rounded-xl p-1 gap-1 w-full sm:w-[260px] h-10 sm:h-12 shadow-inner shrink-0">
+                        <button
                             type="button"
-                            className={`px-5 py-2 text-xs font-black rounded-lg uppercase transition-all whitespace-nowrap active:scale-95 ${transactionMode === 'wholesale' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={cn(
+                                "flex-1 h-full flex items-center justify-center text-[10px] sm:text-[11px] font-black rounded-lg uppercase tracking-widest transition-all duration-200",
+                                transactionMode === 'wholesale' 
+                                    ? "bg-white text-emerald-600 shadow-sm border border-slate-200/50 scale-[1.02]" 
+                                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                            )}
                             onClick={() => {
                                 setTransactionMode('wholesale');
-                                setPhone('');
-                                setName('');
-                                setOwnerName('');
-                                setAddress('');
-                                setDistrict('');
-                                setSelectedCustomerId(null);
+                                setPhone(''); setName(''); setOwnerName(''); setAddress(''); setDistrict(''); setSelectedCustomerId(null);
                             }}
                         >
                             Wholesale
                         </button>
                         <button
                             type="button"
-                            className={`px-5 py-2 text-xs font-black rounded-lg uppercase transition-all whitespace-nowrap active:scale-95 ${transactionMode === 'retail' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+                            className={cn(
+                                "flex-1 h-full flex items-center justify-center text-[10px] sm:text-[11px] font-black rounded-lg uppercase tracking-widest transition-all duration-200",
+                                transactionMode === 'retail' 
+                                    ? "bg-white text-indigo-600 shadow-sm border border-slate-200/50 scale-[1.02]" 
+                                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                            )}
                             onClick={() => {
                                 setTransactionMode('retail');
-                                setPhone('');
-                                setName('');
-                                setOwnerName('');
-                                setAddress('');
-                                setDistrict('');
-                                setSelectedCustomerId(null);
+                                setPhone(''); setName(''); setOwnerName(''); setAddress(''); setDistrict(''); setSelectedCustomerId(null);
                             }}
                         >
                             Retail
                         </button>
                     </div>
                  </div>
-                 <Button type="button" variant="outline" size="lg" onClick={handleViewCustomers} className="h-10 sm:h-12 px-4 sm:px-6 shadow-md font-black text-slate-700 flex items-center gap-2 rounded-lg sm:rounded-xl active:scale-95 border border-slate-200 hover:bg-slate-50 uppercase text-[10px] sm:text-xs tracking-widest">
-                     <FileText size={16} className="sm:w-5 sm:h-5" /> Select Existing
+
+                 {/* Select Existing Button */}
+                 <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleViewCustomers} 
+                    className="w-full lg:w-auto h-10 sm:h-12 px-6 shadow-sm font-black text-slate-700 flex items-center justify-center gap-2 rounded-xl active:scale-95 border-slate-200 hover:bg-slate-50 uppercase text-[10px] sm:text-[11px] tracking-widest shrink-0"
+                 >
+                     <FileText size={16} /> Select Existing
                  </Button>
             </div>
 
-            {/* Lock Overlay / Blocker */}
-            {isCartEmpty && (
-                <div className="absolute inset-x-0 bottom-0 top-12 sm:top-16 z-[40] bg-slate-50/20 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
-                    <div className="bg-white/95 p-5 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl border-2 border-slate-200 max-w-[280px] sm:max-w-md animate-in fade-in zoom-in duration-300">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                            <PackagePlus className="w-6 h-6 sm:w-8 sm:h-8 text-slate-500" />
+            {/* === DYNAMIC INLINE STATES === */}
+            <div className="w-full mx-auto transition-all duration-500">
+                
+                {isCartEmpty ? (
+                    
+                    /* --- INLINE EMPTY STATE (Short & Clean) --- */
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 px-4 bg-slate-50/60 border border-slate-200/80 rounded-2xl shadow-sm text-center">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mb-3 sm:mb-4 shadow-sm border border-slate-100">
+                            <PackagePlus className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
                         </div>
-                        <h3 className="text-base sm:text-xl font-black text-slate-800 mb-1 sm:mb-2 uppercase leading-snug">Cart is Empty</h3>
-                        <p className="text-slate-600 font-bold text-[10px] sm:text-sm leading-relaxed">
-                            Please add items to your cart before selecting a customer or proceeding to checkout.
+                        <h3 className="text-sm sm:text-lg font-black text-slate-700 mb-1 uppercase tracking-tight">Cart is Empty</h3>
+                        <p className="text-slate-500 font-bold text-[10px] sm:text-[12px] leading-relaxed max-w-[260px] sm:max-w-md mx-auto">
+                            Please add items to your cart before entering customer details or checking out.
                         </p>
                     </div>
-                </div>
-            )}
-            
-            {!isCartEmpty && !isBalanced && (
-                <div className="absolute inset-x-0 bottom-0 top-12 sm:top-16 z-50 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
-                    <div className="bg-white/95 p-5 sm:p-6 rounded-xl sm:rounded-2xl shadow-xl border-2 border-red-200 max-w-[280px] sm:max-w-md animate-in fade-in zoom-in duration-300">
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                            <PackageMinus className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
+
+                ) : !isBalanced ? (
+
+                    /* --- INLINE UNBALANCED STATE (Short & Clean) --- */
+                    <div className="flex flex-col items-center justify-center py-8 sm:py-12 px-4 bg-red-50/40 border border-red-100/80 rounded-2xl shadow-sm text-center">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mb-3 sm:mb-4 shadow-sm border border-red-100">
+                            <PackageMinus className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
                         </div>
-                        <h3 className="text-base sm:text-xl font-black text-slate-800 mb-1 sm:mb-2 uppercase leading-snug">Returns Unbalanced</h3>
-                        <p className="text-slate-600 font-bold text-[10px] sm:text-sm leading-relaxed mb-4">
-                            Cylinder Sell count and Return count (Empty + Due) must be exactly equal before you can proceed.
+                        <h3 className="text-sm sm:text-lg font-black text-slate-800 mb-1 uppercase tracking-tight">Returns Unbalanced</h3>
+                        <p className="text-slate-600 font-bold text-[10px] sm:text-[12px] leading-relaxed mb-4 sm:mb-6 max-w-[280px] sm:max-w-md mx-auto">
+                            Cylinder Sell count and Return count must be exactly equal before you can proceed.
                         </p>
                         <Button 
                             type="button"
                             onClick={() => setDueModalOpen(true)}
-                            className="w-full bg-red-600 hover:bg-red-700 text-white font-black uppercase tracking-widest text-xs h-10 sm:h-12"
+                            className="w-full sm:w-auto px-8 bg-red-500 hover:bg-red-600 text-white font-black uppercase tracking-widest text-[10px] sm:text-[12px] h-10 sm:h-12 rounded-xl shadow-md transition-all active:scale-95"
                         >
-                            Add Due
+                            Add Due Cylinders
                         </Button>
                     </div>
-                </div>
-            )}
 
-            <div className={`transition-all duration-300 ${(!isBalanced || isCartEmpty) ? 'opacity-30 blur-[4px] pointer-events-none select-none' : ''}`}>
+                ) : (
 
-             <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-slate-200 shadow-sm max-w-2xl mx-auto">
-                 <form onSubmit={handleNext} className="space-y-4 sm:space-y-6">
-                    <POSCustomerSearch
-                        phone={phone}
-                        onPhoneChange={handlePhoneChange}
-                        filteredCustomers={filteredCustomers}
-                        onSelectExisting={handleSelectExisting}
-                        showDropdown={showDropdown}
-                        setShowDropdown={setShowDropdown}
-                        wrapperRef={wrapperRef}
-                        onClear={() => {
-                            setPhone('');
-                            setName('');
-                            setOwnerName('');
-                            setAddress('');
-                            setDistrict('');
-                            setSelectedCustomerId(null);
-                            setCustomer(null);
-                        }}
-                    />
+                    /* --- ACTUAL FORM (Expands Organically) --- */
+                    <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm w-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <form onSubmit={handleNext} className="space-y-4 sm:space-y-6">
+                            
+                            <POSCustomerSearch
+                                phone={phone}
+                                onPhoneChange={handlePhoneChange}
+                                filteredCustomers={filteredCustomers}
+                                onSelectExisting={handleSelectExisting}
+                                showDropdown={showDropdown}
+                                setShowDropdown={setShowDropdown}
+                                wrapperRef={wrapperRef}
+                                onClear={() => {
+                                    setPhone(''); setName(''); setOwnerName(''); setAddress(''); setDistrict(''); setSelectedCustomerId(null); setCustomer(null);
+                                }}
+                            />
 
-                    <POSCustomerFormFields
-                        transactionMode={transactionMode}
-                        name={name}
-                        setName={setName}
-                        ownerName={ownerName}
-                        setOwnerName={setOwnerName}
-                        address={address}
-                        setAddress={setAddress}
-                        district={district}
-                        setDistrict={setDistrict}
-                        disabled={!!selectedCustomerId}
-                    />
+                            <POSCustomerFormFields
+                                transactionMode={transactionMode}
+                                name={name}
+                                setName={setName}
+                                ownerName={ownerName}
+                                setOwnerName={setOwnerName}
+                                address={address}
+                                setAddress={setAddress}
+                                district={district}
+                                setDistrict={setDistrict}
+                                disabled={!!selectedCustomerId}
+                            />
 
-                    <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center border-t border-slate-100 mt-3 sm:mt-4 gap-4">
-                        <POSCustomerDueInfo
-                            selectedCustomer={selectedCustomer}
-                            dueAmount={dueAmount}
-                            totalDueCylinders={totalDueCylinders}
-                            mappedDueItems={mappedDueItems}
-                            onReturnClick={() => setIsDueSettlementOpen(true)}
-                        />
+                            {/* Bottom Due Info & Checkout Action */}
+                            <div className="pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center border-t border-slate-100 mt-4 gap-4">
+                                <POSCustomerDueInfo
+                                    selectedCustomer={selectedCustomer}
+                                    dueAmount={dueAmount}
+                                    totalDueCylinders={totalDueCylinders}
+                                    mappedDueItems={mappedDueItems}
+                                    onReturnClick={() => setIsDueSettlementOpen(true)}
+                                />
 
-                        <Button
-                            type="submit"
-                            className={`w-full sm:w-auto h-10 sm:h-12 px-6 sm:px-8 font-black uppercase tracking-wider text-sm sm:text-base shadow-md transition-all duration-300 active:scale-95 ${
-                                isBalanced
-                                    ? 'bg-green-600 hover:bg-green-700'
-                                    : 'bg-amber-500 hover:bg-amber-600 text-white'
-                            }`}
-                            disabled={createCustomer.isPending || updateCustomer.isPending}
-                        >
-                            {createCustomer.isPending || updateCustomer.isPending
-                                ? 'Processing...'
-                                : selectedCustomerId
-                                    ? 'Checkout \u2192'
-                                    : 'Create and Checkout \u2192'}
-                        </Button>
+                                <Button
+                                    type="submit"
+                                    className="w-full sm:w-auto h-12 px-8 font-black uppercase tracking-widest text-[11px] sm:text-[13px] bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_4px_14px_-4px_rgba(16,185,129,0.4)] transition-all duration-300 active:scale-95 rounded-xl shrink-0"
+                                    disabled={createCustomer.isPending || updateCustomer.isPending}
+                                >
+                                    {createCustomer.isPending || updateCustomer.isPending
+                                        ? 'Processing...'
+                                        : selectedCustomerId
+                                            ? 'Checkout \u2192'
+                                            : 'Create & Checkout \u2192'}
+                                </Button>
+                            </div>
+                        </form>
                     </div>
-                 </form>
-             </div>
 
-             <POSCustomerModal
+                )}
+
+            </div>
+
+            {/* Modals */}
+            <POSCustomerModal
                 open={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 customers={modeFilteredCustomers}
                 onSelect={handleSelectExisting}
-             />
+            />
 
-             <DueCylinderModal
+            <DueCylinderModal
                 isOpen={isDueSettlementOpen}
                 onClose={() => setIsDueSettlementOpen(false)}
                 title="Settle Due Cylinders"
@@ -385,8 +391,7 @@ export const POSCustomerSection = ({ storeId }: POSCustomerSectionProps) => {
                 items={mappedDueItems}
                 onConfirm={handleSettleDue}
                 confirmLabel="Done"
-             />
-            </div>
+            />
         </div>
     );
 };

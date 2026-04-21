@@ -35,7 +35,8 @@ export const Modal = ({ isOpen, onClose, title, children, footer, className, ali
 
   return createPortal(
     <div
-        className={`fixed inset-0 z-[9999] flex justify-center sm:p-4 bg-black/50 backdrop-blur-sm overflow-y-auto ${align === 'top' ? 'items-start sm:pt-20' : 'items-center'}`}
+        // THE FIX: Changed z-[9999] to z-[9999999] to ensure the backdrop and modal sit above EVERYTHING.
+        className={`fixed inset-0 z-[9999999] flex justify-center sm:p-4 bg-black/50 backdrop-blur-sm overflow-y-auto ${align === 'top' ? 'items-start sm:pt-20' : 'items-center'}`}
         onClick={onClose}
     >
       <div

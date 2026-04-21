@@ -13,10 +13,10 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
 
   if (isLoading) {
     return (
-      <div className="flex gap-2 animate-pulse overflow-hidden w-full h-9">
-        <div className="w-16 h-full bg-muted rounded-full" />
-        <div className="w-20 h-full bg-muted rounded-full" />
-        <div className="w-20 h-full bg-muted rounded-full" />
+      <div className="flex flex-wrap gap-1.5 w-full sm:w-fit bg-muted/30 p-1.5 rounded-xl border border-border/40 animate-pulse">
+        <div className="flex-1 sm:flex-none sm:w-20 h-8 bg-muted/50 rounded-lg" />
+        <div className="flex-1 sm:flex-none sm:w-16 h-8 bg-muted/50 rounded-lg" />
+        <div className="flex-1 sm:flex-none sm:w-16 h-8 bg-muted/50 rounded-lg" />
       </div>
     );
   }
@@ -24,17 +24,20 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
   const sortedSizes = sortSizes(sizes);
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide py-1">
+    // w-full on mobile to utilize space, w-fit on desktop to stay compact
+    <div className="flex flex-wrap items-center gap-1.5 bg-muted/40 p-1.5 rounded-xl w-full sm:w-fit border border-border/50 shadow-inner">
+      
       <button
         type="button"
         onClick={() => onSizeChange(null)}
-        className={`shrink-0 px-6 py-3 rounded-full text-sm font-black border transition-all active:scale-95 ${
+        // flex-1 forces buttons to share space equally on mobile, preventing awkward empty gaps
+        className={`flex-1 sm:flex-none px-4 py-1.5 text-[11px] sm:text-xs font-bold rounded-lg transition-all duration-300 outline-none active:scale-95 ${
           activeSize === null
-            ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20'
-            : 'bg-card text-slate-600 border-slate-200 hover:bg-muted hover:text-foreground'
+            ? 'bg-primary text-primary-foreground shadow-[0_4px_10px_rgba(var(--primary),0.3)]'
+            : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
         }`}
       >
-        All
+        All Weights
       </button>
 
       {sortedSizes.map(size => {
@@ -44,10 +47,10 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
             key={size}
             type="button"
             onClick={() => onSizeChange(size)}
-            className={`shrink-0 px-6 py-3 rounded-full text-sm font-black border transition-all active:scale-95 ${
+            className={`flex-1 sm:flex-none px-4 py-1.5 text-[11px] sm:text-xs font-bold rounded-lg transition-all duration-300 outline-none active:scale-95 ${
               isSelected
-                ? 'bg-primary text-primary-foreground border-primary shadow-md ring-2 ring-primary/20'
-                : 'bg-card text-slate-600 border-slate-200 hover:bg-muted hover:text-foreground'
+                ? 'bg-primary text-primary-foreground shadow-[0_4px_10px_rgba(var(--primary),0.3)]'
+                : 'bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground'
             }`}
           >
             {size}
@@ -59,10 +62,11 @@ export const InventoryFilterStrip = ({ storeId, activeSize, onSizeChange, onEdit
         <button
           type="button"
           onClick={onEditSizesClick}
-          className="shrink-0 px-4 py-3 ml-2 rounded-full text-sm font-bold border border-dashed border-slate-300 text-slate-500 hover:bg-slate-50 hover:text-slate-800 flex items-center gap-1.5 transition-all active:scale-95"
+          // ml-auto pushes it to the far right if it wraps to a new line on mobile
+          className="flex-1 sm:flex-none px-3 py-1.5 ml-auto sm:ml-1 rounded-lg text-[11px] sm:text-xs font-bold border border-dashed border-border/60 text-muted-foreground hover:bg-muted/80 hover:text-foreground flex items-center justify-center gap-1.5 transition-all active:scale-95"
           title="Edit Store Sizes"
         >
-          <Settings size={16} />
+          <Settings size={13} strokeWidth={2.5} />
           Edit
         </button>
       )}

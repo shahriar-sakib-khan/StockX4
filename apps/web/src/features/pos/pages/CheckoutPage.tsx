@@ -9,12 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Printer, CheckCircle, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Printer, CheckCircle, PlusCircle, X } from 'lucide-react';
 import { Receipt } from '../components/Receipt';
 import { InvoiceHeader } from '../components/invoice/InvoiceHeader';
 import { InvoiceCustomerDetails } from '../components/invoice/InvoiceCustomerDetails';
 import { InvoiceItemsTable, ExtraExpense } from '../components/invoice/InvoiceItemsTable';
-import { InvoiceTotals } from '../components/invoice/InvoiceTotals';
+import { cn } from '@/lib/utils';
 
 export const CheckoutPage = () => {
     const { saleItems, returnItems, getTotals, customer, clearCart, allocatedDueCylinders, settledDueCylinders } = usePosStore();
@@ -33,9 +33,7 @@ export const CheckoutPage = () => {
 
     // Extra Expenses — draft-first pattern
     const [extraExpenses, setExtraExpenses] = useState<ExtraExpense[]>([]);
-    // Draft for a new expense (null = no draft open)
     const [draft, setDraft] = useState<{ amount: number; note: string } | null>(null);
-    // Which committed expense is being edited (null = none)
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editDraft, setEditDraft] = useState<{ amount: number; note: string }>({ amount: 0, note: '' });
 
@@ -83,7 +81,7 @@ export const CheckoutPage = () => {
 
     const dueAmount = finalAmount - paidAmount;
 
-    const { id } = useParams<{ id: string }>(); // Store ID from URL (Owner mode)
+    const { id } = useParams<{ id: string }>(); 
     const storeId = id || (typeof staff?.storeId === 'string' ? staff.storeId : (staff?.storeId as any)?._id);
     const { data: storeData } = useStore(storeId || '');
 
@@ -103,7 +101,6 @@ export const CheckoutPage = () => {
     const executeCheckout = async () => {
         setIsProcessing(true);
         try {
-            // Transform POS items to API items
             const apiItems = [
                 ...saleItems.map(i => ({
                     productId: i.productId,
@@ -147,7 +144,7 @@ export const CheckoutPage = () => {
                     saleType: 'RETURN' as const
                 })),
                 ...extraExpenses.map(e => ({
-                    productId: '000000000000000000000000', // Ad-hoc expense item
+                    productId: '000000000000000000000000', 
                     type: 'EXPENSE' as const,
                     category: 'EXTRA_EXPENSE',
                     name: e.note || 'Extra Expense',
@@ -165,7 +162,6 @@ export const CheckoutPage = () => {
                 paidAmount: Number(paidAmount),
                 customerId: customer?.id,
                 customerType: customer?.type,
-                // Pass explicit dueCylinders if any were allocated during POS cart mapping
                 dueCylinders: (allocatedDueCylinders && allocatedDueCylinders.length > 0)
                      ? allocatedDueCylinders
                           .filter(b => b.selectedQty > 0)
@@ -191,20 +187,23 @@ export const CheckoutPage = () => {
         }
     };
 
+    // --- SUCCESS SCREEN ---
     if (completedTransaction) {
         return (
-            <div className="min-h-screen flex flex-col items-center pt-4 sm:pt-8 pb-10 sm:pb-20 px-2 sm:px-4 bg-muted/20 overflow-y-auto">
-                <Card className="w-full max-w-3xl animate-in fade-in zoom-in duration-300 shadow-xl border-slate-200">
-                    <CardHeader className="text-center p-4 sm:p-6">
-                        <CheckCircle className="w-10 h-10 sm:w-16 sm:h-16 text-green-500 mx-auto mb-2 sm:mb-4" />
-                        <CardTitle className="text-xl sm:text-3xl font-black uppercase tracking-tight">Sale Completed!</CardTitle>
+            <div className="min-h-screen flex flex-col items-center pt-8 sm:pt-12 pb-10 sm:pb-20 px-4 bg-slate-50/50 overflow-y-auto">
+                <Card className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-slate-200/60 rounded-[1.5rem]">
+                    <CardHeader className="text-center p-6 sm:p-8">
+                        <div className="mx-auto bg-green-100 w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                            <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" strokeWidth={2.5} />
+                        </div>
+                        <CardTitle className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900">Sale Completed!</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-                        <div className="flex justify-center gap-3 sm:gap-4">
-                           <Button onClick={() => window.print()} variant="outline" className="gap-2">
+                    <CardContent className="space-y-6 sm:space-y-8 p-4 sm:p-8 pt-0">
+                        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                            <Button onClick={() => window.print()} variant="outline" className="gap-2 h-12 rounded-xl font-bold border-slate-200 hover:bg-slate-100">
                                 <Printer className="w-4 h-4" /> Print Receipt
                             </Button>
-                            <Button onClick={() => {
+                            <Button className="h-12 rounded-xl font-black uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white shadow-md" onClick={() => {
                                 setCompletedTransaction(null);
                                 if(id || storeId) {
                                      navigate(id ? `/stores/${id}/pos` : `/stores/${storeId}/pos`);
@@ -215,8 +214,7 @@ export const CheckoutPage = () => {
                                 New Sale
                             </Button>
                         </div>
-
-                        <div className="border p-4 bg-white rounded shadow-sm">
+                        <div className="border border-slate-200/60 p-4 bg-white rounded-2xl shadow-sm">
                             <Receipt transaction={completedTransaction} storeName={typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store'} />
                         </div>
                     </CardContent>
@@ -225,85 +223,75 @@ export const CheckoutPage = () => {
         );
     }
 
+    // --- CHECKOUT SCREEN ---
     return (
-         <div className="min-h-screen bg-muted/20 p-1 sm:p-4 md:p-8 flex flex-col items-center">
-            <div className="w-full max-w-2xl space-y-2 sm:space-y-6">
-                 <Button variant="ghost" onClick={handleBackToPos} className="gap-1.5 sm:gap-2 self-start px-2 h-7 sm:h-10 text-[10px] sm:text-sm font-bold opacity-70 hover:opacity-100">
-                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" /> Back to POS
+         <div className="min-h-screen bg-slate-50/50 flex flex-col items-center pb-24">
+            
+            {/* Header Area */}
+            <div className="w-full max-w-3xl px-3 sm:px-6 pt-3 sm:pt-6 pb-2">
+                 <Button variant="ghost" onClick={handleBackToPos} className="gap-2 px-3 h-9 rounded-xl text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 transition-colors">
+                    <ArrowLeft className="w-4 h-4" /> Back to POS
                  </Button>
+            </div>
 
-                 <div className="w-full max-w-[99%] sm:max-w-2xl mx-auto pb-6 sm:pb-10">
-                    <Card className="shadow-2xl border-slate-200 overflow-hidden rounded-lg sm:rounded-2xl">
-                        <CardContent className="p-2 sm:p-6">
-                             <div className="font-mono text-[10px] sm:text-sm space-y-2 sm:space-y-4">
-                                <InvoiceHeader
-                                    storeName={storeData?.store?.name || (typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store')}
-                                    showPreviewLabel
-                                />
+            {/* Main Invoice Card */}
+            <div className="w-full max-w-3xl px-3 sm:px-6">
+                <Card className="shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-slate-200/60 overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem] bg-white">
+                    <CardContent className="p-3 sm:p-8">
+                         <div className="font-mono text-[10px] sm:text-sm space-y-4 sm:space-y-6">
+                            
+                            <InvoiceHeader
+                                storeName={storeData?.store?.name || (typeof staff?.storeId === 'object' ? (staff.storeId as any).name : 'Store')}
+                                showPreviewLabel
+                            />
 
-                                <InvoiceCustomerDetails
-                                    date={new Date()}
-                                    customerName={customer ? customer.name : 'Walk-in Customer'}
-                                    customerType={customer?.type}
-                                    customerPhone={customer?.phone}
-                                    customerAddress={customer?.address}
-                                    transactorName={transactorName}
-                                    invoiceNumber="PREVIEW"
-                                />
+                            <InvoiceCustomerDetails
+                                date={new Date()}
+                                customerName={customer ? customer.name : 'Walk-in Customer'}
+                                customerType={customer?.type}
+                                customerPhone={customer?.phone}
+                                customerAddress={customer?.address}
+                                transactorName={transactorName}
+                                invoiceNumber="PREVIEW"
+                            />
 
+                            {/* Ensure InvoiceItemsTable doesn't break layout if it has wide tables */}
+                            <div className="w-full overflow-x-auto no-scrollbar">
                                 <InvoiceItemsTable
                                         items={[
-                                            ...saleItems.map(item => ({
-                                                ...item,
-                                                saleType: item.saleType as any
-                                            })),
-                                            ...returnItems.map(item => ({
-                                                ...item,
-                                                saleType: 'RETURN' as const,
-                                                isReturn: true
-                                            })),
+                                            ...saleItems.map(item => ({ ...item, saleType: item.saleType as any })),
+                                            ...returnItems.map(item => ({ ...item, saleType: 'RETURN' as const, isReturn: true })),
                                             ...allocatedDueCylinders.filter(b => b.selectedQty > 0).map(b => ({
-                                                productId: b.productId,
-                                                name: b.brandName,
-                                                quantity: b.selectedQty,
-                                                unitPrice: 0,
-                                                subtotal: 0,
-                                                saleType: 'DUE' as const,
-                                                isDue: true,
-                                                size: b.size,
-                                                regulator: b.regulator
+                                                productId: b.productId, name: b.brandName, quantity: b.selectedQty,
+                                                unitPrice: 0, subtotal: 0, saleType: 'DUE' as const, isDue: true,
+                                                size: b.size, regulator: b.regulator
                                             })),
                                             ...settledDueCylinders.filter(b => b.selectedQty > 0).map(b => ({
-                                                productId: b.productId,
-                                                name: b.brandName,
-                                                quantity: b.selectedQty,
-                                                unitPrice: 0,
-                                                subtotal: 0,
-                                                saleType: 'RETURN' as const,
-                                                isSettled: true,
-                                                type: 'CYLINDER' as const,
-                                                size: b.size,
-                                                regulator: b.regulator
+                                                productId: b.productId, name: b.brandName, quantity: b.selectedQty,
+                                                unitPrice: 0, subtotal: 0, saleType: 'RETURN' as const, isSettled: true,
+                                                type: 'CYLINDER' as const, size: b.size, regulator: b.regulator
                                             }))
                                         ]}
                                         extraExpenses={extraExpenses}
                                         onEditExpense={startEdit}
                                         onDeleteExpense={deleteExpense}
                                 />
+                            </div>
 
-                                {/* Inline edit row for existing expense — no-print */}
-                                {editingId && (() => {
-                                    const exp = extraExpenses.find(e => e.id === editingId);
-                                    if (!exp) return null;
-                                    return (
-                                        <div className="no-print mt-2 flex items-center gap-2 bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                                            <span className="text-[10px] font-black text-amber-700 whitespace-nowrap">৳</span>
+                            {/* THE FIX: Highly flexible flex-wrap for Draft/Edit rows so they never overflow */}
+                            {editingId && (() => {
+                                const exp = extraExpenses.find(e => e.id === editingId);
+                                if (!exp) return null;
+                                return (
+                                    <div className="no-print mt-2 flex flex-wrap sm:flex-nowrap items-center gap-2 bg-amber-50/50 border border-amber-200/60 rounded-xl p-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                        <div className="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                                            <span className="text-[10px] font-black text-amber-700 shrink-0 px-1">৳</span>
                                             <Input
                                                 type="number"
                                                 min={0}
                                                 value={editDraft.amount || ''}
                                                 onChange={e => setEditDraft(d => ({ ...d, amount: Number(e.target.value) }))}
-                                                className="w-20 sm:w-28 text-right font-black text-sm h-9 border border-amber-300 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                                className="w-16 sm:w-24 text-center font-black text-xs sm:text-sm h-8 sm:h-9 border-amber-300 focus-visible:ring-amber-500 rounded-lg px-1 shrink-0 bg-white"
                                                 autoFocus
                                             />
                                             <Input
@@ -311,30 +299,32 @@ export const CheckoutPage = () => {
                                                 value={editDraft.note}
                                                 onChange={e => setEditDraft(d => ({ ...d, note: e.target.value }))}
                                                 placeholder="cylinder change"
-                                                className="flex-1 font-bold text-xs h-9 border border-amber-200 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                                className="flex-1 min-w-0 font-bold text-xs h-8 sm:h-9 border-amber-300 focus-visible:ring-amber-500 rounded-lg px-2 bg-white"
                                             />
-                                            <button type="button" onClick={confirmEdit}
-                                                className="h-9 px-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-wide transition-colors shrink-0">
-                                                Save
-                                            </button>
-                                            <button type="button" onClick={cancelEdit}
-                                                className="h-9 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs transition-colors shrink-0">
-                                                ✕
-                                            </button>
                                         </div>
-                                    );
-                                })()}
+                                        <div className="flex items-center gap-1.5 justify-end w-full sm:w-auto shrink-0">
+                                            <Button size="sm" onClick={confirmEdit} className="h-8 sm:h-9 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-wide">
+                                                Save
+                                            </Button>
+                                            <Button size="icon" variant="ghost" onClick={cancelEdit} className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg text-slate-500 hover:bg-slate-200">
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
-                                {/* Draft row for new expense — no-print */}
-                                {draft && (
-                                    <div className="no-print mt-2 flex items-center gap-2 bg-amber-50 border-2 border-amber-400 rounded-xl px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                                        <span className="text-[10px] font-black text-amber-700 whitespace-nowrap">৳</span>
+                            {/* Draft row for new expense */}
+                            {draft && (
+                                <div className="no-print mt-2 flex flex-wrap sm:flex-nowrap items-center gap-2 bg-amber-50/50 border border-amber-200/60 rounded-xl p-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                    <div className="flex items-center gap-1.5 flex-1 min-w-[140px]">
+                                        <span className="text-[10px] font-black text-amber-700 shrink-0 px-1">৳</span>
                                         <Input
                                             type="number"
                                             min={0}
                                             value={draft.amount || ''}
                                             onChange={e => setDraft(d => d ? { ...d, amount: Number(e.target.value) } : d)}
-                                            className="w-20 sm:w-28 text-right font-black text-sm h-9 border border-amber-300 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                            className="w-16 sm:w-24 text-center font-black text-xs sm:text-sm h-8 sm:h-9 border-amber-300 focus-visible:ring-amber-500 rounded-lg px-1 shrink-0 bg-white"
                                             autoFocus
                                         />
                                         <Input
@@ -342,101 +332,107 @@ export const CheckoutPage = () => {
                                             value={draft.note}
                                             onChange={e => setDraft(d => d ? { ...d, note: e.target.value } : d)}
                                             placeholder="cylinder change"
-                                            className="flex-1 font-bold text-xs h-9 border border-amber-200 bg-white focus-visible:ring-amber-500 rounded-lg px-2"
+                                            className="flex-1 min-w-0 font-bold text-xs h-8 sm:h-9 border-amber-300 focus-visible:ring-amber-500 rounded-lg px-2 bg-white"
                                         />
-                                        <button type="button" onClick={confirmDraft}
-                                            className="h-9 px-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-black text-xs uppercase tracking-wide transition-colors shrink-0">
+                                    </div>
+                                    <div className="flex items-center gap-1.5 justify-end w-full sm:w-auto shrink-0">
+                                        <Button size="sm" onClick={confirmDraft} className="h-8 sm:h-9 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-black text-[10px] uppercase tracking-wide">
                                             Add
-                                        </button>
-                                        <button type="button" onClick={cancelDraft}
-                                            className="h-9 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 font-black text-xs transition-colors shrink-0">
-                                            ✕
-                                        </button>
+                                        </Button>
+                                        <Button size="icon" variant="ghost" onClick={cancelDraft} className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg text-slate-500 hover:bg-slate-200">
+                                            <X className="w-4 h-4" />
+                                        </Button>
                                     </div>
-                                )}
-
-                                {/* Add Extra Expense trigger — no-print, hidden while draft is open */}
-                                {!draft && (
-                                    <div className="no-print mt-2">
-                                        <button
-                                            type="button"
-                                            onClick={openDraft}
-                                            className="flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-amber-700 uppercase tracking-widest border border-dashed border-amber-300 rounded-lg px-3 py-2 hover:bg-amber-50 transition-colors w-full justify-center"
-                                        >
-                                            <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                            Add Extra Expense
-                                        </button>
-                                    </div>
-                                )}
-
-                                {/* Editable Totals Section */}
-                                <div className="mt-4 sm:mt-6 space-y-1.5 sm:space-y-2 border-t border-dashed pt-4 text-right">
-                                    <div className="flex justify-between items-center text-muted-foreground text-[11px] sm:text-sm">
-                                        <span>Subtotal (Sale)</span>
-                                        <span className="font-bold">{totals.saleTotal}</span>
-                                    </div>
-                                    {totals.returnTotal > 0 && (
-                                        <div className="flex justify-between items-center text-slate-500 text-[10px] sm:text-xs">
-                                            <span>Returns (No Charge)</span>
-                                            <span className="font-bold">{totals.returnTotal}</span>
-                                        </div>
-                                    )}
-                                    {extraTotal > 0 && (
-                                        <div className="flex justify-between items-center text-amber-700 text-[10px] sm:text-xs font-bold">
-                                            <span className="uppercase tracking-wide">+ Extra Expenses</span>
-                                            <span>+{extraTotal}</span>
-                                        </div>
-                                    )}
-
-                                    {/* Editable Final Price / Net Total */}
-                                    <div className="flex justify-between items-center py-2 sm:py-4 my-2 sm:my-3 border-y border-dashed border-slate-300 bg-slate-50 px-2 sm:px-3 rounded-lg sm:rounded-xl">
-                                        <span className="font-black text-base sm:text-2xl uppercase tracking-tighter">Net Total</span>
-                                        <div className="w-28 sm:w-40">
-                                            <Input
-                                                type="number"
-                                                value={finalAmount}
-                                                onChange={(e) => setFinalAmount(Number(e.target.value))}
-                                                className="text-right font-black text-xl sm:text-2xl h-12 border border-slate-300 bg-white focus-visible:ring-1 rounded-lg sm:rounded-xl px-2"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Editable Paid Amount */}
-                                     <div className="flex justify-between items-center pt-1.5 sm:pt-2">
-                                        <span className="text-xs sm:text-base font-black text-slate-600 uppercase tracking-widest leading-none">Paid Amount</span>
-                                        <div className="w-28 sm:w-40">
-                                            <Input
-                                                type="number"
-                                                value={paidAmount}
-                                                onChange={(e) => setPaidAmount(Number(e.target.value))}
-                                                className="text-right font-black text-xl sm:text-2xl h-12 bg-green-50/50 border border-green-200 focus-visible:ring-green-600 rounded-lg sm:rounded-xl px-2"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Calculated Change/Due */}
-                                     <div className={`flex justify-between items-center font-black text-xs sm:text-sm pt-2 ${dueAmount > 0 ? 'text-red-600' : 'text-green-600'} uppercase tracking-wider`}>
-                                        <span>{dueAmount > 0 ? 'Due Amount' : 'Repayment'}</span>
-                                        <span className={dueAmount > 0 ? "text-rose-600" : "text-blue-600"}>{Math.abs(dueAmount)}</span>
-                                    </div>
-
-                                    {/* Actions */}
-                                     <div className="pt-4 sm:pt-8">
-                                         <Button
-                                             onClick={handleConfirm}
-                                             disabled={isProcessing || !customer}
-                                             className={`w-full h-12 sm:h-14 text-sm sm:text-lg font-black uppercase tracking-widest shadow-xl rounded-xl sm:rounded-2xl transition-all active:scale-95 ${!customer ? 'bg-slate-300' : 'bg-orange-600 hover:bg-orange-700'}`}
-                                             title={!customer ? "Please select a customer first" : ""}
-                                         >
-                                             {isProcessing ? 'Processing...' : (!customer ? 'Select Customer info' : 'Confirm Invoice')}
-                                         </Button>
-                                     </div>
                                 </div>
+                            )}
+
+                            {/* Add Extra Expense trigger */}
+                            {!draft && (
+                                <div className="no-print mt-2">
+                                    <button
+                                        type="button"
+                                        onClick={openDraft}
+                                        className="flex items-center justify-center gap-2 text-[10px] sm:text-xs font-black text-amber-600 uppercase tracking-widest border border-dashed border-amber-300/80 rounded-xl px-3 py-2.5 hover:bg-amber-50 hover:border-amber-400 transition-all w-full"
+                                    >
+                                        <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                        Add Extra Expense
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Editable Totals Section */}
+                            <div className="mt-4 sm:mt-6 space-y-1.5 sm:space-y-2 border-t border-dashed border-slate-200 pt-4 text-right">
+                                <div className="flex justify-between items-center text-slate-500 text-[11px] sm:text-sm">
+                                    <span>Subtotal (Sale)</span>
+                                    <span className="font-bold text-slate-700">৳{totals.saleTotal.toLocaleString()}</span>
+                                </div>
+                                {totals.returnTotal > 0 && (
+                                    <div className="flex justify-between items-center text-slate-500 text-[10px] sm:text-xs">
+                                        <span>Returns (No Charge)</span>
+                                        <span className="font-bold">৳{totals.returnTotal.toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {extraTotal > 0 && (
+                                    <div className="flex justify-between items-center text-amber-600 text-[10px] sm:text-xs font-bold">
+                                        <span className="uppercase tracking-wide">+ Extra Expenses</span>
+                                        <span>+৳{extraTotal.toLocaleString()}</span>
+                                    </div>
+                                )}
+
+                                {/* Premium Rounded Net Total Input */}
+                                <div className="flex justify-between items-center py-2.5 sm:py-4 my-2 sm:my-3 bg-slate-50 border border-slate-100 px-3 sm:px-4 rounded-[1rem] sm:rounded-[1.25rem]">
+                                    <span className="font-black text-sm sm:text-lg uppercase tracking-tighter text-slate-800">Net Total</span>
+                                    <div className="w-[110px] sm:w-40 shrink-0">
+                                        <Input
+                                            type="number"
+                                            value={finalAmount}
+                                            onChange={(e) => setFinalAmount(Number(e.target.value))}
+                                            className="text-right font-black text-lg sm:text-2xl h-10 sm:h-12 border-slate-300 bg-white focus-visible:ring-slate-900 rounded-lg sm:rounded-xl px-2.5 shadow-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Premium Rounded Paid Amount Input */}
+                                 <div className="flex justify-between items-center pt-1.5 sm:pt-2 px-1">
+                                    <span className="text-[11px] sm:text-sm font-black text-slate-500 uppercase tracking-widest leading-none">Paid Amount</span>
+                                    <div className="w-[110px] sm:w-40 shrink-0">
+                                        <Input
+                                            type="number"
+                                            value={paidAmount}
+                                            onChange={(e) => setPaidAmount(Number(e.target.value))}
+                                            className="text-right font-black text-lg sm:text-2xl h-10 sm:h-12 bg-emerald-50/50 border border-emerald-200 text-emerald-700 focus-visible:ring-emerald-500 rounded-lg sm:rounded-xl px-2.5 shadow-sm transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Calculated Change/Due */}
+                                 <div className={cn(
+                                     "flex justify-between items-center font-black text-[11px] sm:text-sm pt-2 px-1 uppercase tracking-wider",
+                                     dueAmount > 0 ? 'text-red-500' : 'text-blue-500'
+                                 )}>
+                                    <span>{dueAmount > 0 ? 'Due Amount' : 'Repayment'}</span>
+                                    <span className="text-sm sm:text-base">৳{Math.abs(dueAmount).toLocaleString()}</span>
+                                </div>
+
+                                {/* Main Action */}
+                                 <div className="pt-5 sm:pt-8">
+                                     <Button
+                                         onClick={handleConfirm}
+                                         disabled={isProcessing || !customer}
+                                         className={cn(
+                                             "w-full h-12 sm:h-14 text-xs sm:text-base font-black uppercase tracking-widest shadow-[0_4px_15px_-3px_rgba(234,88,12,0.4)] rounded-xl sm:rounded-2xl transition-all active:scale-[0.98]",
+                                             !customer ? 'bg-slate-200 text-slate-400 shadow-none' : 'bg-orange-500 hover:bg-orange-600 text-white'
+                                         )}
+                                         title={!customer ? "Please select a customer first" : ""}
+                                     >
+                                         {isProcessing ? 'Processing...' : (!customer ? 'Select Customer info' : 'Confirm Invoice')}
+                                     </Button>
+                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
-                 </div>
-            </div>
+                         </div>
+                    </CardContent>
+                </Card>
+             </div>
         </div>
     );
 };

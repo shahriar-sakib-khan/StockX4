@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { RestockSidebar } from "./RestockSidebar";
 import { useNavigate } from "react-router-dom";
 import { InventoryCard } from "./InventoryCard";
@@ -19,15 +20,14 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
     const navigate = useNavigate();
     const [restockOpen, setRestockOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
-    const [liveItem, setLiveItem] = useState<any>(null); // tracks variant changes from sidebar
+    const [liveItem, setLiveItem] = useState<any>(null);
     const [highlightRestocked, setHighlightRestocked] = useState(false);
-    const [pendingQuantity, setPendingQuantity] = useState(0); // tracks live stats badge from sidebar input
+    const [pendingQuantity, setPendingQuantity] = useState(0);
     const [pendingType, setPendingType] = useState<'refill' | 'package'>('package');
 
     const updateInventory = useUpdateInventory();
     const createTransaction = useCreateTransaction();
     const [invoiceTx, setInvoiceTx] = useState<any>(null);
-    const isProcessing = createTransaction.isPending;
 
     const handleRestock = (item: any) => {
         setSelectedItem(item);
@@ -40,7 +40,6 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
 
     const handleConfirmRestock = async (item: any, quantity: number, purchaseType: 'refill' | 'package', totalAmount: number, unitPrice: number, wholesalePrice?: number, retailPrice?: number) => {
         try {
-            // 1. Generate Transaction (Backend now handles inventory & price updates automatically for Restock type)
             const transactionItem = {
                  productId: item.productId,
                  type: 'CYLINDER' as const,
@@ -73,9 +72,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
             setPendingQuantity(0);
             setRestockOpen(false);
             toast.success("Stock Added & Transaction Recorded.");
-        } catch (error: any) {
-            // Error is already handled by toast in useCreateTransaction, but we can catch it here if needed
-        }
+        } catch (error: any) {}
     };
 
     const handleCloseRestock = () => {
@@ -84,13 +81,51 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
         onRestockStateChange?.(false);
     }
 
-    // Group inventory by brand
     const inventoryByBrand = inventory.reduce((acc: Record<string, any[]>, item: any) => {
         const brand = item.brandName || "Unknown Brand";
         if (!acc[brand]) acc[brand] = [];
         acc[brand].push(item);
         return acc;
     }, {});
+
+    // THE FIX: Pure CSS Masonry (Linked by Column instead of Row)
+    const renderMasonry = (itemsToRender: any[]) => {
+        return (
+            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-5 w-full">
+                <AnimatePresence mode="popLayout">
+                    {itemsToRender.map((item: any) => {
+                        const isSelected = restockOpen && liveItem && (liveItem._id === item._id);
+                        
+                        return (
+                            <motion.div
+                                key={item._id}
+                                layout 
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{
+                                    opacity: isSelected ? 0 : 1, 
+                                    scale: isSelected ? 0.95 : 1,
+                                    y: 0
+                                }}
+                                exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                style={{ visibility: isSelected ? 'hidden' : 'visible' }}
+                                // THE FIX: inline-block + break-inside-avoid prevents cards from splitting across columns
+                                // mb-4 adds the vertical spacing since the container 'gap' only handles horizontal space
+                                className={`w-full inline-block break-inside-avoid mb-4 sm:mb-5 ${isSelected ? 'pointer-events-none' : ''}`}
+                            >
+                                <InventoryCard 
+                                    item={item} 
+                                    storeId={storeId} 
+                                    onRestock={handleRestock} 
+                                    fallbackImage={item.variant?.cylinderImage} 
+                                />
+                            </motion.div>
+                        );
+                    })}
+                </AnimatePresence>
+            </div>
+        );
+    };
 
     return (
         <div className="relative w-full min-h-[500px]">
@@ -102,45 +137,61 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                 />
             )}
 
-            {/* Scoped Backdrop */}
-            {restockOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute -inset-6 bg-black/40 z-[90] rounded-xl"
-                    onClick={handleCloseRestock}
-                />
+            {/* MAIN CONTENT MASONRY */}
+            <div className={`transition-all duration-300 ease-in-out ${restockOpen ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
+                <AnimatePresence mode="popLayout">
+                    {groupByBrand ? (
+                        Object.entries(inventoryByBrand).map(([brandName, items]) => {
+                            if (items.length === 0) return null;
+                            return (
+                                <motion.div 
+                                    key={brandName} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20, scale: 0.98 }} transition={{ duration: 0.5, ease: "easeInOut" }}
+                                    className="mb-10 last:mb-0 w-full"
+                                >
+                                    <div className="flex items-center gap-4 mb-5">
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">{brandName}</h3>
+                                        <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+                                    </div>
+                                    {renderMasonry(items)}
+                                </motion.div>
+                            );
+                        })
+                    ) : (
+                        <motion.div layout className="relative z-10 w-full">
+                            {renderMasonry(inventory)}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* --- MAXIMUM Z-INDEX PORTAL --- */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {restockOpen && liveItem && (
+                        <div 
+                            className="fixed inset-y-0 left-0 right-[400px] hidden sm:flex items-center justify-center p-6 lg:p-8 pointer-events-none"
+                            style={{ zIndex: 999999 }} 
+                        >
+                            <div className="w-full max-w-[380px] lg:max-w-[420px] shadow-[0_0_100px_rgba(0,0,0,0.5)] rounded-2xl bg-white border border-slate-200 pointer-events-auto animate-in slide-in-from-left-8 fade-in duration-300">
+                                <InventoryCard
+                                    item={liveItem}
+                                    storeId={storeId}
+                                    onRestock={handleRestock}
+                                    fallbackImage={liveItem?.variant?.cylinderImage}
+                                    highlightStats={highlightRestocked}
+                                    pendingQuantity={pendingQuantity}
+                                    pendingType={pendingType}
+                                    isLivePreview={true}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
             )}
 
-            {/* Live Preview Card - Animates from Grid */}
-            <AnimatePresence>
-                {restockOpen && liveItem && (
-                    <motion.div
-                        layoutId={`card-${liveItem._id}`}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ layout: { type: "spring", bounce: 0.15, duration: 0.8 }, opacity: { duration: 0.4 } }}
-                        className="fixed top-[30%] left-1/2 lg:left-[calc(30%)] -translate-x-1/2 z-[110] w-[90%] sm:w-[500px] md:w-[600px] lg:w-[650px] xl:w-[750px] max-w-[calc(100vw-450px)] hidden sm:block"
-                    >
-                        <div className="transition-all duration-500 w-full shadow-2xl rounded-xl bg-background overflow-hidden">
-                            <InventoryCard
-                                item={liveItem}
-                                storeId={storeId}
-                                onRestock={handleRestock}
-                                fallbackImage={liveItem?.variant?.cylinderImage}
-                                highlightStats={highlightRestocked}
-                                pendingQuantity={pendingQuantity}
-                                pendingType={pendingType}
-                                isLivePreview={true}
-                            />
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Sidebar Desktop Overlay */}
+            {/* THE DRAWER */}
             <RestockSidebar
                 isOpen={restockOpen}
                 onClose={handleCloseRestock}
@@ -155,59 +206,6 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                     if (type) setPendingType(type);
                 }}
             />
-
-            {/* Main Grid Content - Conditional Grouping */}
-            <div className={`transition-all duration-300 ease-in-out ${restockOpen ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
-                {groupByBrand ? (
-                    Object.entries(inventoryByBrand).map(([brandName, items]) => (
-                        <div key={brandName} className="mb-8 last:mb-0">
-                            <div className="flex items-center gap-3 mb-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">{brandName}</h3>
-                                <div className="h-px flex-1 bg-slate-200"></div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
-                                {items.map((item: any) => {
-                                    const isHidden = restockOpen && liveItem?._id === item._id;
-                                    return (
-                                        <motion.div
-                                            key={item._id}
-                                            layoutId={isHidden ? undefined : `card-${item._id}`}
-                                            animate={{
-                                                opacity: isHidden ? 0 : (restockOpen ? 0.1 : 1),
-                                                scale: isHidden ? 0 : (restockOpen ? 0.95 : 1)
-                                            }}
-                                            transition={{ duration: 0.6, ease: "easeInOut" }}
-                                            className={isHidden ? 'pointer-events-none' : ''}
-                                        >
-                                            <InventoryCard item={item} storeId={storeId} onRestock={handleRestock} fallbackImage={item.variant?.cylinderImage} />
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 relative z-10">
-                        {inventory.map((item: any) => {
-                            const isHidden = restockOpen && liveItem?._id === item._id;
-                            return (
-                                <motion.div
-                                    key={item._id}
-                                    layoutId={isHidden ? undefined : `card-${item._id}`}
-                                    animate={{
-                                        opacity: isHidden ? 0 : (restockOpen ? 0.1 : 1),
-                                        scale: isHidden ? 0 : (restockOpen ? 0.95 : 1)
-                                    }}
-                                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                                    className={isHidden ? 'pointer-events-none' : ''}
-                                >
-                                    <InventoryCard item={item} storeId={storeId} onRestock={handleRestock} fallbackImage={item.variant?.cylinderImage} />
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
         </div>
     );
 };

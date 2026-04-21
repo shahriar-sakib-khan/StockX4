@@ -4,100 +4,82 @@
 
 @layer base {
   :root {
-    /* Base */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%; /* slate-950 */
+    /* Base - Soft off-white canvas for premium contrast */
+    --background: 240 4.8% 98%;
+    --foreground: 240 10% 3.9%;
 
-    /* Card */
+    /* Card - Pure white to lift off the background */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 240 10% 3.9%;
 
-    /* Brand / Primary (Orange-500: #f97316 -> 24.6 95% 53.1%) */
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 210 40% 98%;
+    /* Brand / Primary (Refined, vibrant Orange for higher contrast) */
+    --primary: 24.6 95% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary */
-    --secondary: 210 40% 96.1%; /* slate-100 */
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary (Softer, elegant gray for pill buttons) */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    /* Muted */
-    --muted: 210 40% 96.1%; /* slate-100 */
-    --muted-foreground: 215.4 16.3% 46.9%; /* slate-500 */
+    /* Muted (For secondary text, subtle backgrounds) */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    /* Accent */
-    --accent: 210 40% 96.1%; /* slate-100 */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent (Hover states) */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%; /* red-500 */
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive (Refined deep red) */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    /* Borders & Inputs */
-    --border: 214.3 31.8% 91.4%; /* slate-200 */
-    --input: 214.3 31.8% 91.4%;
-    --ring: 24.6 95% 53.1%;
+    /* Borders & Inputs - Extremely soft borders to avoid visual clutter */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 24.6 95% 53%;
 
-    /* Radius */
-    --radius: 0.5rem;
+    /* Radius - Upgraded to 12px for native app aesthetics */
+    --radius: 0.75rem;
 
-    /* Sidebar (Legacy Support until full migration) */
-    --sidebar-background: 222.2 47.4% 11.2%; /* slate-900 equivalent */
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%; /* slate-800/white/10 replacement approx */
+    /* Sidebar */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
 
     /* StockX Semantic Colors */
-    --income: 142.1 76.2% 36.3%; /* green-600 */
-    --expense: 346.8 77.2% 49.8%; /* red-500 */
-    --warning: 45 93% 47%; /* amber-500 */
-    --product-20mm: 48 96% 53%; /* yellow-400 */
-    --product-22mm: 32 95% 55%; /* orange-500 */
+    --income: 142.1 70% 40%; 
+    --expense: 346.8 77.2% 49.8%;
+    --warning: 45 93% 47%;
+    --product-20mm: 48 96% 53%;
+    --product-22mm: 32 95% 55%;
   }
 
   .dark {
-    /* Base */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    /* Card */
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    /* Popover */
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Brand / Primary */
-    --primary: 24.6 95% 53.1%;
+    /* Refined Deep Slate Dark Mode */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 5%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 24.6 95% 53%;
     --primary-foreground: 0 0% 100%;
-
-    /* Secondary */
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    /* Muted */
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    /* Accent */
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    /* Destructive */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    /* Borders & Inputs */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 24.6 95% 53.1%;
-
-    /* Sidebar */
-    --sidebar-background: 222.2 47.4% 11.2%;
-    --sidebar-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 24.6 95% 53%;
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 240 4.8% 95.9%;
   }
 }
 
@@ -107,15 +89,42 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Prevent aggressive mobile scroll bouncing */
+    overscroll-behavior-y: none;
   }
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    /* High-end typography rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
-  /* Design System Animations */
+  /* Premium Glassmorphism Base */
+  .glass {
+    @apply bg-background/70 backdrop-blur-xl border-b border-border/50 shadow-sm;
+  }
+
+  /* Mobile Hardware Safe Areas */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 1rem);
+  }
+
+  /* Seamless Horizontal Scrolling for Mobile */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Existing Design System Animations */
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
