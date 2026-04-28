@@ -54,12 +54,13 @@ export const StoreLayout = ({ children }: LayoutProps) => {
   const { data: storeData } = useStore(id || '');
   const store = storeData?.store;
 
+  // THE FIX: Reordered array so Inventory is index 3 (4th item)
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: `/stores/${id}/dashboard` },
     { icon: History, label: 'Diary', path: `/stores/${id}/history` },
     { icon: ShoppingCart, label: 'POS', path: `/stores/${id}/pos` },
-    { icon: User, label: 'Customers', path: `/stores/${id}/customers` },
-    { icon: Package, label: 'Inventory', path: `/stores/${id}/inventory` },
+    { icon: Package, label: 'Inventory', path: `/stores/${id}/inventory` }, // Moved up
+    { icon: User, label: 'Customers', path: `/stores/${id}/customers` }, // Moved down
     { icon: Truck, label: 'Vehicles', path: `/stores/${id}/vehicles` },
     { icon: Users, label: 'Staff', path: `/stores/${id}/staff` },
   ];
@@ -94,12 +95,12 @@ export const StoreLayout = ({ children }: LayoutProps) => {
                      <p className="text-xs text-muted-foreground font-medium truncate mt-0.5">{store.slug}</p>
                  </div>
              ) : (
-                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-lg mt-2">
+                 <div className="w-10 h-10 bg-indigo-600/10 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-lg mt-2">
                      {store.name.substring(0, 2).toUpperCase()}
                  </div>
              )
          ) : (
-             <div className="animate-pulse h-10 bg-muted rounded-lg w-3/4 mt-2"></div>
+             <div className="animate-pulse h-10 bg-slate-100 rounded-lg w-3/4 mt-2"></div>
          )}
       </div>
 
@@ -113,8 +114,8 @@ export const StoreLayout = ({ children }: LayoutProps) => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-primary/10 text-primary font-semibold'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium'
+                    ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-sm'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
                 } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
                 title={isSidebarCollapsed ? item.label : undefined}
               >
@@ -132,8 +133,8 @@ export const StoreLayout = ({ children }: LayoutProps) => {
             onClick={() => setMobileMenuOpen(false)}
             className={`flex items-center space-x-3 px-3 py-3 rounded-xl transition-all duration-200 ${
               location.pathname.includes('/settings')
-                ? 'bg-muted text-foreground font-semibold'
-                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground font-medium'
+                ? 'bg-slate-100 text-slate-900 font-semibold'
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium'
             } ${isSidebarCollapsed ? 'justify-center px-0' : ''}`}
              title={isSidebarCollapsed ? 'Store Settings' : undefined}
           >
@@ -150,8 +151,8 @@ export const StoreLayout = ({ children }: LayoutProps) => {
                 />
                 {!isSidebarCollapsed && (
                     <div className="text-sm">
-                        <p className="font-semibold text-foreground truncate max-w-[120px]">{currentUser?.name}</p>
-                        <p className="text-[11px] uppercase tracking-wider text-primary font-bold">
+                        <p className="font-semibold text-slate-900 truncate max-w-[120px]">{currentUser?.name}</p>
+                        <p className="text-[11px] uppercase tracking-wider text-indigo-600 font-bold">
                             {isOwner ? 'Owner' : staff?.role}
                         </p>
                     </div>
@@ -161,7 +162,7 @@ export const StoreLayout = ({ children }: LayoutProps) => {
                 onClick={handleLogout}
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full h-9 w-9"
+                className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full h-9 w-9"
             >
                 <LogOut size={18} />
             </Button>
@@ -171,26 +172,26 @@ export const StoreLayout = ({ children }: LayoutProps) => {
   );
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex overflow-hidden">
+    <div className="min-h-screen bg-slate-50/50 text-slate-900 flex overflow-hidden">
       {/* Desktop Sidebar */}
-      <aside className={`hidden lg:flex ${isSidebarCollapsed ? 'w-24' : 'w-72'} bg-card border-r border-border/50 flex-col fixed inset-y-0 z-50 transition-all duration-300 shadow-sm`}>
+      <aside className={`hidden lg:flex ${isSidebarCollapsed ? 'w-24' : 'w-72'} bg-white border-r border-slate-200 flex-col fixed inset-y-0 z-50 transition-all duration-300 shadow-sm`}>
         <SidebarContent />
       </aside>
 
       {/* Main Content */}
       <div className={`flex-1 flex flex-col ${isSidebarCollapsed ? 'lg:ml-24' : 'lg:ml-72'} min-w-0 transition-all duration-300 h-screen`}>
         {/* Sticky Glass Header */}
-        <header className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-md border-b border-border/50 flex items-center justify-between px-4 lg:px-8 shrink-0">
+        <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-8 shrink-0">
            <div className="flex items-center">
              <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden mr-3 text-foreground"
+                className="lg:hidden mr-3 text-slate-700"
                 onClick={() => setMobileMenuOpen(true)}
              >
                <Menu size={24} />
              </Button>
-             <h2 className="text-xl font-bold tracking-tight text-foreground truncate">
+             <h2 className="text-xl font-bold tracking-tight text-slate-900 truncate">
               {menuItems.find(i => location.pathname.includes(i.path))?.label || 'Dashboard'}
             </h2>
            </div>
@@ -198,20 +199,18 @@ export const StoreLayout = ({ children }: LayoutProps) => {
 
         {/* --- SMOOTH MOBILE SIDEBAR OVERLAY --- */}
         <div className={`lg:hidden fixed inset-0 z-50 flex transition-all duration-300 ease-in-out ${mobileMenuOpen ? 'visible' : 'invisible pointer-events-none'}`}>
-             {/* Dimmed Backdrop */}
              <div 
-                className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`} 
+                className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`} 
                 onClick={() => setMobileMenuOpen(false)} 
              />
              
-             {/* Smooth Sliding Drawer */}
              <div 
-                className={`relative w-72 max-w-[80vw] bg-background/95 backdrop-blur-xl border-r border-border/50 flex flex-col h-full shadow-2xl transition-transform duration-300 ease-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`relative w-72 max-w-[80vw] bg-white border-r border-slate-200 flex flex-col h-full shadow-2xl transition-transform duration-300 ease-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
              >
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="absolute top-4 right-4 z-50 bg-muted/50 backdrop-blur-md rounded-full"
+                    className="absolute top-4 right-4 z-50 bg-slate-100/50 backdrop-blur-md rounded-full"
                     onClick={() => setMobileMenuOpen(false)}
                 >
                   <X size={20} />
@@ -227,7 +226,7 @@ export const StoreLayout = ({ children }: LayoutProps) => {
       </div>
 
       {/* Elegant Mobile Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/85 backdrop-blur-xl border-t border-border/50 flex justify-around items-center h-[72px] z-40 px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/85 backdrop-blur-xl border-t border-slate-200 flex justify-around items-center h-[72px] z-40 px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
         {menuItems.slice(0, 4).map((item) => {
             const isActive = location.pathname.includes(item.path);
             return (
@@ -239,14 +238,14 @@ export const StoreLayout = ({ children }: LayoutProps) => {
                     <item.icon 
                         size={24} 
                         strokeWidth={isActive ? 2.5 : 2}
-                        className={isActive ? 'text-primary' : 'text-muted-foreground'} 
+                        className={isActive ? 'text-indigo-600' : 'text-slate-400'} 
                     />
-                    <span className={`text-[10px] truncate w-full text-center px-1 tracking-wide ${isActive ? 'font-bold text-primary' : 'font-medium text-muted-foreground'}`}>
+                    <span className={`text-[10px] truncate w-full text-center px-1 tracking-wide ${isActive ? 'font-bold text-indigo-700' : 'font-medium text-slate-500'}`}>
                         {item.label}
                     </span>
                     {/* Active Indicator Dot */}
                     {isActive && (
-                        <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary" />
+                        <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-indigo-600" />
                     )}
                 </Link>
             )
@@ -255,8 +254,8 @@ export const StoreLayout = ({ children }: LayoutProps) => {
             onClick={() => setMobileMenuOpen(true)}
             className="flex flex-col items-center justify-center w-full h-full space-y-1.5 active:scale-95 transition-transform group"
         >
-            <Menu size={24} className="text-muted-foreground" />
-            <span className="text-[10px] font-medium text-muted-foreground truncate w-full text-center px-1 tracking-wide">More</span>
+            <Menu size={24} className="text-slate-400" />
+            <span className="text-[10px] font-medium text-slate-500 truncate w-full text-center px-1 tracking-wide">More</span>
         </button>
       </nav>
 

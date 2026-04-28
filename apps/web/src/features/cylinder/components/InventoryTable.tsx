@@ -88,10 +88,12 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
         return acc;
     }, {});
 
-    // THE FIX: Pure CSS Masonry (Linked by Column instead of Row)
-    const renderMasonry = (itemsToRender: any[]) => {
+    // THE FIX: Fluid CSS Multi-Column (True Masonry Architecture)
+    const renderFluidGrid = (itemsToRender: any[]) => {
         return (
-            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-5 w-full">
+            // `columns-[280px]` natively creates infinite columns based on monitor size.
+            // This decouples the vertical axis completely. Column 2 does not care what happens in Column 1.
+            <div className="columns-1 sm:columns-[280px] gap-4 sm:gap-6 w-full">
                 <AnimatePresence mode="popLayout">
                     {itemsToRender.map((item: any) => {
                         const isSelected = restockOpen && liveItem && (liveItem._id === item._id);
@@ -109,9 +111,9 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                                 exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
                                 style={{ visibility: isSelected ? 'hidden' : 'visible' }}
-                                // THE FIX: inline-block + break-inside-avoid prevents cards from splitting across columns
-                                // mb-4 adds the vertical spacing since the container 'gap' only handles horizontal space
-                                className={`w-full inline-block break-inside-avoid mb-4 sm:mb-5 ${isSelected ? 'pointer-events-none' : ''}`}
+                                // `break-inside-avoid` prevents the card from splitting across two columns
+                                // `mb-4 sm:mb-6` handles the vertical spacing between cards natively
+                                className={`break-inside-avoid block w-full mb-4 sm:mb-6 ${isSelected ? 'pointer-events-none' : ''}`}
                             >
                                 <InventoryCard 
                                     item={item} 
@@ -137,7 +139,7 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                 />
             )}
 
-            {/* MAIN CONTENT MASONRY */}
+            {/* MAIN CONTENT GRID */}
             <div className={`transition-all duration-300 ease-in-out ${restockOpen ? 'opacity-20 pointer-events-none' : 'opacity-100'}`}>
                 <AnimatePresence mode="popLayout">
                     {groupByBrand ? (
@@ -149,17 +151,17 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                                     exit={{ opacity: 0, y: -20, scale: 0.98 }} transition={{ duration: 0.5, ease: "easeInOut" }}
                                     className="mb-10 last:mb-0 w-full"
                                 >
-                                    <div className="flex items-center gap-4 mb-5">
+                                    <div className="flex items-center gap-4 mb-6">
                                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">{brandName}</h3>
                                         <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
                                     </div>
-                                    {renderMasonry(items)}
+                                    {renderFluidGrid(items as any[])}
                                 </motion.div>
                             );
                         })
                     ) : (
                         <motion.div layout className="relative z-10 w-full">
-                            {renderMasonry(inventory)}
+                            {renderFluidGrid(inventory)}
                         </motion.div>
                     )}
                 </AnimatePresence>
