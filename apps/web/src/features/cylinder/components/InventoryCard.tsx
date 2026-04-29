@@ -6,7 +6,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Box, Package, Pencil, Loader2, AlertTriangle, Save } from "lucide-react";
+import { Box, Package, Pencil, Loader2, AlertTriangle, Save, Eye } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { InventoryCardImage } from "./inventory-card/InventoryCardImage";
@@ -26,7 +26,8 @@ interface InventoryCardProps {
 export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlightStats, pendingQuantity, pendingType, isLivePreview }: InventoryCardProps) => {
     const [defectModalOpen, setDefectModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isPriceVisible, setIsPriceVisible] = useState(false); 
+    const [isDesktopPriceModalOpen, setIsDesktopPriceModalOpen] = useState(false);
+    const [isPriceVisible, setIsPriceVisible] = useState(false); // Used ONLY for mobile accordion
     const update = useUpdateInventory();
 
     const counts = {
@@ -94,7 +95,7 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                 isLivePreview && "shadow-none border-none max-h-[85vh] overflow-y-auto"
             )}>
                 
-                {/* --- 1. HEADER (Large Typography) --- */}
+                {/* --- 1. HEADER --- */}
                 <div className="flex items-start justify-between p-2.5 sm:p-3.5 border-b border-indigo-100 bg-indigo-50/40 shrink-0">
                     <div className="flex items-start gap-2.5 min-w-0 flex-1">
                         <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-white border border-indigo-200 flex items-center justify-center shrink-0 p-1 shadow-sm">
@@ -127,12 +128,8 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                     </div>
 
                     <div className="flex-1 relative h-[100px] sm:h-[120px] rounded-lg overflow-hidden border border-slate-100 bg-slate-50/30">
-                        
-                        {/* STATS VIEW - Always visible on mobile, swaps out on desktop */}
-                        <div className={cn(
-                            "h-full grid-cols-2 gap-1 sm:gap-1.5 p-1 sm:p-1.5",
-                            isPriceVisible ? "grid sm:hidden" : "grid"
-                        )}>
+                        {/* STATS VIEW - Always visible natively */}
+                        <div className="absolute inset-0 grid grid-cols-2 gap-1 sm:gap-1.5 p-1 sm:p-1.5">
                             <div className="bg-emerald-50/60 border border-emerald-100/70 rounded-md flex flex-col items-center justify-center text-center">
                                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600/80 mb-0.5">Pkg</span>
                                 <span className="text-base sm:text-xl font-black text-emerald-700 leading-none">{counts.packaged}</span>
@@ -155,40 +152,10 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                                 <span className="text-base sm:text-xl font-black text-rose-600 leading-none">{counts.defected}</span>
                             </button>
                         </div>
-
-                        {/* PRICING MATRIX VIEW (DESKTOP ONLY) - Swaps in place on desktop */}
-                        <div className={cn(
-                            "absolute inset-0 flex-col bg-indigo-50/40 p-1 sm:p-1.5 animate-in fade-in duration-200",
-                            isPriceVisible ? "hidden sm:flex" : "hidden"
-                        )}>
-                            <div className="grid grid-cols-[40px_1fr_1fr] border-b border-indigo-100/50 pb-1 mb-1">
-                                <span className="text-[10px] font-black text-indigo-400/60 uppercase tracking-widest text-left">Type</span>
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest text-center border-l border-indigo-100/50">Pkg</span>
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest text-center border-l border-indigo-100/50">Refill</span>
-                            </div>
-                            <div className="flex-1 flex flex-col justify-evenly">
-                                <div className="grid grid-cols-[40px_1fr_1fr] items-center">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Buy</span>
-                                    <span className="text-[12px] font-black text-slate-700 text-center leading-none">{formatCurrency(prices.buyingPriceFull)}</span>
-                                    <span className="text-[12px] font-black text-slate-700 text-center leading-none">{formatCurrency(prices.buyingPriceGas)}</span>
-                                </div>
-                                <div className="grid grid-cols-[40px_1fr_1fr] items-center">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Whl</span>
-                                    <span className="text-[12px] font-black text-slate-700 text-center leading-none">{formatCurrency(prices.wholesalePriceFull)}</span>
-                                    <span className="text-[12px] font-black text-slate-700 text-center leading-none">{formatCurrency(prices.wholesalePriceGas)}</span>
-                                </div>
-                                <div className="grid grid-cols-[40px_1fr_1fr] items-center pt-0.5 mt-0.5 border-t border-indigo-100/50 bg-indigo-100/40 rounded-sm">
-                                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-wide pl-1">Rtl</span>
-                                    <span className="text-[13px] font-black text-indigo-700 text-center leading-none">{formatCurrency(prices.retailPriceFull)}</span>
-                                    <span className="text-[13px] font-black text-indigo-700 text-center leading-none">{formatCurrency(prices.retailPriceGas)}</span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 {/* --- 2.5 MOBILE EXPANDING PRICING MATRIX --- */}
-                {/* Physically pushes the footer down on mobile screens for massive breathing room */}
                 {isPriceVisible && (
                     <div className="sm:hidden border-t border-slate-100 bg-indigo-50/30 p-3 animate-in slide-in-from-top-2 fade-in duration-200">
                         <div className="flex flex-col gap-1.5">
@@ -220,11 +187,13 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                 <div className="flex flex-wrap items-center justify-between p-2.5 sm:p-3.5 gap-2 border-t border-slate-100 bg-slate-50/50 mt-auto">
                     
                     <div className="flex items-center gap-1.5 sm:gap-2">
+                        
+                        {/* MOBILE: Toggles Expandable Accordion */}
                         <Button 
                             variant="outline" 
                             size="sm" 
                             className={cn(
-                                "h-8 sm:h-9 px-3 sm:px-4 rounded-md font-black uppercase tracking-widest text-[9px] sm:text-[11px] transition-colors shadow-sm",
+                                "sm:hidden h-8 px-3 rounded-md font-black uppercase tracking-widest text-[9px] transition-colors shadow-sm",
                                 isPriceVisible 
                                     ? "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100" 
                                     : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -234,17 +203,28 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
                             {isPriceVisible ? 'Hide' : 'Prices'}
                         </Button>
 
+                        {/* DESKTOP: Opens View Modal */}
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="hidden sm:inline-flex h-9 px-4 rounded-md font-black uppercase tracking-widest text-[11px] bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm"
+                            onClick={() => setIsDesktopPriceModalOpen(true)}
+                        >
+                            Prices
+                        </Button>
+
+                        {/* MOBILE: Edit Button (Only visible when accordion is open) */}
                         {isPriceVisible && (
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 sm:h-9 sm:w-9 text-indigo-500 bg-indigo-50 border border-indigo-100 hover:text-white hover:bg-indigo-600 rounded-md transition-all shadow-sm" 
+                                className="sm:hidden h-8 w-8 text-indigo-500 bg-indigo-50 border border-indigo-100 hover:text-white hover:bg-indigo-600 rounded-md transition-all shadow-sm" 
                                 onClick={() => {
                                     setEditPrices({ ...prices });
                                     setIsEditModalOpen(true);
                                 }}
                             >
-                                <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <Pencil className="w-3.5 h-3.5" />
                             </Button>
                         )}
                     </div>
@@ -263,6 +243,71 @@ export const InventoryCard = ({ item, storeId, onRestock, fallbackImage, highlig
             {/* --- MODALS --- */}
             <DefectModal isOpen={defectModalOpen} onClose={() => setDefectModalOpen(false)} item={item} storeId={storeId} />
 
+            {/* DESKTOP PRICE VIEW MODAL */}
+            <Modal
+                isOpen={isDesktopPriceModalOpen}
+                onClose={() => setIsDesktopPriceModalOpen(false)}
+                title={`Pricing Details: ${item.brandName}`}
+                className="max-w-md"
+            >
+                <div className="grid grid-cols-2 gap-4 sm:gap-6 py-2">
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-indigo-900 border-b border-indigo-100 pb-2 flex items-center gap-2">
+                            Package
+                        </h4>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center border-b border-slate-50 pb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Buying</span>
+                                <span className="text-sm font-black text-slate-800">{formatCurrency(prices.buyingPriceFull)}</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-slate-50 pb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wholesale</span>
+                                <span className="text-sm font-black text-slate-800">{formatCurrency(prices.wholesalePriceFull)}</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-indigo-50/50 p-1.5 rounded">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Retail</span>
+                                <span className="text-sm font-black text-indigo-700">{formatCurrency(prices.retailPriceFull)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-indigo-900 border-b border-indigo-100 pb-2 flex items-center gap-2">
+                            Refill
+                        </h4>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center border-b border-slate-50 pb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Buying</span>
+                                <span className="text-sm font-black text-slate-800">{formatCurrency(prices.buyingPriceGas)}</span>
+                            </div>
+                            <div className="flex justify-between items-center border-b border-slate-50 pb-1">
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wholesale</span>
+                                <span className="text-sm font-black text-slate-800">{formatCurrency(prices.wholesalePriceGas)}</span>
+                            </div>
+                            <div className="flex justify-between items-center bg-indigo-50/50 p-1.5 rounded">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Retail</span>
+                                <span className="text-sm font-black text-indigo-700">{formatCurrency(prices.retailPriceGas)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex justify-end gap-2 w-full mt-6 pt-4 border-t border-slate-100">
+                    <Button variant="outline" onClick={() => setIsDesktopPriceModalOpen(false)}>Close</Button>
+                    <Button 
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200" 
+                        onClick={() => {
+                            setIsDesktopPriceModalOpen(false);
+                            setEditPrices({ ...prices });
+                            setIsEditModalOpen(true);
+                        }}
+                    >
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit Prices
+                    </Button>
+                </div>
+            </Modal>
+
+            {/* EDIT PRICING MODAL */}
             <Modal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}

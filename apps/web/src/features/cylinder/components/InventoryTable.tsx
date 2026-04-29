@@ -88,12 +88,12 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
         return acc;
     }, {});
 
-    // THE FIX: Fluid CSS Multi-Column (True Masonry Architecture)
+    // THE FIX: Upgraded from fragile CSS Columns to Infinite Auto-fill CSS Grid
     const renderFluidGrid = (itemsToRender: any[]) => {
         return (
-            // `columns-[280px]` natively creates infinite columns based on monitor size.
-            // This decouples the vertical axis completely. Column 2 does not care what happens in Column 1.
-            <div className="columns-1 sm:columns-[280px] gap-4 sm:gap-6 w-full">
+            // `auto-fill` with `minmax(320px, 1fr)` ensures cards dynamically size themselves safely.
+            // On a massive screen, it will smoothly generate 5, 6, or 7 identical columns without breaking.
+            <div className="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 sm:gap-6 w-full items-stretch">
                 <AnimatePresence mode="popLayout">
                     {itemsToRender.map((item: any) => {
                         const isSelected = restockOpen && liveItem && (liveItem._id === item._id);
@@ -111,9 +111,8 @@ export const InventoryTable = ({ storeId, inventory, onRestockStateChange, group
                                 exit={{ opacity: 0, scale: 0.9, y: -20, transition: { duration: 0.2 } }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
                                 style={{ visibility: isSelected ? 'hidden' : 'visible' }}
-                                // `break-inside-avoid` prevents the card from splitting across two columns
-                                // `mb-4 sm:mb-6` handles the vertical spacing between cards natively
-                                className={`break-inside-avoid block w-full mb-4 sm:mb-6 ${isSelected ? 'pointer-events-none' : ''}`}
+                                // Removed `break-inside-avoid` and margins since CSS Grid handles gaps perfectly
+                                className={`w-full h-full ${isSelected ? 'pointer-events-none' : ''}`}
                             >
                                 <InventoryCard 
                                     item={item} 
